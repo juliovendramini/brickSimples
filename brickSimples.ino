@@ -1,7 +1,7 @@
 #include "brickSimples.h"
 
-TCS34725 sensor1 = TCS34725(Portas::PORTA_I2C_1, TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_4X);
-TCS34725 sensor2 = TCS34725(Portas::PORTA_I2C_2, TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_4X);
+TCS34725 sensor1 = TCS34725(Portas::PORTA_I2C_1);
+TCS34725 sensor2 = TCS34725(Portas::PORTA_I2C_2);
 VL53L0X sensorDistancia = VL53L0X(Portas::PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
@@ -9,11 +9,17 @@ bool sensor1Detectado = false;
 //Giroscopio giroscopio;
 
 uint16_t red, green, blue, clear;
+uint16_t red2, green2, blue2, clear2;
+uint32_t tempoAnterior = 0;
+Seguidor seguidor;
+
 void setup(){
-    brick.inicializa();
+    brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
     sensor1.begin();
     sensor2.begin();
-    sensorDistancia.init();
+    seguidor.begin(&sensor1, &sensor2);
+    brick.inverteMotorEsquerdo(true);
+    //sensorDistancia.init();
     //giroscopio.inicializar(Portas::PORTA_SERIAL_1);
     //ultrassonico.inicializar(Portas::PORTA_ULTRASSONICO_1);
     //ultrassonico.teste(60);
@@ -36,10 +42,13 @@ void setup(){
 
 
 */
-    //buzzer.inicializar();
+    buzzer.inicializa();
     //buzzer.powerRangers();
     //buzzer.jingleBells();
-    //ledStrip.inicializar(Portas::PORTA_LED_3, 10); //inicializa fita de 1 led na porta led 1
+    ledStrip.inicializa(Portas::PORTA_LED_4, 1); //inicializa fita de 1 led na porta led 1
+    //buzzer.sucesso();
+    //buzzer.alerta();
+    tempoAnterior=0;
     //ledStrip.demo();
     //ledStrip.arcoIrisRotativo();
     //ledStrip.knightRider();
@@ -85,10 +94,23 @@ void setup(){
         Serial.println(clear);
         Serial.println(sensorDistancia.readRangeSingleMillimeters());
     }*/
+    if(brick.botaoApertado()){
+        Serial.println("Botao apertado no inicio");
+        Serial.println("calibrando sensores...");
+        sensor1.calibrar();
+        sensor2.calibrar();
+    }
 }
+
+uint8_t contador = 0;
+int16_t erro = 0;
 void loop(){
-    
-    sensor1.getRawData(&red, &green, &blue, &clear);
+
+
+    //sensor1.getRGBCCalibrado(&red, &green, &blue, &clear);
+    seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
+                            &red2, &green2, &blue2, &clear2);
+    //sensor1.getRawDataOneShot(&red, &green, &blue, &clear);
     Serial.print("Sensor1 - R:");
     Serial.print(red);
     Serial.print(" G:");
@@ -97,22 +119,26 @@ void loop(){
     Serial.print(blue);
     Serial.print(" C:");
     Serial.println(clear);
-
-    sensor2.getRawData(&red, &green, &blue, &clear);
+    
+    // sensor2.getRGBCCalibrado(&red, &green, &blue, &clear2);
+    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
     Serial.print("Sensor2 - R:");
-    Serial.print(red);
+    Serial.print(red2);
     Serial.print(" G:");
-    Serial.print(green);
+    Serial.print(green2);
     Serial.print(" B:");
-    Serial.print(blue);
+    Serial.print(blue2);
     Serial.print(" C:");
-    Serial.println(clear);
+    Serial.println(clear2);
 
-    uint16_t dist = sensorDistancia.readRangeSingleMillimeters();
-    Serial.print("Distancia: ");   
-    Serial.print(dist);
-    Serial.println(" mm"); 
-    brick.espera(1000);
+
+
+    // uint16_t dist = sensorDistancia.readRangeSingleMillimeters();
+    // Serial.print("Distancia: ");   
+    // Serial.print(dist);
+    // Serial.println(" mm"); 
+    //brick.espera(1000);
+    //delay(50);
     /*int dist = sensorDistancia.readRangeSingleMillimeters();
     servos.moveServo(Portas::PORTA_SERVO_1, dist); //mapeia a distância para o ângulo do servo
     sensor.getRawData(&red, &green, &blue, &clear);
@@ -126,5 +152,29 @@ void loop(){
     Serial.println(clear);
     delay(10);
     */
-   
+    ledStrip.setLED(0, red/32, green/32, blue/32);
+    ledStrip.atualiza();
+    contador++;
+    if(millis() - tempoAnterior >= 1000){
+        tempoAnterior = millis();
+        Serial.println(contador);
+        contador = 0;
+    }
+    if(brick.botaoApertado()){
+        Serial.println("Botao apertado");
+        buzzer.alerta();
+    }
+    // erro = clear2 - clear;
+    // erro = erro*1;
+    // Serial.print("Erro: ");
+    // Serial.println(erro);
+    //delay(500);
+    // brick.potenciaMotores(150+erro, 150-erro);
+    if(clear > 100 && clear2 > 100){
+        brick.potenciaMotores(25, 25);
+    }else if (clear < 100){
+        brick.potenciaMotores(0, -25);
+    }else if (clear2 < 100){
+        brick.potenciaMotores(-25, 0);
+    }
 }

@@ -8,62 +8,108 @@
 #include <util/atomic.h>
 #endif
 
+// Macro para obter os registradores PORT, DDR e PIN de um pino digital
+#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
+#define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
+#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
+#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
+#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
 
-// Force SDA low
+// Force SDA low - usa registradores diretamente
 void SoftWire::sdaLow(const SoftWire *p)
 {
   uint8_t sda = p->getSda();
+  uint8_t port = digitalPinToPort(sda);
+  uint8_t mask = digitalPinToBitMask(sda);
+  volatile uint8_t *out = portOutputRegister(port);
+  volatile uint8_t *ddr = portModeRegister(port);
 
 #ifdef ATOMIC_BLOCK
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #endif
   {
-    digitalWrite(sda, LOW);
-    pinMode(sda, OUTPUT);
+    *out &= ~mask;  // Coloca saída em LOW
+    *ddr |= mask;   // Configura como OUTPUT
   }
 }
 
 
-// Release SDA to float high
+// Release SDA to float high - usa registradores diretamente
 void SoftWire::sdaHigh(const SoftWire *p)
 {
-  pinMode(p->getSda(), p->getInputMode());
+  uint8_t sda = p->getSda();
+  uint8_t port = digitalPinToPort(sda);
+  uint8_t mask = digitalPinToBitMask(sda);
+  volatile uint8_t *out = portOutputRegister(port);
+  volatile uint8_t *ddr = portModeRegister(port);
+  
+  *ddr &= ~mask;  // Configura como INPUT
+  if (p->getInputMode() == INPUT_PULLUP) {
+    *out |= mask;   // Ativa pull-up
+  } else {
+    *out &= ~mask;  // Desativa pull-up
+  }
 }
 
 
-// Force SCL low
+// Force SCL low - usa registradores diretamente
 void SoftWire::sclLow(const SoftWire *p)
 {
   uint8_t scl = p->getScl();
+  uint8_t port = digitalPinToPort(scl);
+  uint8_t mask = digitalPinToBitMask(scl);
+  volatile uint8_t *out = portOutputRegister(port);
+  volatile uint8_t *ddr = portModeRegister(port);
 
 #ifdef ATOMIC_BLOCK
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #endif
   {
-    digitalWrite(scl, LOW);
-    pinMode(scl, OUTPUT);
+    *out &= ~mask;  // Coloca saída em LOW
+    *ddr |= mask;   // Configura como OUTPUT
   }
 }
 
 
-// Release SCL to float high
+// Release SCL to float high - usa registradores diretamente
 void SoftWire::sclHigh(const SoftWire *p)
 {
-  pinMode(p->getScl(), p->getInputMode());
+  uint8_t scl = p->getScl();
+  uint8_t port = digitalPinToPort(scl);
+  uint8_t mask = digitalPinToBitMask(scl);
+  volatile uint8_t *out = portOutputRegister(port);
+  volatile uint8_t *ddr = portModeRegister(port);
+  
+  *ddr &= ~mask;  // Configura como INPUT
+  if (p->getInputMode() == INPUT_PULLUP) {
+    *out |= mask;   // Ativa pull-up
+  } else {
+    *out &= ~mask;  // Desativa pull-up
+  }
 }
 
 
-// Read SDA (for data read)
+// Read SDA (for data read) - usa registradores diretamente
 uint8_t SoftWire::readSda(const SoftWire *p)
 {
-  return digitalRead(p->getSda());
+  uint8_t sda = p->getSda();
+  uint8_t port = digitalPinToPort(sda);
+  uint8_t mask = digitalPinToBitMask(sda);
+  volatile uint8_t *in = portInputRegister(port);
+  
+  return (*in & mask) ? HIGH : LOW;
 }
 
 
-// Read SCL (to detect clock-stretching)
+// Read SCL (to detect clock-stretching) - usa registradores diretamente
 uint8_t SoftWire::readScl(const SoftWire *p)
 {
-  return digitalRead(p->getScl());
+  uint8_t scl = p->getScl();
+  uint8_t port = digitalPinToPort(scl);
+  uint8_t mask = digitalPinToBitMask(scl);
+  volatile uint8_t *in = portInputRegister(port);
+  
+  return (*in & mask) ? HIGH : LOW;
 }
 
 
@@ -88,7 +134,7 @@ SoftWire::SoftWire(uint8_t sda, uint8_t scl) :
   _sda(sda),
   _scl(scl),
   _inputMode(INPUT_PULLUP), // Pullups disabled by default
-  _delay_us(defaultDelay_us),
+  _delay_us(2),  // Delay padrão para 400kHz (2.5us mínimo, usando 2us)
   _timeout_ms(defaultTimeout_ms),
   _rxBufferIndex(0),
   _rxBufferBytesRead(0),
@@ -390,9 +436,13 @@ void SoftWire::end(void)
 
 void SoftWire::setClock(uint32_t frequency)
 {
+  // Limita frequência máxima a 400kHz
+  if (frequency > 400000UL)
+    frequency = 400000UL;
+    
   uint32_t period_us = uint32_t(1000000UL) / frequency;
   if (period_us < 2)
-    period_us = 2;
+    period_us = 2;  // Mínimo de 2us (500kHz, mas limitado a 400kHz acima)
   else if (period_us > 2 * 255)
     period_us = 2 * 255;
 

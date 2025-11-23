@@ -6,12 +6,16 @@
 #include "led.h"
 #include "ultrassonico.h"
 #include "giroscopio.h"
-
+#include "seguidor.h"
 
 
 class BrickSimples{
 public:
     private:
+    bool motor1Invertido = false;
+    bool motor2Invertido = false;
+    TCS34725 *listaTCS34725[5]={NULL, NULL, NULL, NULL, NULL};
+    VL53L0X *listaVL53L0X[5]={NULL, NULL, NULL, NULL, NULL};
 
     public:
     BrickSimples(){
@@ -23,7 +27,7 @@ public:
         
         // Configura Timer0 para PWM em ~244Hz (prescaler 256)
         // Timer0 controla PWM dos pinos 5 e 6 (motores)
-        TCCR0B = (TCCR0B & 0b11111000) | 0x04; // Prescaler 256
+        //TCCR0B = (TCCR0B & 0b11111000) | 0x04; // Prescaler 256
         // Frequência PWM resultante: 16MHz / (256 * 256) = 244.14Hz
         
         //PINOS MOTOR ESQUERDO
@@ -40,12 +44,25 @@ public:
         tensao = tensao / 1000; //milivolt
         Serial.print(tensao);
         Serial.println(" mV");
-        if(tensao < 3100){ //milivolt
+        if(tensao <= 2000){ //milivolt
+            Serial.println("Brick ligado apenas na USB, para ele funcionar, ligue a chave liga/desliga.");
+            while(1){
+                tensao = analogRead(PINO_BATERIA);
+                tensao = 4887 * tensao; //microvolt (estou fazendo isso para nao usar float)
+                tensao = tensao / 1000; //milivolt
+                if(tensao > 1500) break;
+                espera(500);
+            }
+            Serial.println("Brick ligado, começando o código");
+            return;
+        }
+        if(tensao > 2000 && tensao < 3100){ //milivolt
             Serial.println("Bateria fraca!");
             Serial.println("Coloque o brick para carregar e aguarde.");
             while(1);
         }
     }
+
     void espera(uint32_t ms){
         ::delay(ms/4);
     }
@@ -55,10 +72,18 @@ public:
         return ::millis()*4;
     }
 
+    void inverteMotorEsquerdo(bool invertido){
+        motor1Invertido = invertido;
+    }
+    void inverteMotorDireito(bool invertido){
+        motor2Invertido = invertido;
+    }
     
     // Controla ambos os motores com a mesma potência
     // potencia: -255 a 255 (negativo = reverso, positivo = frente)
     void potenciaMotores(int potencia){
+        if(motor1Invertido) potencia = -potencia;
+        if(motor2Invertido) potencia = -potencia;
         potenciaMotorEsquerdo(potencia);
         potenciaMotorDireito(potencia);
     }
@@ -66,6 +91,8 @@ public:
     // Controla motores independentemente
     // potenciaEsq, potenciaDir: -255 a 255
     void potenciaMotores(int potenciaEsq, int potenciaDir){
+        if(motor1Invertido) potenciaEsq = -potenciaEsq;
+        if(motor2Invertido) potenciaDir = -potenciaDir;
         potenciaMotorEsquerdo(potenciaEsq);
         potenciaMotorDireito(potenciaDir);
     }
@@ -117,6 +144,19 @@ public:
         digitalWrite(7, HIGH);
         digitalWrite(5, HIGH);
         digitalWrite(4, HIGH);
+    }
+
+    bool botaoApertado(){
+        uint16_t valor = analogRead(A6);
+        if(valor < 100){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    void atualiza(){
+
     }
 
 };
@@ -189,10 +229,9 @@ class Buzzer{
     private:
     const static uint8_t PINO_BUZZER = 11; // PORTA_SERVO_3 - Timer2 OC2A
     bool inicializado;
-    bool tocando;
 
     public:
-    Buzzer() : inicializado(false), tocando(false) {}
+    Buzzer() : inicializado(false){}
     
     ~Buzzer() {
         if(inicializado) {
@@ -201,7 +240,7 @@ class Buzzer{
     }
 
     // Inicializa o buzzer na PORTA_SERVO_3 com lógica invertida
-    void inicializar() {
+    void inicializa() {
         pinMode(PINO_BUZZER, OUTPUT);
         digitalWrite(PINO_BUZZER, HIGH); // Buzzer invertido: HIGH = desligado
         inicializado = true;
@@ -211,18 +250,16 @@ class Buzzer{
     // Emite um tom em frequência específica por um tempo específico
     // frequencia: Hz (ex: 440 para Lá, 262 para Dó, etc)
     // duracao: milissegundos (0 = som contínuo até chamar parar())
-    void tocar(uint16_t frequencia, uint32_t duracao = 0) {
+    void tocar(uint16_t frequencia, uint32_t duracao) { //zero nao toca nada
         if(!inicializado) {
             Serial.println(F("Erro: Buzzer nao inicializado!"));
             return;
         }
-        
-        // Gera PWM manual com lógica invertida
-        uint32_t periodo = 1000000UL / frequencia; // período em microssegundos
-        uint32_t tempoAlto = periodo / 2; // 50% duty cycle (HIGH = desligado)
-        uint32_t tempoBaixo = periodo / 2; // 50% duty cycle (LOW = ligado)
-        
         if(duracao > 0) {
+            // Gera PWM manual com lógica invertida
+            uint32_t periodo = 1000000UL / frequencia; // período em microssegundos
+            uint32_t tempoAlto = periodo / 2; // 50% duty cycle (HIGH = desligado)
+            uint32_t tempoBaixo = periodo / 2; // 50% duty cycle (LOW = ligado)
             uint32_t inicio = millis();
             while(millis() - inicio < duracao) {
                 digitalWrite(PINO_BUZZER, HIGH); // Buzzer desligado
@@ -231,15 +268,6 @@ class Buzzer{
                 delayMicroseconds(tempoBaixo);
             }
             digitalWrite(PINO_BUZZER, HIGH); // Garante que termina desligado
-        } else {
-            // Som contínuo (não recomendado, bloqueia o código)
-            tocando = true;
-            while(tocando) {
-                digitalWrite(PINO_BUZZER, HIGH);
-                delayMicroseconds(tempoAlto);
-                digitalWrite(PINO_BUZZER, LOW);
-                delayMicroseconds(tempoBaixo);
-            }
         }
     }
 
@@ -247,7 +275,6 @@ class Buzzer{
     void parar() {
         if(inicializado) {
             digitalWrite(PINO_BUZZER, HIGH); // Desligado para buzzer invertido
-            tocando = false;
         }
     }
 

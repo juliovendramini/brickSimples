@@ -185,7 +185,7 @@ public:
     }
     
     // Inicializa a fita de LEDs em uma porta de servo/led específica
-    void inicializar(PortaLed porta, uint8_t quantidade) {
+    void inicializa(PortaLed porta, uint8_t quantidade) {
         if(quantidade == 0 || quantidade > 10) {
             Serial.println(F("Erro: quantidade de LEDs invalida (1-10)"));
             return;
@@ -212,7 +212,7 @@ public:
         
         // Apaga todos os LEDs
         limpar();
-        atualizar();
+        atualiza();
     }
     
     // Define a cor de um LED específico (índice começa em 0)
@@ -241,7 +241,7 @@ public:
     }
     
     // Atualiza a fita de LEDs (envia os dados)
-    void atualizar() {
+    void atualiza() {
         writeData();
     }
     
@@ -249,27 +249,27 @@ public:
     void teste() {
         Serial.println(F("Teste LED - Vermelho"));
         setTodos(255, 0, 0);
-        atualizar();
+        atualiza();
         delay(1000);
         
         Serial.println(F("Teste LED - Verde"));
         setTodos(0, 255, 0);
-        atualizar();
+        atualiza();
         delay(1000);
         
         Serial.println(F("Teste LED - Azul"));
         setTodos(0, 0, 255);
-        atualizar();
+        atualiza();
         delay(1000);
         
         Serial.println(F("Teste LED - Branco"));
         setTodos(255, 255, 255);
-        atualizar();
+        atualiza();
         delay(1000);
         
         Serial.println(F("Teste LED - Apagar"));
         limpar();
-        atualizar();
+        atualiza();
     }
     
     // Cores pré-definidas
@@ -325,7 +325,7 @@ public:
             uint8_t hue = ((i * 255) / numLeds + offset) % 256;
             setLEDHSV(i, hue, 255, 255);
         }
-        atualizar();
+        atualiza();
         offset += velocidade;
         delay(50);
     }
@@ -338,7 +338,7 @@ public:
             setLED(i, r, g, b);
             if(i > 0) setLED(i-1, r/4, g/4, b/4);
             if(i < numLeds-1) setLED(i+1, r/4, g/4, b/4);
-            atualizar();
+            atualiza();
             delay(velocidade);
         }
         // Volta
@@ -347,7 +347,7 @@ public:
             setLED(i, r, g, b);
             if(i > 0) setLED(i-1, r/4, g/4, b/4);
             if(i < numLeds-1) setLED(i+1, r/4, g/4, b/4);
-            atualizar();
+            atualiza();
             delay(velocidade);
         }
     }
@@ -355,10 +355,10 @@ public:
     // Animação: Preenche gradualmente
     void preenchimento(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t velocidade = 100) {
         limpar();
-        atualizar();
+        atualiza();
         for(uint8_t i = 0; i < numLeds; i++) {
             setLED(i, r, g, b);
-            atualizar();
+            atualiza();
             delay(velocidade);
         }
     }
@@ -367,10 +367,10 @@ public:
     void piscar(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t vezes = 3, uint8_t velocidade = 200) {
         for(uint8_t i = 0; i < vezes; i++) {
             setTodos(r, g, b);
-            atualizar();
+            atualiza();
             delay(velocidade);
             limpar();
-            atualizar();
+            atualiza();
             delay(velocidade);
         }
     }
@@ -383,7 +383,7 @@ public:
             uint8_t g_dim = (g * brilho) / 255;
             uint8_t b_dim = (b * brilho) / 255;
             setTodos(r_dim, g_dim, b_dim);
-            atualizar();
+            atualiza();
             delay(20);
         }
         // Fade out
@@ -392,11 +392,11 @@ public:
             uint8_t g_dim = (g * brilho) / 255;
             uint8_t b_dim = (b * brilho) / 255;
             setTodos(r_dim, g_dim, b_dim);
-            atualizar();
+            atualiza();
             delay(20);
         }
         limpar();
-        atualizar();
+        atualiza();
     }
     
     // Animação: Teatro (Chase)
@@ -407,7 +407,7 @@ public:
                 for(uint8_t i = q; i < numLeds; i += 3) {
                     setLED(i, r, g, b);
                 }
-                atualizar();
+                atualiza();
                 delay(100);
             }
         }
@@ -419,11 +419,11 @@ public:
             limpar();
             uint8_t pixel = random(numLeds);
             setLED(pixel, r, g, b);
-            atualizar();
+            atualiza();
             delay(100);
         }
         limpar();
-        atualizar();
+        atualiza();
     }
     
     // Animação: Onda de cor
@@ -433,7 +433,7 @@ public:
             uint8_t brilho = (sin8(offset + (i * 255 / numLeds)) * 255) / 255;
             setLEDHSV(i, offset, 255, brilho);
         }
-        atualizar();
+        atualiza();
         offset += velocidade;
         delay(50);
     }
@@ -442,7 +442,7 @@ public:
     void demo() {
         Serial.println(F("Demo - Arco-iris"));
         arcoIris();
-        atualizar();
+        atualiza();
         delay(2000);
         
         Serial.println(F("Demo - Knight Rider"));
@@ -472,7 +472,7 @@ public:
         }
         
         limpar();
-        atualizar();
+        atualiza();
     }
     
     // Define LED usando HSV (Hue, Saturation, Value)

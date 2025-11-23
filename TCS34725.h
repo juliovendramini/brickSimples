@@ -8,6 +8,7 @@
 #define _TCS34725_H_
 
 #include <Arduino.h>
+#include <EEPROM.h>
 #include "SoftWire.h"
 #include "portas.h"
 #define TCS34725_ADDRESS (0x29)     /**< I2C address **/
@@ -165,8 +166,8 @@ typedef enum {
 class TCS34725 {
 public:
 
-  TCS34725(PortaI2C porta, uint8_t = TCS34725_INTEGRATIONTIME_24MS,
-                    tcs34725Gain_t = TCS34725_GAIN_4X);
+  TCS34725(PortaI2C porta, uint8_t = TCS34725_INTEGRATIONTIME_2_4MS,
+                    tcs34725Gain_t = TCS34725_GAIN_16X);
 
   //boolean begin(uint8_t addr, uint8_t sda, uint8_t scl);
   boolean begin();
@@ -181,6 +182,9 @@ public:
   void getRawData(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
   void getRGB(float *r, float *g, float *b);
   void getRawDataOneShot(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
+  void getRawDataOneShotOff(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
+  void getRawDataWithoutInterference(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
+  void getRGBCCalibrado(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
   uint16_t calculateColorTemperature(uint16_t r, uint16_t g, uint16_t b);
   uint16_t calculateColorTemperature_dn40(uint16_t r, uint16_t g, uint16_t b,
                                           uint16_t c);
@@ -191,11 +195,39 @@ public:
   void setInterrupt(boolean flag);
   void clearInterrupt();
   void setIntLimits(uint16_t l, uint16_t h);
-  void enable();
+  void enable(bool wait = true);
+  void enableLedOff(bool wait = true);
+  void enablePON();
+  void enablePON_AEN();
   void disable();
-
+  void ledOff();
+  
+  // Calibração e EEPROM
+  struct DadosCalibracao {
+    uint16_t r;
+    uint16_t g;
+    uint16_t b;
+    uint16_t c;
+    uint8_t checksum;
+  };
+  
+  DadosCalibracao dadosCalibracao;  // Estrutura para armazenar dados de calibração
+  void calibrar();  // Lê valores atuais e salva na EEPROM
+  boolean carregarCalibracao();  // Carrega calibração da EEPROM
+  uint8_t getNumeroPorta();  // Retorna número da porta (1-5)
+    
 private:
-  uint8_t last_status; // status of last I2C transmission
+  uint16_t r;
+  uint16_t g;
+  uint16_t b;
+  uint16_t c;
+  uint32_t ultimaAtualizacao; 
+
+public:
+  uint16_t getR() const { return r; }
+  uint16_t getG() const { return g; }
+  uint16_t getB() const { return b; }
+  uint16_t getC() const { return c; }
   SoftWire * bus;
   //Adafruit_I2CDevice *i2c_dev = NULL; ///< Pointer to I2C bus interface
   boolean _tcs34725Initialised;
@@ -203,6 +235,7 @@ private:
   uint8_t _tcs34725IntegrationTime;
   uint8_t sda;
   uint8_t scl;
+  uint8_t numeroPorta;  // Número da porta I2C (1-5)
   char descricaoPorta[6];
 };
 

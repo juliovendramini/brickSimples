@@ -61,13 +61,26 @@ uint16_t TCS34725::read16(uint8_t reg) {
   return (uint16_t(buffer[1]) << 8) | (uint16_t(buffer[0]) & 0xFF);
 }
 
+void TCS34725::enablePON() {
+  write8(TCS34725_ENABLE, TCS34725_ENABLE_PON);
+}
+
+void TCS34725::enablePON_AEN() {
+  write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);
+}
+
+void TCS34725::ledOff() {
+  pinMode(this->sda, OUTPUT);
+  digitalWrite(this->sda, LOW); //desliga o led
+}
+
 /*!
  *  @brief  Enables the device
  */
-void TCS34725::enable() {
-  write8(TCS34725_ENABLE, TCS34725_ENABLE_PON);
+void TCS34725::enable(bool wait=true) {
+  enablePON();
   delay(3);
-  write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);
+  enablePON_AEN();
   /* Set a delay for the integration time.
     This is only necessary in the case where enabling and then
     immediately trying to read values back. This is because setting
@@ -75,7 +88,29 @@ void TCS34725::enable() {
     performed too quickly, the data is not yet valid and all 0's are
     returned */
   /* 12/5 = 2.4, add 1 to account for integer truncation */
-  delay((256 - _tcs34725IntegrationTime) * 12 / 5 + 1);
+  if (wait) {
+    delay((256 - _tcs34725IntegrationTime) * 12 / 5 + 2);
+  }
+  //delay(4);
+}
+
+
+void TCS34725::enableLedOff(bool wait = true) {
+  enablePON();
+  delay(3);
+  enablePON_AEN();
+  ledOff();
+  /* Set a delay for the integration time.
+    This is only necessary in the case where enabling and then
+    immediately trying to read values back. This is because setting
+    AEN triggers an automatic integration, so if a read RGBC is
+    performed too quickly, the data is not yet valid and all 0's are
+    returned */
+  /* 12/5 = 2.4, add 1 to account for integer truncation */
+  if (wait) {
+    delay((256 - _tcs34725IntegrationTime) * 12 / 5 + 2);
+  }
+  //delay(4);
 }
 
 /*!
@@ -102,7 +137,13 @@ TCS34725::TCS34725(PortaI2C porta, uint8_t it, tcs34725Gain_t gain) {
   this->sda = porta.sda;
   this->scl = porta.scl;
   strcpy(this->descricaoPorta, porta.descricao);
-
+  
+  // Extrai número da porta da descrição (ex: "I2C-1" -> 1)
+  if (porta.descricao[4] >= '1' && porta.descricao[4] <= '5') {
+    this->numeroPorta = porta.descricao[4] - '0';
+  } else {
+    this->numeroPorta = 0;  // Porta inválida
+  }
 }
 
 /*!
@@ -115,6 +156,7 @@ TCS34725::TCS34725(PortaI2C porta, uint8_t it, tcs34725Gain_t gain) {
  */
 // boolean TCS34725::begin(uint8_t addr, uint8_t sda, uint8_t scl) {
 //   this->sda = sda;
+
 //   this->scl = scl;
 //   bus = new SoftWire(sda, scl); //pinos SDA e SCL escolhidos
 //   //return init();
@@ -125,6 +167,7 @@ boolean TCS34725::begin() {
   bus = new SoftWire(sda, scl); //pinos SDA e SCL escolhidos
   //return true;
   return init();
+
 }
 
 /*!
@@ -138,9 +181,13 @@ boolean TCS34725::init() {
   /* Make sure we're actually connected */
   uint8_t x = read8(TCS34725_ID);
   if ((x != 0x4d) && (x != 0x44) && (x != 0x10)) {
-    Serial.print(F("Erro ao detectar o TCS34725 na porta "));
-    Serial.println(this->descricaoPorta);
-    while(1);
+    delay(3);
+    x = read8(TCS34725_ID); //faço duas tentativas para ler o id
+    if ((x != 0x4d) && (x != 0x44) && (x != 0x10)) {
+      Serial.print(F("Erro ao detectar o TCS34725 na porta "));
+      Serial.println(this->descricaoPorta);
+      while(1);
+    }
   }
   
   
@@ -154,7 +201,12 @@ boolean TCS34725::init() {
   enable();
   Serial.print(F("TCS34725 detectado com sucesso na porta "));
   Serial.println(this->descricaoPorta);
-  return true;
+  if(this->carregarCalibracao()) { //carrega calibração padrão
+    Serial.println(F("Calibração carregada da EEPROM."));
+  } else {
+    Serial.println(F("Nenhuma calibração válida encontrada na EEPROM, calibre o sensor."));
+    return true;
+  }
 }
 
 /*!
@@ -196,10 +248,33 @@ void TCS34725::setGain(tcs34725Gain_t gain) {
  */
 void TCS34725::getRawData(uint16_t *r, uint16_t *g, uint16_t *b,
                                    uint16_t *c) {
-  *c = read16(TCS34725_CDATAL);
-  *r = read16(TCS34725_RDATAL);
-  *g = read16(TCS34725_GDATAL);
-  *b = read16(TCS34725_BDATAL);
+  // *c = read16(TCS34725_CDATAL);
+  // *r = read16(TCS34725_RDATAL);
+  // *g = read16(TCS34725_GDATAL);
+  // *b = read16(TCS34725_BDATAL);
+
+uint8_t buffer[8]; // 8 bytes: C_low, C_high, R_low, R_high, G_low, G_high, B_low, B_high
+  
+  // Envia comando para ler a partir do registrador CDATAL (0x14)
+  bus->beginTransmission(TCS34725_ADDRESS);
+  bus->write(TCS34725_COMMAND_BIT | TCS34725_CDATAL);
+  last_status = bus->endTransmission();
+  
+  // Solicita 8 bytes consecutivos (auto-incremento ativado)
+  bus->requestFrom(TCS34725_ADDRESS, (uint8_t)8);
+  
+  // Lê todos os 8 bytes de uma vez
+  for (uint8_t i = 0; i < 8; i++) {
+    buffer[i] = bus->read();
+  }
+  
+  // Monta os valores uint16_t (little-endian: low byte primeiro)
+  *c = (uint16_t(buffer[1]) << 8) | uint16_t(buffer[0]);
+  *r = (uint16_t(buffer[3]) << 8) | uint16_t(buffer[2]);
+  *g = (uint16_t(buffer[5]) << 8) | uint16_t(buffer[4]);
+  *b = (uint16_t(buffer[7]) << 8) | uint16_t(buffer[6]);
+
+
 
   //o delay é pelo codigo e nao aqui
   /* Set a delay for the integration time */
@@ -226,6 +301,58 @@ void TCS34725::getRawDataOneShot(uint16_t *r, uint16_t *g, uint16_t *b,
   getRawData(r, g, b, c);
   disable();
 }
+
+
+void TCS34725::getRawDataOneShotOff(uint16_t *r, uint16_t *g, uint16_t *b,
+                                          uint16_t *c) {
+  enableLedOff();
+  getRawData(r, g, b, c);
+  disable();
+}  
+
+
+void TCS34725::getRawDataWithoutInterference(uint16_t *r, uint16_t *g, uint16_t *b,
+                                          uint16_t *c) {
+  uint16_t red1, green1, blue1, clear1;
+  uint16_t red2, green2, blue2, clear2;      
+  enable();                                      
+  getRawData(&red1, &green1, &blue1, &clear1);
+  disable();
+  //delay(3);
+  enableLedOff();
+  getRawData(&red2, &green2, &blue2, &clear2);
+  disable();
+  //se o led nao estiver desativando, vai dar problema. Então tenho que tratar isso
+  *r = red1 - red2;
+  if(*r > 64000) *r = 0;
+  *g = green1 - green2;
+  if(*g > 64000) *g = 0;
+  *b = blue1 - blue2;
+  if(*b > 64000) *b = 0;
+  *c = clear1 - clear2;
+  if(*c > 64000) *c = 0;
+}  
+
+void TCS34725::getRGBCCalibrado(uint16_t *r, uint16_t *g, uint16_t *b,
+                                   uint16_t *c) {
+  uint16_t redRaw, greenRaw, blueRaw, clearRaw;
+  getRawDataWithoutInterference(&redRaw, &greenRaw, &blueRaw, &clearRaw);
+  
+  if(*r > 64000) *r = 0;
+  if(*g > 64000) *g = 0;
+  if(*b > 64000) *b = 0;
+  if(*c > 64000) *c = 0;
+  // Aplica calibração
+  *r = (uint32_t)redRaw * 255 / dadosCalibracao.r;
+  *g = (uint32_t)greenRaw * 255 / dadosCalibracao.g;
+  *b = (uint32_t)blueRaw * 255 / dadosCalibracao.b;
+  *c = (uint32_t)clearRaw * 255 / dadosCalibracao.c;
+  if(*r > 255) *r = 255;
+  if(*g > 255) *g = 255;
+  if(*b > 255) *b = 255;
+  if(*c > 255) *c = 255;
+}
+
 
 /*!
  *  @brief  Read the RGB color detected by the sensor.
@@ -383,7 +510,7 @@ uint16_t TCS34725::calculateColorTemperature_dn40(uint16_t r,
   /* A simple method of measuring color temp is to use the ratio of blue */
   /* to red light, taking IR cancellation into account. */
   uint16_t cct = (3810 * (uint32_t)b2) / /** Color temp coefficient. */
-                     (uint32_t)r2 +
+                    (uint32_t)r2 +
                  1391; /** Color temp offset. */
 
   return cct;
@@ -445,3 +572,69 @@ void TCS34725::setIntLimits(uint16_t low, uint16_t high) {
   write8(0x06, high & 0xFF);
   write8(0x07, high >> 8);
 }
+
+/*!
+ *  @brief  Retorna o número da porta I2C (1-5)
+ *  @return Número da porta
+ */
+uint8_t TCS34725::getNumeroPorta() {
+  return numeroPorta;
+}
+
+/*!
+ *  @brief  Calibra o sensor e salva os valores na EEPROM
+ *          Endereço base: 100 + (numeroPorta - 1) * sizeof(DadosCalibracao)
+ *          Exemplo: Porta 1 = endereço 100, Porta 2 = endereço 109, etc.
+ */
+void TCS34725::calibrar() {
+  if (!_tcs34725Initialised) {
+    Serial.println(F("Sensor não inicializado. Não é possível calibrar."));
+    return;  // Sensor não inicializado
+  }
+  
+  DadosCalibracao dados;
+  
+  // Lê valores atuais do sensor
+  //getRawData(&dados.r, &dados.g, &dados.b, &dados.c);
+  getRawDataWithoutInterference(&dados.r, &dados.g, &dados.b, &dados.c);
+  
+  // Calcula checksum simples (XOR dos bytes)
+  dados.checksum = 0;
+  uint8_t *ptr = (uint8_t *)&dados;
+  for (uint8_t i = 0; i < sizeof(DadosCalibracao) - 1; i++) {
+    dados.checksum ^= ptr[i];
+  }
+  
+  // Calcula endereço na EEPROM: 100 + (numeroPorta - 1) * tamanho
+  uint16_t enderecoBase = 100 + (numeroPorta - 1) * sizeof(DadosCalibracao);
+  
+  // Salva na EEPROM
+  EEPROM.put(enderecoBase, dados);
+  Serial.println(F("Calibração salva na EEPROM."));
+}
+
+/*!
+ *  @brief  Carrega valores de calibração da EEPROM
+ *  @param  dados
+ *          Ponteiro para estrutura onde os dados serão carregados
+ *  @return true se calibração foi carregada com sucesso (checksum válido)
+ */
+boolean TCS34725::carregarCalibracao() {
+  
+  // Calcula endereço na EEPROM
+  uint16_t enderecoBase = 100 + (numeroPorta - 1) * sizeof(DadosCalibracao);
+  
+  // Carrega da EEPROM
+  EEPROM.get(enderecoBase, dadosCalibracao);
+  
+  // Verifica checksum
+  uint8_t checksumCalculado = 0;
+  uint8_t *ptr = (uint8_t *)&dadosCalibracao;
+  for (uint8_t i = 0; i < sizeof(DadosCalibracao) - 1; i++) {
+    checksumCalculado ^= ptr[i];
+  }
+  
+  // Retorna true se checksum é válido
+  return (checksumCalculado == dadosCalibracao.checksum);
+}
+
