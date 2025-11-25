@@ -131,10 +131,14 @@ class VL53L0X
     void stopContinuous();
     uint16_t readRangeContinuousMillimeters();
     uint16_t readRangeSingleMillimeters();
+    bool iniciaLeituraEmMilimetros();
+    void finalizaLeituraEmMilimetros();
 
     inline void setTimeout(uint16_t timeout) { io_timeout = timeout; }
     inline uint16_t getTimeout() { return io_timeout; }
     bool timeoutOccurred();
+
+    uint16_t getDistancia();
 
   private:
     // TCC: Target CentreCheck
@@ -153,8 +157,12 @@ class VL53L0X
       uint16_t msrc_dss_tcc_mclks, pre_range_mclks, final_range_mclks;
       uint32_t msrc_dss_tcc_us,    pre_range_us,    final_range_us;
     };
-
+    uint16_t distancia = 0;
+    uint32_t ultimaAtualizacao = 0;
     SoftWire * bus;
+    uint8_t sda;
+    uint8_t scl;
+    uint8_t numeroPorta;
     uint8_t address;
     char descricaoPorta[6];
     uint16_t io_timeout;

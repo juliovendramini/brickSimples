@@ -6,6 +6,7 @@
 #include "SoftWire.h"
 #if defined(ARDUINO_ARCH_AVR)
 #include <util/atomic.h>
+#include <util/delay.h>
 #endif
 
 // Macro para obter os registradores PORT, DDR e PIN de um pino digital
@@ -15,101 +16,67 @@
 #define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
 #define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
 
-// Force SDA low - usa registradores diretamente
+// Force SDA low - OTIMIZADO usando cache de registradores
 void SoftWire::sdaLow(const SoftWire *p)
 {
-  uint8_t sda = p->getSda();
-  uint8_t port = digitalPinToPort(sda);
-  uint8_t mask = digitalPinToBitMask(sda);
-  volatile uint8_t *out = portOutputRegister(port);
-  volatile uint8_t *ddr = portModeRegister(port);
-
 #ifdef ATOMIC_BLOCK
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #endif
   {
-    *out &= ~mask;  // Coloca saída em LOW
-    *ddr |= mask;   // Configura como OUTPUT
+    *p->_sdaOut &= ~p->_sdaMask;  // Coloca saída em LOW
+    *p->_sdaDdr |= p->_sdaMask;   // Configura como OUTPUT
   }
 }
 
 
-// Release SDA to float high - usa registradores diretamente
+// Release SDA to float high - OTIMIZADO usando cache de registradores
 void SoftWire::sdaHigh(const SoftWire *p)
 {
-  uint8_t sda = p->getSda();
-  uint8_t port = digitalPinToPort(sda);
-  uint8_t mask = digitalPinToBitMask(sda);
-  volatile uint8_t *out = portOutputRegister(port);
-  volatile uint8_t *ddr = portModeRegister(port);
-  
-  *ddr &= ~mask;  // Configura como INPUT
+  *p->_sdaDdr &= ~p->_sdaMask;  // Configura como INPUT
   if (p->getInputMode() == INPUT_PULLUP) {
-    *out |= mask;   // Ativa pull-up
+    *p->_sdaOut |= p->_sdaMask;   // Ativa pull-up
   } else {
-    *out &= ~mask;  // Desativa pull-up
+    *p->_sdaOut &= ~p->_sdaMask;  // Desativa pull-up
   }
 }
 
 
-// Force SCL low - usa registradores diretamente
+// Force SCL low - OTIMIZADO usando cache de registradores
 void SoftWire::sclLow(const SoftWire *p)
 {
-  uint8_t scl = p->getScl();
-  uint8_t port = digitalPinToPort(scl);
-  uint8_t mask = digitalPinToBitMask(scl);
-  volatile uint8_t *out = portOutputRegister(port);
-  volatile uint8_t *ddr = portModeRegister(port);
-
 #ifdef ATOMIC_BLOCK
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #endif
   {
-    *out &= ~mask;  // Coloca saída em LOW
-    *ddr |= mask;   // Configura como OUTPUT
+    *p->_sclOut &= ~p->_sclMask;  // Coloca saída em LOW
+    *p->_sclDdr |= p->_sclMask;   // Configura como OUTPUT
   }
 }
 
 
-// Release SCL to float high - usa registradores diretamente
+// Release SCL to float high - OTIMIZADO usando cache de registradores
 void SoftWire::sclHigh(const SoftWire *p)
 {
-  uint8_t scl = p->getScl();
-  uint8_t port = digitalPinToPort(scl);
-  uint8_t mask = digitalPinToBitMask(scl);
-  volatile uint8_t *out = portOutputRegister(port);
-  volatile uint8_t *ddr = portModeRegister(port);
-  
-  *ddr &= ~mask;  // Configura como INPUT
+  *p->_sclDdr &= ~p->_sclMask;  // Configura como INPUT
   if (p->getInputMode() == INPUT_PULLUP) {
-    *out |= mask;   // Ativa pull-up
+    *p->_sclOut |= p->_sclMask;   // Ativa pull-up
   } else {
-    *out &= ~mask;  // Desativa pull-up
+    *p->_sclOut &= ~p->_sclMask;  // Desativa pull-up
   }
 }
 
 
-// Read SDA (for data read) - usa registradores diretamente
+// Read SDA (for data read) - OTIMIZADO usando cache de registradores
 uint8_t SoftWire::readSda(const SoftWire *p)
 {
-  uint8_t sda = p->getSda();
-  uint8_t port = digitalPinToPort(sda);
-  uint8_t mask = digitalPinToBitMask(sda);
-  volatile uint8_t *in = portInputRegister(port);
-  
-  return (*in & mask) ? HIGH : LOW;
+  return (*p->_sdaIn & p->_sdaMask) ? HIGH : LOW;
 }
 
 
-// Read SCL (to detect clock-stretching) - usa registradores diretamente
+// Read SCL (to detect clock-stretching) - OTIMIZADO usando cache de registradores
 uint8_t SoftWire::readScl(const SoftWire *p)
 {
-  uint8_t scl = p->getScl();
-  uint8_t port = digitalPinToPort(scl);
-  uint8_t mask = digitalPinToBitMask(scl);
-  volatile uint8_t *in = portInputRegister(port);
-  
-  return (*in & mask) ? HIGH : LOW;
+  return (*p->_sclIn & p->_sclMask) ? HIGH : LOW;
 }
 
 
@@ -134,7 +101,6 @@ SoftWire::SoftWire(uint8_t sda, uint8_t scl) :
   _sda(sda),
   _scl(scl),
   _inputMode(INPUT_PULLUP), // Pullups disabled by default
-  _delay_us(2),  // Delay padrão para 400kHz (2.5us mínimo, usando 2us)
   _timeout_ms(defaultTimeout_ms),
   _rxBufferIndex(0),
   _rxBufferBytesRead(0),
@@ -148,7 +114,19 @@ SoftWire::SoftWire(uint8_t sda, uint8_t scl) :
   _readSda(readSda),
   _readScl(readScl)
 {
-  ;
+  // Calcula e cacheia registradores e máscaras do SDA (leitura única!)
+  uint8_t sdaPort = digitalPinToPort(sda);
+  _sdaMask = digitalPinToBitMask(sda);
+  _sdaOut = portOutputRegister(sdaPort);
+  _sdaDdr = portModeRegister(sdaPort);
+  _sdaIn = portInputRegister(sdaPort);
+  
+  // Calcula e cacheia registradores e máscaras do SCL (leitura única!)
+  uint8_t sclPort = digitalPinToPort(scl);
+  _sclMask = digitalPinToBitMask(scl);
+  _sclOut = portOutputRegister(sclPort);
+  _sclDdr = portModeRegister(sclPort);
+  _sclIn = portInputRegister(sclPort);
 }
 
 
@@ -171,11 +149,11 @@ SoftWire::result_t SoftWire::stop(bool allowClockStretch) const
 
   // Force SCL low
   _sclLow(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Force SDA low
   _sdaLow(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Release SCL
   if (allowClockStretch) {
@@ -184,11 +162,11 @@ SoftWire::result_t SoftWire::stop(bool allowClockStretch) const
   } else {
     sclHigh();
   }
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Release SDA
   _sdaHigh(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   return ack;
 }
@@ -199,11 +177,11 @@ SoftWire::result_t SoftWire::llStart(uint8_t rawAddr) const
 
   // Force SDA low
   _sdaLow(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Force SCL low
   _sclLow(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
   return llWrite(rawAddr);
 }
 
@@ -214,20 +192,20 @@ SoftWire::result_t SoftWire::llRepeatedStart(uint8_t rawAddr) const
 
   // Force SCL low
   _sclLow(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Release SDA
   _sdaHigh(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Release SCL
   if (!sclHighAndStretch(timeout))
     return timedOut;
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Force SDA low
   _sdaLow(this);
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   return llWrite(rawAddr);
 }
@@ -240,7 +218,7 @@ SoftWire::result_t SoftWire::llStartWait(uint8_t rawAddr) const
   while (!timeout.isExpired()) {
     // Force SDA low
     _sdaLow(this);
-    delayMicroseconds(_delay_us);
+    _delay_us(DELAY_TIME_US);
 
     switch (llWrite(rawAddr)) {
       case ack:
@@ -273,13 +251,13 @@ SoftWire::result_t SoftWire::llWrite(uint8_t data) const
       // Force SDA low
       _sdaLow(this);
     }
-    delayMicroseconds(_delay_us);
+    _delay_us(DELAY_TIME_US);
 
     // Release SCL
     if (!sclHighAndStretch(timeout))
       return timedOut;
 
-    delayMicroseconds(_delay_us);
+    _delay_us(DELAY_TIME_US);
 
     data <<= 1;
     if (timeout.isExpired()) {
@@ -295,7 +273,7 @@ SoftWire::result_t SoftWire::llWrite(uint8_t data) const
   // Release SDA
   _sdaHigh(this);
 
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Release SCL
   if (!sclHighAndStretch(timeout))
@@ -303,7 +281,7 @@ SoftWire::result_t SoftWire::llWrite(uint8_t data) const
 
   result_t res = (_readSda(this) == LOW ? ack : nack);
 
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Keep SCL low between bytes
   _sclLow(this);
@@ -325,12 +303,12 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
 
     // Release SDA (from previous ACK)
     _sdaHigh(this);
-    delayMicroseconds(_delay_us);
+    _delay_us(DELAY_TIME_US);
 
     // Release SCL
     if (!sclHighAndStretch(timeout))
       return timedOut;
-    delayMicroseconds(_delay_us);
+    _delay_us(DELAY_TIME_US);
 
     // Read clock stretch
     while (_readScl(this) == LOW)
@@ -355,12 +333,12 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
     _sdaHigh(this);
   }
 
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Release SCL
   if (!sclHighAndStretch(timeout))
     return timedOut;
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Wait for SCL to return high
   while (_readScl(this) == LOW)
@@ -369,7 +347,7 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
       return timedOut;
     }
 
-  delayMicroseconds(_delay_us);
+  _delay_us(DELAY_TIME_US);
 
   // Keep SCL low between bytes
   _sclLow(this);
@@ -437,16 +415,10 @@ void SoftWire::end(void)
 void SoftWire::setClock(uint32_t frequency)
 {
   // Limita frequência máxima a 400kHz
+  // Nota: delay é fixo em DELAY_TIME_US (2us para 400kHz)
+  // Esta função mantida apenas para compatibilidade com Wire
   if (frequency > 400000UL)
     frequency = 400000UL;
-    
-  uint32_t period_us = uint32_t(1000000UL) / frequency;
-  if (period_us < 2)
-    period_us = 2;  // Mínimo de 2us (500kHz, mas limitado a 400kHz acima)
-  else if (period_us > 2 * 255)
-    period_us = 2 * 255;
-
-  setDelay_us(period_us / 2);
 }
 
 
@@ -525,3 +497,4 @@ uint8_t SoftWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendSto
 
   return _rxBufferBytesRead;
 }
+

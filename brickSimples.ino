@@ -1,26 +1,36 @@
 #include "brickSimples.h"
 
-TCS34725 sensor1 = TCS34725(Portas::PORTA_I2C_1);
-TCS34725 sensor2 = TCS34725(Portas::PORTA_I2C_2);
-VL53L0X sensorDistancia = VL53L0X(Portas::PORTA_I2C_3);
+TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
+TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
+TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
+VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
+//VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
+Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
+VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
-//Giroscopio giroscopio;
+Giroscopio giroscopio;
 
 uint16_t red, green, blue, clear;
 uint16_t red2, green2, blue2, clear2;
+uint16_t red3, green3, blue3, clear3;
 uint32_t tempoAnterior = 0;
-Seguidor seguidor;
 
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
-    sensor1.begin();
-    sensor2.begin();
-    seguidor.begin(&sensor1, &sensor2);
+    //sensor1.limpaCalibracao();
+    //sensor2.limpaCalibracao();
+    brick.adiciona(&sensorDistancia);
+    //brick.adiciona(&sensorDistancia2);
+    brick.adiciona(&sensorDistancia3);
+    brick.adiciona(&sensor1);
+    brick.adiciona(&sensor2);
+    brick.adiciona(&sensor3);
+    brick.adiciona(&ultrassonico);
     brick.inverteMotorEsquerdo(true);
     //sensorDistancia.init();
-    //giroscopio.inicializar(Portas::PORTA_SERIAL_1);
+    giroscopio.inicializa(PORTA_SERIAL_1);
     //ultrassonico.inicializar(Portas::PORTA_ULTRASSONICO_1);
     //ultrassonico.teste(60);
     //Serial.println(ultrassonico.distanciaCmInt());
@@ -45,7 +55,7 @@ void setup(){
     buzzer.inicializa();
     //buzzer.powerRangers();
     //buzzer.jingleBells();
-    ledStrip.inicializa(Portas::PORTA_LED_4, 1); //inicializa fita de 1 led na porta led 1
+    ledStrip.inicializa(PORTA_LED_4, 1); //inicializa fita de 1 led na porta led 1
     //buzzer.sucesso();
     //buzzer.alerta();
     tempoAnterior=0;
@@ -105,11 +115,11 @@ void setup(){
 uint8_t contador = 0;
 int16_t erro = 0;
 void loop(){
+    brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
 
-
-    //sensor1.getRGBCCalibrado(&red, &green, &blue, &clear);
-    seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
-                            &red2, &green2, &blue2, &clear2);
+    sensor1.getRGBC(red, green, blue, clear);
+    // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
+    //                         &red2, &green2, &blue2, &clear2);
     //sensor1.getRawDataOneShot(&red, &green, &blue, &clear);
     Serial.print("Sensor1 - R:");
     Serial.print(red);
@@ -120,7 +130,7 @@ void loop(){
     Serial.print(" C:");
     Serial.println(clear);
     
-    // sensor2.getRGBCCalibrado(&red, &green, &blue, &clear2);
+    sensor2.getRGBC(red2, green2, blue2, clear2);
     // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
     Serial.print("Sensor2 - R:");
     Serial.print(red2);
@@ -131,12 +141,36 @@ void loop(){
     Serial.print(" C:");
     Serial.println(clear2);
 
+    sensor3.getRGBC(red3, green3, blue3, clear3);
+    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
+    Serial.print("Sensor3 - R:");
+    Serial.print(red3);
+    Serial.print(" G:");
+    Serial.print(green3);
+    Serial.print(" B:");
+    Serial.print(blue3);
+    Serial.print(" C:");
+    Serial.println(clear3);
+
+    uint16_t dist = sensorDistancia.getDistancia();
+    Serial.print("Distancia: ");
+    Serial.print(dist);
+    Serial.println(" mm"); 
 
 
-    // uint16_t dist = sensorDistancia.readRangeSingleMillimeters();
-    // Serial.print("Distancia: ");   
-    // Serial.print(dist);
+    // uint16_t dist2 = sensorDistancia2.getDistancia();
+    // Serial.print("Distancia2: ");
+    // Serial.print(dist2);
     // Serial.println(" mm"); 
+    int16_t distUltrassonico = ultrassonico.getDistancia();
+    Serial.print("Distancia Ultrassonico: ");
+    Serial.print(distUltrassonico);
+    Serial.println(" cm");
+
+    uint16_t dist3 = sensorDistancia3.getDistancia();
+    Serial.print("Distancia3: ");
+    Serial.print(dist3);
+    Serial.println(" mm");
     //brick.espera(1000);
     //delay(50);
     /*int dist = sensorDistancia.readRangeSingleMillimeters();
@@ -170,11 +204,11 @@ void loop(){
     // Serial.println(erro);
     //delay(500);
     // brick.potenciaMotores(150+erro, 150-erro);
-    if(clear > 100 && clear2 > 100){
-        brick.potenciaMotores(25, 25);
-    }else if (clear < 100){
-        brick.potenciaMotores(0, -25);
-    }else if (clear2 < 100){
-        brick.potenciaMotores(-25, 0);
-    }
+    // if(clear > 100 && clear2 > 100){
+    //     brick.potenciaMotores(25, 25);
+    // }else if (clear < 100){
+    //     brick.potenciaMotores(0, -25);
+    // }else if (clear2 < 100){
+    //     brick.potenciaMotores(-25, 0);
+    // }
 }

@@ -2,6 +2,7 @@
 #define SOFTWIRE_H
 
 #define SOFTWIRE_VERSION "2.0.9"
+#define DELAY_TIME_US 1  // Delay padrão para 400kHz (2.5us mínimo, usando 2us)
 
 #include <Arduino.h>
 #include <stdint.h>
@@ -47,7 +48,6 @@ class SoftWire : public Stream {
     inline void setScl(uint8_t scl);
     inline void enablePullups(bool enablePullups = true);
 
-    inline void setDelay_us(uint8_t delay_us);
     inline void setTimeout_ms(uint16_t timeout_ms);
 
     // begin() must be called before use, and after any changes are made
@@ -139,8 +139,18 @@ class SoftWire : public Stream {
     uint8_t _sda;
     uint8_t _scl;
     uint8_t _inputMode;
-    uint8_t _delay_us;
     uint16_t _timeout_ms;
+
+    // Cache de registradores e máscaras para otimização (calculados uma vez no construtor)
+    volatile uint8_t *_sdaOut;   // Ponteiro para PORTx do SDA
+    volatile uint8_t *_sdaDdr;   // Ponteiro para DDRx do SDA
+    volatile uint8_t *_sdaIn;    // Ponteiro para PINx do SDA
+    uint8_t _sdaMask;            // Máscara de bit do SDA
+    
+    volatile uint8_t *_sclOut;   // Ponteiro para PORTx do SCL
+    volatile uint8_t *_sclDdr;   // Ponteiro para DDRx do SCL
+    volatile uint8_t *_sclIn;    // Ponteiro para PINx do SCL
+    uint8_t _sclMask;            // Máscara de bit do SCL
 
     // Additional member variables to support compatibility with Wire library
     uint8_t _rxBuffer[32];
@@ -180,7 +190,7 @@ uint8_t SoftWire::getScl(void) const
 
 uint8_t SoftWire::getDelay_us(void) const
 {
-  return _delay_us;
+  return DELAY_TIME_US;
 }
 
 
@@ -211,12 +221,6 @@ void SoftWire::setScl(uint8_t scl)
 void SoftWire::enablePullups(bool enable)
 {
   _inputMode = (enable ? INPUT_PULLUP : INPUT);
-}
-
-
-void SoftWire::setDelay_us(uint8_t delay_us)
-{
-  _delay_us = delay_us;
 }
 
 

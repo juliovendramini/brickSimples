@@ -159,6 +159,9 @@ typedef enum {
   TCS34725_GAIN_60X = 0x03  /**<  60x gain */
 } tcs34725Gain_t;
  
+
+#define TEMPO_ATUALIZACAO_SENSOR 66
+
 /*!
  *  @brief  Class that stores state and functions for interacting with
  *          TCS34725 Color Sensor
@@ -179,29 +182,28 @@ public:
 
   void setIntegrationTime(uint8_t it);
   void setGain(tcs34725Gain_t gain);
-  void getRawData(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
-  void getRGB(float *r, float *g, float *b);
-  void getRawDataOneShot(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
-  void getRawDataOneShotOff(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
-  void getRawDataWithoutInterference(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
-  void getRGBCCalibrado(uint16_t *r, uint16_t *g, uint16_t *b, uint16_t *c);
-  uint16_t calculateColorTemperature(uint16_t r, uint16_t g, uint16_t b);
-  uint16_t calculateColorTemperature_dn40(uint16_t r, uint16_t g, uint16_t b,
-                                          uint16_t c);
-  uint16_t calculateLux(uint16_t r, uint16_t g, uint16_t b);
+  void getRawData();
+  void getRGBC(uint16_t &red, uint16_t &green, uint16_t &blue, uint16_t &clear);
+  void getRawDataOneShot();
+  void getRawDataOneShotOff();
+  void getRawDataWithoutInterference();
+  void getRGBCCalibrado();
+  void setRGBCCalibrado(uint16_t r, uint16_t g, uint16_t b, uint16_t c);
   void write8(uint8_t reg, uint8_t value);
   uint8_t read8(uint8_t reg);
   uint16_t read16(uint8_t reg);
-  void setInterrupt(boolean flag);
-  void clearInterrupt();
-  void setIntLimits(uint16_t l, uint16_t h);
   void enable(bool wait = true);
   void enableLedOff(bool wait = true);
   void enablePON();
   void enablePON_AEN();
   void disable();
   void ledOff();
-  
+  uint16_t getR();
+  uint16_t getG();
+  uint16_t getB();
+  uint16_t getC();
+  void dadosAtualizados();
+
   // Calibração e EEPROM
   struct DadosCalibracao {
     uint16_t r;
@@ -214,7 +216,9 @@ public:
   DadosCalibracao dadosCalibracao;  // Estrutura para armazenar dados de calibração
   void calibrar();  // Lê valores atuais e salva na EEPROM
   boolean carregarCalibracao();  // Carrega calibração da EEPROM
+  void limpaCalibracao();  // Limpa calibração da EEPROM
   uint8_t getNumeroPorta();  // Retorna número da porta (1-5)
+  uint8_t last_status;
     
 private:
   uint16_t r;
@@ -223,11 +227,6 @@ private:
   uint16_t c;
   uint32_t ultimaAtualizacao; 
 
-public:
-  uint16_t getR() const { return r; }
-  uint16_t getG() const { return g; }
-  uint16_t getB() const { return b; }
-  uint16_t getC() const { return c; }
   SoftWire * bus;
   //Adafruit_I2CDevice *i2c_dev = NULL; ///< Pointer to I2C bus interface
   boolean _tcs34725Initialised;

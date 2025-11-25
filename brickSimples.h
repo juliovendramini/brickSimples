@@ -6,16 +6,17 @@
 #include "led.h"
 #include "ultrassonico.h"
 #include "giroscopio.h"
-#include "seguidor.h"
 
+#define MAXIMO_SENSORES 5
 
 class BrickSimples{
 public:
     private:
     bool motor1Invertido = false;
     bool motor2Invertido = false;
-    TCS34725 *listaTCS34725[5]={NULL, NULL, NULL, NULL, NULL};
-    VL53L0X *listaVL53L0X[5]={NULL, NULL, NULL, NULL, NULL};
+    TCS34725 *listaTCS34725[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
+    VL53L0X *listaVL53L0X[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
+    Ultrassonico *listaUltrassonico[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
 
     public:
     BrickSimples(){
@@ -156,9 +157,124 @@ public:
     }
 
     void atualiza(){
+        
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaVL53L0X[i] != NULL){
+                listaVL53L0X[i]->iniciaLeituraEmMilimetros();
+            }
+        }
 
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaUltrassonico[i] != NULL){
+                listaUltrassonico[i]->iniciaMedicao();
+            }
+        }
+        
+        uint32_t microsInicio = micros();
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->enablePON();
+            }
+        }
+        while(micros() - microsInicio < 2500); //pequena espera para garantir que os sensores estejam prontos
+        //delayMicroseconds(2500); //pequena espera para garantir que os sensores estejam prontos
+        
+        // microsInicio = micros();
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->enablePON_AEN();
+            }
+        }
+        //while(micros() - microsInicio < 3800);
+        delayMicroseconds(3400);
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->getRawData();
+            }
+        }
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->disable();
+            }
+        }
+        
+        microsInicio = micros();
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->enablePON();
+            }
+        }
+        while(micros() - microsInicio < 2500); //pequena espera para garantir que os sensores estejam prontos
+        
+        //delayMicroseconds(2500); //pequena espera para garantir que os sensores estejam prontos
+        //microsInicio = micros();
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->enablePON_AEN();
+                listaTCS34725[i]->ledOff();
+            }
+        }
+        //while(micros() - microsInicio < 3800);
+        delayMicroseconds(3400);
+        uint16_t r_on, g_on, b_on, c_on;
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                r_on = listaTCS34725[i]->getR();
+                g_on = listaTCS34725[i]->getG();
+                b_on = listaTCS34725[i]->getB();
+                c_on = listaTCS34725[i]->getC();
+                listaTCS34725[i]->getRawData();
+                listaTCS34725[i]->setRGBCCalibrado(r_on, g_on, b_on, c_on); //preciso fazer assim para poder partir o processo e paralellizar em todos os sensores para ganhar tempo
+            }
+        }
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] != NULL){
+                listaTCS34725[i]->disable();
+            }
+        }
+
+        for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+            if(listaVL53L0X[i] != NULL){
+                listaVL53L0X[i]->finalizaLeituraEmMilimetros();
+            }
+        }
+
+        // for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
+        //     if(listaUltrassonico[i] != NULL){
+        //         listaUltrassonico[i]->medicaoPronta();
+        //     }
+        // }
     }
 
+    void adiciona(TCS34725 *sensor){
+        for(int i=0; i<MAXIMO_SENSORES; i++){
+            if(listaTCS34725[i] == NULL){
+                listaTCS34725[i] = sensor;
+                break;
+            }
+        }
+        sensor->begin();
+    }
+
+    void adiciona(VL53L0X *sensor){
+        for(int i=0; i<MAXIMO_SENSORES; i++){
+            if(listaVL53L0X[i] == NULL){
+                listaVL53L0X[i] = sensor;
+                break;
+            }
+        }
+        sensor->init();
+    }
+
+    void adiciona(Ultrassonico *sensor){
+        for(int i=0; i<MAXIMO_SENSORES; i++){
+            if(listaUltrassonico[i] == NULL){
+                listaUltrassonico[i] = sensor;
+                break;
+            }
+        }
+        sensor->inicializa();
+    }
 };
 
 

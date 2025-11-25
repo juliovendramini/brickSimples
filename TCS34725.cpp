@@ -16,6 +16,31 @@ float powf(const float x, const float y) {
 }
 
 /*!
+ *  @brief  Constructor
+ *  @param  it
+ *          Integration Time
+ *  @param  gain
+ *          Gain
+ */
+TCS34725::TCS34725(PortaI2C porta, uint8_t it, tcs34725Gain_t gain) {
+  _tcs34725Initialised = false;
+  _tcs34725IntegrationTime = it;
+  _tcs34725Gain = gain;
+  this->sda = porta.sda;
+  this->scl = porta.scl;
+  strcpy(this->descricaoPorta, porta.descricao);
+  
+  // Extrai número da porta da descrição (ex: "I2C-1" -> 1)
+  if (porta.descricao[4] >= '1' && porta.descricao[4] <= '5') {
+    this->numeroPorta = porta.descricao[4] - '0';
+  } else {
+    this->numeroPorta = 0;  // Porta inválida
+  }
+}
+
+
+
+/*!
  *  @brief  Writes a register and an 8 bit value over I2C
  *  @param  reg
  *  @param  value
@@ -77,7 +102,7 @@ void TCS34725::ledOff() {
 /*!
  *  @brief  Enables the device
  */
-void TCS34725::enable(bool wait=true) {
+void TCS34725::enable(bool wait) {
   enablePON();
   delay(3);
   enablePON_AEN();
@@ -95,7 +120,7 @@ void TCS34725::enable(bool wait=true) {
 }
 
 
-void TCS34725::enableLedOff(bool wait = true) {
+void TCS34725::enableLedOff(bool wait) {
   enablePON();
   delay(3);
   enablePON_AEN();
@@ -123,28 +148,7 @@ void TCS34725::disable() {
   write8(TCS34725_ENABLE, reg & ~(TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN));
 }
 
-/*!
- *  @brief  Constructor
- *  @param  it
- *          Integration Time
- *  @param  gain
- *          Gain
- */
-TCS34725::TCS34725(PortaI2C porta, uint8_t it, tcs34725Gain_t gain) {
-  _tcs34725Initialised = false;
-  _tcs34725IntegrationTime = it;
-  _tcs34725Gain = gain;
-  this->sda = porta.sda;
-  this->scl = porta.scl;
-  strcpy(this->descricaoPorta, porta.descricao);
-  
-  // Extrai número da porta da descrição (ex: "I2C-1" -> 1)
-  if (porta.descricao[4] >= '1' && porta.descricao[4] <= '5') {
-    this->numeroPorta = porta.descricao[4] - '0';
-  } else {
-    this->numeroPorta = 0;  // Porta inválida
-  }
-}
+
 
 /*!
  *  @brief  Initializes I2C and configures the sensor
@@ -204,7 +208,11 @@ boolean TCS34725::init() {
   if(this->carregarCalibracao()) { //carrega calibração padrão
     Serial.println(F("Calibração carregada da EEPROM."));
   } else {
-    Serial.println(F("Nenhuma calibração válida encontrada na EEPROM, calibre o sensor."));
+    dadosCalibracao.r = 512;
+    dadosCalibracao.g = 512;
+    dadosCalibracao.b = 512;
+    dadosCalibracao.c = 1024;
+    Serial.println(F("Nenhuma calibração válida encontrada na EEPROM, usando calibração padrao sensor."));
     return true;
   }
 }
@@ -246,36 +254,24 @@ void TCS34725::setGain(tcs34725Gain_t gain) {
  *  @param  *c
  *          Clear channel value
  */
-void TCS34725::getRawData(uint16_t *r, uint16_t *g, uint16_t *b,
-                                   uint16_t *c) {
-  // *c = read16(TCS34725_CDATAL);
-  // *r = read16(TCS34725_RDATAL);
-  // *g = read16(TCS34725_GDATAL);
-  // *b = read16(TCS34725_BDATAL);
-
-uint8_t buffer[8]; // 8 bytes: C_low, C_high, R_low, R_high, G_low, G_high, B_low, B_high
-  
+void TCS34725::getRawData() {
+  uint8_t buffer[8]; // 8 bytes: C_low, C_high, R_low, R_high, G_low, G_high, B_low, B_high
   // Envia comando para ler a partir do registrador CDATAL (0x14)
   bus->beginTransmission(TCS34725_ADDRESS);
   bus->write(TCS34725_COMMAND_BIT | TCS34725_CDATAL);
   last_status = bus->endTransmission();
-  
   // Solicita 8 bytes consecutivos (auto-incremento ativado)
   bus->requestFrom(TCS34725_ADDRESS, (uint8_t)8);
-  
   // Lê todos os 8 bytes de uma vez
   for (uint8_t i = 0; i < 8; i++) {
     buffer[i] = bus->read();
   }
-  
   // Monta os valores uint16_t (little-endian: low byte primeiro)
-  *c = (uint16_t(buffer[1]) << 8) | uint16_t(buffer[0]);
-  *r = (uint16_t(buffer[3]) << 8) | uint16_t(buffer[2]);
-  *g = (uint16_t(buffer[5]) << 8) | uint16_t(buffer[4]);
-  *b = (uint16_t(buffer[7]) << 8) | uint16_t(buffer[6]);
-
-
-
+  this->c = (uint16_t(buffer[1]) << 8) | uint16_t(buffer[0]);
+  this->r = (uint16_t(buffer[3]) << 8) | uint16_t(buffer[2]);
+  this->g = (uint16_t(buffer[5]) << 8) | uint16_t(buffer[4]);
+  this->b = (uint16_t(buffer[7]) << 8) | uint16_t(buffer[6]);
+  this->ultimaAtualizacao = millis();
   //o delay é pelo codigo e nao aqui
   /* Set a delay for the integration time */
   /* 12/5 = 2.4, add 1 to account for integer truncation */
@@ -295,282 +291,163 @@ uint8_t buffer[8]; // 8 bytes: C_low, C_high, R_low, R_high, G_low, G_high, B_lo
  *  @param  *c
  *          Clear channel value
  */
-void TCS34725::getRawDataOneShot(uint16_t *r, uint16_t *g, uint16_t *b,
-                                          uint16_t *c) {
+void TCS34725::getRawDataOneShot() {
   enable();
-  getRawData(r, g, b, c);
+  getRawData();
   disable();
 }
 
 
-void TCS34725::getRawDataOneShotOff(uint16_t *r, uint16_t *g, uint16_t *b,
-                                          uint16_t *c) {
+void TCS34725::getRawDataOneShotOff() {
   enableLedOff();
-  getRawData(r, g, b, c);
+  getRawData();
   disable();
 }  
 
 
-void TCS34725::getRawDataWithoutInterference(uint16_t *r, uint16_t *g, uint16_t *b,
-                                          uint16_t *c) {
+void TCS34725::getRawDataWithoutInterference() {
   uint16_t red1, green1, blue1, clear1;
   uint16_t red2, green2, blue2, clear2;      
   enable();                                      
-  getRawData(&red1, &green1, &blue1, &clear1);
+  getRawData();
+  red1 = this->r;
+  green1 = this->g;
+  blue1 = this->b;
+  clear1 = this->c;
   disable();
   //delay(3);
   enableLedOff();
-  getRawData(&red2, &green2, &blue2, &clear2);
+  getRawData();
+  red2 = this->r;
+  green2 = this->g;
+  blue2 = this->b;
+  clear2 = this->c;
   disable();
   //se o led nao estiver desativando, vai dar problema. Então tenho que tratar isso
-  *r = red1 - red2;
-  if(*r > 64000) *r = 0;
-  *g = green1 - green2;
-  if(*g > 64000) *g = 0;
-  *b = blue1 - blue2;
-  if(*b > 64000) *b = 0;
-  *c = clear1 - clear2;
-  if(*c > 64000) *c = 0;
+  this->r = red1 - red2;
+  if(this->r > 64000) this->r = 0;
+  this->g = green1 - green2;
+  if(this->g > 64000) this->g = 0;
+  this->b = blue1 - blue2;
+  if(this->b > 64000) this->b = 0;
+  this->c = clear1 - clear2;
+  if(this->c > 64000) this->c = 0;
+}
+
+void TCS34725::setRGBCCalibrado(uint16_t red1, uint16_t green1, uint16_t blue1, uint16_t clear1) {
+  //se o led nao estiver desativando, vai dar problema. Então tenho que tratar isso
+  this->r = red1 - this->r;
+  if(this->r > 64000) this->r = 0;
+  this->g = green1 - this->g;
+  if(this->g > 64000) this->g = 0;
+  this->b = blue1 - this->b;
+  if(this->b > 64000) this->b = 0;
+  this->c = clear1 - this->c;
+  if(this->c > 64000) this->c = 0;
+  // Aplica calibração
+  this->r = (uint32_t)this->r * 255 / dadosCalibracao.r;
+  this->g = (uint32_t)this->g * 255 / dadosCalibracao.g;
+  this->b = (uint32_t)this->b * 255 / dadosCalibracao.b;
+  this->c = (uint32_t)this->c * 255 / dadosCalibracao.c;
+  if(this->r > 255) this->r = 255;
+  if(this->g > 255) this->g = 255;
+  if(this->b > 255) this->b = 255;
+  if(this->c > 255) this->c = 255;
 }  
 
-void TCS34725::getRGBCCalibrado(uint16_t *r, uint16_t *g, uint16_t *b,
-                                   uint16_t *c) {
+void TCS34725::getRGBCCalibrado() {
   uint16_t redRaw, greenRaw, blueRaw, clearRaw;
-  getRawDataWithoutInterference(&redRaw, &greenRaw, &blueRaw, &clearRaw);
+  getRawDataWithoutInterference();
+  redRaw = this->r;
+  greenRaw = this->g;
+  blueRaw = this->b;
+  clearRaw = this->c;
   
-  if(*r > 64000) *r = 0;
-  if(*g > 64000) *g = 0;
-  if(*b > 64000) *b = 0;
-  if(*c > 64000) *c = 0;
+  if(this->r > 64000) this->r = 0;
+  if(this->g > 64000) this->g = 0;
+  if(this->b > 64000) this->b = 0;
+  if(this->c > 64000) this->c = 0;
   // Aplica calibração
-  *r = (uint32_t)redRaw * 255 / dadosCalibracao.r;
-  *g = (uint32_t)greenRaw * 255 / dadosCalibracao.g;
-  *b = (uint32_t)blueRaw * 255 / dadosCalibracao.b;
-  *c = (uint32_t)clearRaw * 255 / dadosCalibracao.c;
-  if(*r > 255) *r = 255;
-  if(*g > 255) *g = 255;
-  if(*b > 255) *b = 255;
-  if(*c > 255) *c = 255;
-}
-
-
-/*!
- *  @brief  Read the RGB color detected by the sensor.
- *  @param  *r
- *          Red value normalized to 0-255
- *  @param  *g
- *          Green value normalized to 0-255
- *  @param  *b
- *          Blue value normalized to 0-255
- */
-void TCS34725::getRGB(float *r, float *g, float *b) {
-  uint16_t red, green, blue, clear;
-  getRawData(&red, &green, &blue, &clear);
-  uint32_t sum = clear;
-
-  // Avoid divide by zero errors ... if clear = 0 return black
-  if (clear == 0) {
-    *r = *g = *b = 0;
-    return;
-  }
-
-  *r = (float)red / sum * 255.0;
-  *g = (float)green / sum * 255.0;
-  *b = (float)blue / sum * 255.0;
+  this->r = (uint32_t)redRaw * 255 / dadosCalibracao.r;
+  this->g = (uint32_t)greenRaw * 255 / dadosCalibracao.g;
+  this->b = (uint32_t)blueRaw * 255 / dadosCalibracao.b;
+  this->c = (uint32_t)clearRaw * 255 / dadosCalibracao.c;
+  if(this->r > 255) this->r = 255;
+  if(this->g > 255) this->g = 255;
+  if(this->b > 255) this->b = 255;
+  if(this->c > 255) this->c = 255;
 }
 
 /*!
- *  @brief  Converts the raw R/G/B values to color temperature in degrees Kelvin
- *  @param  r
- *          Red value
- *  @param  g
- *          Green value
- *  @param  b
- *          Blue value
- *  @return Color temperature in degrees Kelvin
+ *  @brief  Retorna o valor vermelho (red)
+ *  @return Valor red
  */
-uint16_t TCS34725::calculateColorTemperature(uint16_t r, uint16_t g,
-                                                      uint16_t b) {
-  float X, Y, Z; /* RGB to XYZ correlation      */
-  float xc, yc;  /* Chromaticity co-ordinates   */
-  float n;       /* McCamy's formula            */
-  float cct;
-
-  if (r == 0 && g == 0 && b == 0) {
-    return 0;
+uint16_t TCS34725::getR() {
+  if (millis() - ultimaAtualizacao > TEMPO_ATUALIZACAO_SENSOR) {
+    getRGBCCalibrado();
   }
-
-  /* 1. Map RGB values to their XYZ counterparts.    */
-  /* Based on 6500K fluorescent, 3000K fluorescent   */
-  /* and 60W incandescent values for a wide range.   */
-  /* Note: Y = Illuminance or lux                    */
-  X = (-0.14282F * r) + (1.54924F * g) + (-0.95641F * b);
-  Y = (-0.32466F * r) + (1.57837F * g) + (-0.73191F * b);
-  Z = (-0.68202F * r) + (0.77073F * g) + (0.56332F * b);
-
-  /* 2. Calculate the chromaticity co-ordinates      */
-  xc = (X) / (X + Y + Z);
-  yc = (Y) / (X + Y + Z);
-
-  /* 3. Use McCamy's formula to determine the CCT    */
-  n = (xc - 0.3320F) / (0.1858F - yc);
-
-  /* Calculate the final CCT */
-  cct =
-      (449.0F * powf(n, 3)) + (3525.0F * powf(n, 2)) + (6823.3F * n) + 5520.33F;
-
-  /* Return the results in degrees Kelvin */
-  return (uint16_t)cct;
+  return this->r;
 }
 
 /*!
- *  @brief  Converts the raw R/G/B values to color temperature in degrees
- *          Kelvin using the algorithm described in DN40 from Taos (now AMS).
- *  @param  r
- *          Red value
- *  @param  g
- *          Green value
- *  @param  b
- *          Blue value
- *  @param  c
- *          Clear channel value
- *  @return Color temperature in degrees Kelvin
+ *  @brief  Retorna o valor verde (green)
+ *  @return Valor green
  */
-uint16_t TCS34725::calculateColorTemperature_dn40(uint16_t r,
-                                                           uint16_t g,
-                                                           uint16_t b,
-                                                           uint16_t c) {
-  uint16_t r2, b2; /* RGB values minus IR component */
-  uint16_t sat;    /* Digital saturation level */
-  uint16_t ir;     /* Inferred IR content */
-
-  if (c == 0) {
-    return 0;
+uint16_t TCS34725::getG() {
+  if (millis() - ultimaAtualizacao > TEMPO_ATUALIZACAO_SENSOR) {
+    getRGBCCalibrado();
   }
-
-  /* Analog/Digital saturation:
-   *
-   * (a) As light becomes brighter, the clear channel will tend to
-   *     saturate first since R+G+B is approximately equal to C.
-   * (b) The TCS34725 accumulates 1024 counts per 2.4ms of integration
-   *     time, up to a maximum values of 65535. This means analog
-   *     saturation can occur up to an integration time of 153.6ms
-   *     (64*2.4ms=153.6ms).
-   * (c) If the integration time is > 153.6ms, digital saturation will
-   *     occur before analog saturation. Digital saturation occurs when
-   *     the count reaches 65535.
-   */
-  if ((256 - _tcs34725IntegrationTime) > 63) {
-    /* Track digital saturation */
-    sat = 65535;
-  } else {
-    /* Track analog saturation */
-    sat = 1024 * (256 - _tcs34725IntegrationTime);
-  }
-
-  /* Ripple rejection:
-   *
-   * (a) An integration time of 50ms or multiples of 50ms are required to
-   *     reject both 50Hz and 60Hz ripple.
-   * (b) If an integration time faster than 50ms is required, you may need
-   *     to average a number of samples over a 50ms period to reject ripple
-   *     from fluorescent and incandescent light sources.
-   *
-   * Ripple saturation notes:
-   *
-   * (a) If there is ripple in the received signal, the value read from C
-   *     will be less than the max, but still have some effects of being
-   *     saturated. This means that you can be below the 'sat' value, but
-   *     still be saturating. At integration times >150ms this can be
-   *     ignored, but <= 150ms you should calculate the 75% saturation
-   *     level to avoid this problem.
-   */
-  if ((256 - _tcs34725IntegrationTime) <= 63) {
-    /* Adjust sat to 75% to avoid analog saturation if atime < 153.6ms */
-    sat -= sat / 4;
-  }
-
-  /* Check for saturation and mark the sample as invalid if true */
-  if (c >= sat) {
-    return 0;
-  }
-
-  /* AMS RGB sensors have no IR channel, so the IR content must be */
-  /* calculated indirectly. */
-  ir = (r + g + b > c) ? (r + g + b - c) / 2 : 0;
-
-  /* Remove the IR component from the raw RGB values */
-  r2 = r - ir;
-  b2 = b - ir;
-
-  if (r2 == 0) {
-    return 0;
-  }
-
-  /* A simple method of measuring color temp is to use the ratio of blue */
-  /* to red light, taking IR cancellation into account. */
-  uint16_t cct = (3810 * (uint32_t)b2) / /** Color temp coefficient. */
-                    (uint32_t)r2 +
-                 1391; /** Color temp offset. */
-
-  return cct;
+  return this->g;
 }
 
 /*!
- *  @brief  Converts the raw R/G/B values to lux
- *  @param  r
- *          Red value
- *  @param  g
- *          Green value
- *  @param  b
- *          Blue value
- *  @return Lux value
+ *  @brief  Retorna o valor azul (blue)
+ *  @return Valor blue
  */
-uint16_t TCS34725::calculateLux(uint16_t r, uint16_t g, uint16_t b) {
-  float illuminance;
-
-  /* This only uses RGB ... how can we integrate clear or calculate lux */
-  /* based exclusively on clear since this might be more reliable?      */
-  illuminance = (-0.32466F * r) + (1.57837F * g) + (-0.73191F * b);
-
-  return (uint16_t)illuminance;
-}
-
-/*!
- *  @brief  Sets interrupt for TCS34725
- *  @param  i
- *          Interrupt (True/False)
- */
-void TCS34725::setInterrupt(boolean i) {
-  uint8_t r = read8(TCS34725_ENABLE);
-  if (i) {
-    r |= TCS34725_ENABLE_AIEN;
-  } else {
-    r &= ~TCS34725_ENABLE_AIEN;
+uint16_t TCS34725::getB() {
+  if (millis() - ultimaAtualizacao > TEMPO_ATUALIZACAO_SENSOR) {
+    getRGBCCalibrado();
   }
-  write8(TCS34725_ENABLE, r);
+  return this->b;
 }
 
 /*!
- *  @brief  Clears inerrupt for TCS34725
+ *  @brief  Retorna o valor clear
+ *  @return Valor clear
  */
-void TCS34725::clearInterrupt() {
-  uint8_t buffer[1] = {TCS34725_COMMAND_BIT | 0x66};
-  bus->write(buffer, 1);
+uint16_t TCS34725::getC() {
+  if (millis() - ultimaAtualizacao > TEMPO_ATUALIZACAO_SENSOR) {
+    getRGBCCalibrado();
+  }
+  return this->c;
 }
 
 /*!
- *  @brief  Sets inerrupt limits
- *  @param  low
- *          Low limit
- *  @param  high
- *          High limit
+ *  @brief  Retorna os valores RGBC através de parâmetros de referência
+ *  @param  red
+ *          Referência para armazenar o valor vermelho
+ *  @param  green
+ *          Referência para armazenar o valor verde
+ *  @param  blue
+ *          Referência para armazenar o valor azul
+ *  @param  clear
+ *          Referência para armazenar o valor clear
  */
-void TCS34725::setIntLimits(uint16_t low, uint16_t high) {
-  write8(0x04, low & 0xFF);
-  write8(0x05, low >> 8);
-  write8(0x06, high & 0xFF);
-  write8(0x07, high >> 8);
+void TCS34725::getRGBC(uint16_t &red, uint16_t &green, uint16_t &blue, uint16_t &clear) {
+  if (millis() - ultimaAtualizacao > TEMPO_ATUALIZACAO_SENSOR) {
+    getRGBCCalibrado();
+  }
+  red = this->r;
+  green = this->g;
+  blue = this->b;
+  clear = this->c;
+}
+
+/*!
+ *  @brief  Atualiza o timestamp da última atualização
+ */
+void TCS34725::dadosAtualizados() {
+  ultimaAtualizacao = millis();
 }
 
 /*!
@@ -596,8 +473,11 @@ void TCS34725::calibrar() {
   
   // Lê valores atuais do sensor
   //getRawData(&dados.r, &dados.g, &dados.b, &dados.c);
-  getRawDataWithoutInterference(&dados.r, &dados.g, &dados.b, &dados.c);
-  
+  getRawDataWithoutInterference();
+  dados.r = this->r;
+  dados.g = this->g;
+  dados.b = this->b;
+  dados.c = this->c;
   // Calcula checksum simples (XOR dos bytes)
   dados.checksum = 0;
   uint8_t *ptr = (uint8_t *)&dados;
@@ -636,5 +516,19 @@ boolean TCS34725::carregarCalibracao() {
   
   // Retorna true se checksum é válido
   return (checksumCalculado == dadosCalibracao.checksum);
+}
+
+void TCS34725::limpaCalibracao(){
+  DadosCalibracao dados;
+  dados.r = 0;
+  dados.g = 0;
+  dados.b = 0;
+  dados.c = 0;
+  dados.checksum = 1;
+  // Calcula endereço na EEPROM: 100 + (numeroPorta - 1) * tamanho
+  uint16_t enderecoBase = 100 + (numeroPorta - 1) * sizeof(DadosCalibracao);
+  // Salva na EEPROM
+  EEPROM.put(enderecoBase, dados);
+  Serial.println(F("Calibração apagada da EEPROM."));
 }
 

@@ -2,7 +2,7 @@
 #define _BMI160_SERIAL_H_
 
 #include <Arduino.h>
-#include <SoftwareSerial.h>
+#include "SoftwareSerial.h"
 
 // Modos de operação do BMI160
 #define BMI160_GYRO_CAL  0  // Modo calibração
@@ -45,7 +45,7 @@ public:
     
     // Inicializa comunicação serial com o BMI160
     // porta: Porta I2C será usada para RX/TX (SDA=RX, SCL=TX)
-    void inicializar(PortaSerial porta, uint32_t baudRate = 115200) {
+    void inicializa(PortaSerial porta, uint32_t baudRate = 115200) {
         pinoRX = porta.rx;
         pinoTX = porta.tx;
         
@@ -87,7 +87,6 @@ public:
         
         modoAtual = modo;
         //nao envio o modo novo (já que o envio do modo é a solicitação de dados)
-        // serial->listen();
         // serial->write(modo);
         
         // // Aguarda processamento
@@ -98,7 +97,6 @@ public:
     void calibrar() {
         Serial.println(F("Calibrando giroscopio..."));
         setModo(BMI160_GYRO_CAL);
-        serial->listen();
         serial->write(modoAtual);
         uint32_t inicio = millis();
         uint8_t bytesRecebidos = 0;
@@ -108,7 +106,6 @@ public:
                 bufferRx[bytesRecebidos++] = serial->read();
             }
         }
-        serial->stopListening();
         setModo(BMI160_GYRO); // Volta ao modo normal
         if(bytesRecebidos < 1 || bufferRx[0] != 1) {
             Serial.println(F("Erro: Timeout na calibracao do BMI160"));
@@ -121,7 +118,6 @@ public:
     // Lê os dados do BMI160 (solicita e aguarda resposta)
     bool lerDados() {
         if(!inicializado) return false;
-        serial->listen();
         // Envia requisição (envia o modo atual novamente)
         serial->write(modoAtual);
         // Aguarda receber 8 bytes
@@ -133,7 +129,6 @@ public:
                 bufferRx[bytesRecebidos++] = serial->read();
             }
         }
-        serial->stopListening();
         // Verifica se recebeu todos os bytes
         if(bytesRecebidos < 8) {
             Serial.println(F("Timeout: Dados incompletos do BMI160"));

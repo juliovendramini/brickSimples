@@ -39,12 +39,19 @@ VL53L0X::VL53L0X(PortaI2C porta)
   , io_timeout(0) // no timeout
   , did_timeout(false)
 {
-  bus = new SoftWire(porta.sda, porta.scl); //pinos SDA e SCL escolhidos
+  bus = NULL;
+  this->sda = porta.sda;
+  this->scl = porta.scl;
   strcpy(this->descricaoPorta, porta.descricao);
-  bus->setTimeout_ms(40);
-  bus->begin();
-  bus->setTimeout_ms(100);
   
+  // Extrai número da porta da descrição (ex: "I2C-1" -> 1)
+  if (porta.descricao[4] >= '1' && porta.descricao[4] <= '5') {
+    this->numeroPorta = porta.descricao[4] - '0';
+  } else {
+    this->numeroPorta = 0;  // Porta inválida
+  }
+
+
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -66,6 +73,13 @@ void VL53L0X::setAddress(uint8_t new_addr)
 bool VL53L0X::init(bool io_2v8)
 {
   uint8_t temp;
+  if (this->bus == NULL){
+    this->bus = new SoftWire(this->sda, this->scl); //pinos SDA e SCL escolhidos
+    this->bus->setTimeout_ms(40);
+    this->bus->begin();
+    this->bus->setTimeout_ms(100);
+  }
+
   //Altero o endereco do VL53 para poder utilizar ele na mesma porta com um TCS34725, pois eles possuem o mesmo ID  
   //ATENÇÃO! PARA ISSO FUNCIONAR, O VL53 SEMPRE TEM QUE SER DECLARADO PRIMEIRO DO QUE O TCS34725
   this->address = 0x30; 
@@ -1054,4 +1068,46 @@ bool VL53L0X::performSingleRefCalibration(uint8_t vhv_init_byte)
   writeReg(SYSRANGE_START, 0x00);
 
   return true;
+}
+
+uint16_t VL53L0X::getDistancia(){
+  if (millis() - ultimaAtualizacao > 100) {
+    distancia = readRangeSingleMillimeters();
+    ultimaAtualizacao = millis();
+  }
+  return distancia;
+}
+
+// Performs a single-shot range measurement and returns the reading in
+// millimeters
+// based on VL53L0X_PerformSingleRangingMeasurement()
+bool VL53L0X::iniciaLeituraEmMilimetros()
+{
+  writeReg(0x80, 0x01);
+  writeReg(0xFF, 0x01);
+  writeReg(0x00, 0x00);
+  writeReg(0x91, stop_variable);
+  writeReg(0x00, 0x01);
+  writeReg(0xFF, 0x00);
+  writeReg(0x80, 0x00);
+
+  writeReg(SYSRANGE_START, 0x01);
+
+  // // "Wait until start bit has been cleared"
+  // startTimeout();
+  // while (readReg(SYSRANGE_START) & 0x01)
+  // {
+  //   if (checkTimeoutExpired())
+  //   {
+  //     did_timeout = true;
+  //     return false;
+  //   }
+  // }
+  return true;
+}
+
+void VL53L0X::finalizaLeituraEmMilimetros()
+{
+  this->distancia = readRangeContinuousMillimeters();
+  ultimaAtualizacao = millis();
 }
