@@ -46,14 +46,14 @@ struct PortaSerial{
 // Portas I2C
 #define PORTA_I2C_1 {14, 15, "I2C-1"}
 #define PORTA_I2C_2 {16, 17, "I2C-2"}
-#define PORTA_I2C_3 {8, 9, "I2C-3"}
+#define PORTA_I2C_3 {8, 6, "I2C-3"}
 #define PORTA_I2C_4 {2, 3, "I2C-4"}
 #define PORTA_I2C_5 {18, 19, "I2C-5"}
 
 // Portas Serial (Software Serial)
 #define PORTA_SERIAL_1 {14, 15, "SER-1"}
 #define PORTA_SERIAL_2 {16, 17, "SER-2"}
-#define PORTA_SERIAL_3 {8, 9, "SER-3"}
+#define PORTA_SERIAL_3 {8, 6, "SER-3"}
 #define PORTA_SERIAL_4 {2, 3, "SER-4"}
 #define PORTA_SERIAL_5 {18, 19, "SER-5"}
 
@@ -61,13 +61,13 @@ struct PortaSerial{
 #define PORTA_SERVO_1 {1, 13, "S1"}
 #define PORTA_SERVO_2 {2, 12, "S2"}
 #define PORTA_SERVO_3 {3, 11, "S3"}
-#define PORTA_SERVO_4 {4, 10, "S4"}
+#define PORTA_SERVO_4 {4, 5, "S4"}
 
 // Portas LED
 #define PORTA_LED_1 {1, 13, "S1"}
 #define PORTA_LED_2 {2, 12, "S2"}
 #define PORTA_LED_3 {3, 11, "S3"}
-#define PORTA_LED_4 {4, 10, "S4"}
+#define PORTA_LED_4 {4, 5, "S4"}
 
 // Portas Analógicas
 #define PORTA_ANALOGICA_1 {A0, A1}
@@ -77,7 +77,7 @@ struct PortaSerial{
 // Portas Ultrassônico
 #define PORTA_ULTRASSONICO_1 {14, 15, "US-1"}
 #define PORTA_ULTRASSONICO_2 {16, 17, "US-2"}
-#define PORTA_ULTRASSONICO_3 {8, 9, "US-3"}
+#define PORTA_ULTRASSONICO_3 {8, 6, "US-3"}
 #define PORTA_ULTRASSONICO_4 {2, 3, "US-4"}
 #define PORTA_ULTRASSONICO_5 {18, 19, "US-5"}
 

@@ -1,0 +1,2 @@
+C:\Users\Julio\AppData\Local\Arduino15\packages\MiniCore\tools\avrdude\8.0-arduino.1/bin/avrdude -CC:\Users\Julio\AppData\Local\Arduino15\packages\MiniCore\tools\avrdude\8.0-arduino.1/etc/avrdude.conf -v -patmega328pb -cstk500v1 -PCOM7 -b57600  -D -U flash:w:"brickSimples.ino.with_bootloader_atmega328pb_16000000L.hex":i  -e -Ulock:w:0xff:m -Uefuse:w:0b11110101:m -Uhfuse:w:0xd7:m -Ulfuse:w:0b11111111:m 
+pause

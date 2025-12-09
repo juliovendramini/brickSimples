@@ -26,17 +26,15 @@ public:
     void inicializa(){
         Serial.begin(115200);
         
-        // Configura Timer0 para PWM em ~244Hz (prescaler 256)
-        // Timer0 controla PWM dos pinos 5 e 6 (motores)
-        //TCCR0B = (TCCR0B & 0b11111000) | 0x04; // Prescaler 256
-        // Frequência PWM resultante: 16MHz / (256 * 256) = 244.14Hz
-        
+        // Configura Timer1 para PWM em ~122Hz (prescaler 1024)
+        // Timer1 controla PWM dos pinos 9 e 10 (motores)
+        TCCR1B = (TCCR1B & 0b11111000) | 0x05; // Prescaler 1024 (~31Hz PWM)
         //PINOS MOTOR ESQUERDO
-        pinMode(6, OUTPUT);
+        pinMode(9, OUTPUT);
         pinMode(7, OUTPUT);
 
         //PINOS MOTOR DIREITO
-        pinMode(5, OUTPUT);
+        pinMode(10, OUTPUT);
         pinMode(4, OUTPUT);
         Serial.println("Hello, Brick Simples!");
         Serial.print("Tensao da bateria: ");
@@ -98,19 +96,19 @@ public:
         potenciaMotorDireito(potenciaDir);
     }
 
-    // Controla motor esquerdo (pinos 6 e 7)
+    // Controla motor esquerdo (pinos 9 e 7)
     void potenciaMotorEsquerdo(int potencia){
         // Limita a potência entre -255 e 255
         potencia = constrain(potencia, -255, 255);
         
         if(potencia >= 0){
-            // Frente: pino 6 com PWM, pino 7 LOW
-            analogWrite(6, potencia);
+            // Frente: pino 9 com PWM, pino 7 LOW
+            analogWrite(9, potencia);
             digitalWrite(7, LOW);
         } else {
-            // Reverso: pino 6 LOW, pino 7 HIGH (sem PWM no pino 7)
+            // Reverso: pino 9 LOW, pino 7 HIGH (sem PWM no pino 7)
             potencia = -potencia;
-            analogWrite(6, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
+            analogWrite(9, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
             digitalWrite(7, HIGH);
         }
     }
@@ -121,29 +119,29 @@ public:
         potencia = constrain(potencia, -255, 255);
         
         if(potencia >= 0){
-            // Frente: pino 5 com PWM, pino 4 LOW
-            analogWrite(5, potencia);
+            // Frente: pino 10 com PWM, pino 4 LOW
+            analogWrite(10, potencia);
             digitalWrite(4, LOW);
         } else {
-            // Reverso: pino 5 LOW, pino 4 HIGH (sem PWM no pino 4)
+            // Reverso: pino 10 LOW, pino 4 HIGH (sem PWM no pino 4)
             potencia = -potencia;
-            analogWrite(5, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
+            analogWrite(10, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
             digitalWrite(4, HIGH);
         }
     }
 
     // Para ambos os motores
     void pararMotores(){
-        digitalWrite(6, LOW);
+        digitalWrite(9, LOW);
         digitalWrite(7, LOW);
-        digitalWrite(5, LOW);
+        digitalWrite(10, LOW);
         digitalWrite(4, LOW);
     }
 
     void frearMotores(){
-        digitalWrite(6, HIGH);
+        digitalWrite(9, HIGH);
         digitalWrite(7, HIGH);
-        digitalWrite(5, HIGH);
+        digitalWrite(10, HIGH);
         digitalWrite(4, HIGH);
     }
 
