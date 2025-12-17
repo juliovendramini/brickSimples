@@ -32,18 +32,21 @@ public:
     ~Motor(){
     }
     void potencia(int potencia){
-        // Limita a potência entre -255 e 255
-        potencia = constrain(potencia, -255, 255);
+        // Agora a potência é de -100 a 100 (regra de 3 para 0-255 no PWM)
+        potencia = constrain(potencia, -100, 100);
         if(invertido) potencia = -potencia;
         this->potenciaAtual = potencia;
+
         if(potencia >= 0){
-            // Frente: pino 10 com PWM, pino 4 LOW
-            analogWrite(pwm, potencia);
+            // Frente: converte de 0-100 para 0-255 (regra de 3 manual)
+            int pwmValor = (potencia * 255) / 100; // 0 -> 0, 100 -> 255
+            analogWrite(pwm, pwmValor);
             digitalWrite(dir, LOW);
         } else {
-            // Reverso: pino 10 LOW, pino 4 HIGH (sem PWM no pino 4)
-            potencia = -potencia;
-            analogWrite(pwm, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
+            // Reverso: usa módulo da potência, converte 0-100 para 0-255 (regra de 3 manual)
+            int potAbs = -potencia;       // potAbs vai de 0 a 100
+            int pwmValor = (potAbs * 255) / 100; // 0 -> 0, 100 -> 255
+            analogWrite(pwm, 255 - pwmValor); // mantém a lógica original invertendo o valor
             digitalWrite(dir, HIGH);
         }
     }
@@ -55,6 +58,10 @@ public:
     void parar(){
         digitalWrite(pwm, LOW);
         digitalWrite(dir, LOW);
+    }
+    void setInvertido(bool invertido){
+        this->invertido = invertido;
+        potencia(this->potenciaAtual);
     }
 };
 
@@ -129,15 +136,23 @@ public:
 
     
     // Controla ambos os motores com a mesma potência
-    // potencia: -255 a 255 (negativo = reverso, positivo = frente)
+    // potencia: -100 a 100 (negativo = reverso, positivo = frente)
     void potenciaMotores(int potencia){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            return;
+        }
         listaMotor[0]->potencia(potencia);
         listaMotor[1]->potencia(potencia);
     }
 
     // Controla motores independentemente
-    // potenciaEsq, potenciaDir: -255 a 255
+    // potenciaEsq, potenciaDir: -100 a 100
     void potenciaMotores(int pot1, int pot2){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            return;
+        }
         listaMotor[0]->potencia(pot1);
         listaMotor[1]->potencia(pot2);
     }
@@ -145,11 +160,19 @@ public:
 
     // Para ambos os motores
     void pararMotores(){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            return;
+        }
         listaMotor[0]->parar();
         listaMotor[1]->parar();
     }
 
     void frearMotores(){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            return;
+        }
         listaMotor[0]->frear();
         listaMotor[1]->frear();
     }
