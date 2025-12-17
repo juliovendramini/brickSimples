@@ -131,27 +131,27 @@ public:
     // Controla ambos os motores com a mesma potência
     // potencia: -255 a 255 (negativo = reverso, positivo = frente)
     void potenciaMotores(int potencia){
-        motor[0]->potencia(potencia);
-        motor[1]->potencia(potencia);
+        listaMotor[0]->potencia(potencia);
+        listaMotor[1]->potencia(potencia);
     }
 
     // Controla motores independentemente
     // potenciaEsq, potenciaDir: -255 a 255
     void potenciaMotores(int pot1, int pot2){
-        motor[0]->potencia(pot1);
-        motor[1]->potencia(pot2);
+        listaMotor[0]->potencia(pot1);
+        listaMotor[1]->potencia(pot2);
     }
 
 
     // Para ambos os motores
     void pararMotores(){
-        motor[0]->parar();
-        motor[1]->parar();
+        listaMotor[0]->parar();
+        listaMotor[1]->parar();
     }
 
     void frearMotores(){
-        motor[0]->frear();
-        motor[1]->frear();
+        listaMotor[0]->frear();
+        listaMotor[1]->frear();
     }
 
     bool botaoApertado(){
