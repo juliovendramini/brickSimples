@@ -75,6 +75,7 @@ public:
     VL53L0X *listaVL53L0X[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
     Ultrassonico *listaUltrassonico[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
     Motor *listaMotor[2]={NULL, NULL};
+    LEDStrip *ledStrip[4] = {NULL, NULL, NULL, NULL};
 
     public:
     BrickSimples(){
@@ -304,6 +305,16 @@ public:
             }
         }
         sensor->inicializa();
+    }
+
+    void adiciona(LEDStrip *leds){
+        for(int i=0; i<4; i++){ // quantidade de portas de servo/led
+            if(ledStrip[i] == NULL){
+                ledStrip[i] = leds;
+                break;
+            }
+        }
+        leds->inicializa();
     }
 
     void adiciona(Motor *motor1, Motor *motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"

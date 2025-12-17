@@ -5,6 +5,7 @@ TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
 TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
 VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
 //VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
+LEDStrip led1 = LEDStrip(PORTA_LED_1);
 Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
 VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 //Servo servo;
@@ -26,7 +27,7 @@ void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
     
     brick.adiciona(&Motor1, &Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    
+    brick.adiciona(&led1);    
     servos.iniciaServo(PORTA_SERVO_1);
     servos.iniciaServo(PORTA_SERVO_2);
     servos.iniciaServo(PORTA_SERVO_3);

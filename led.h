@@ -16,7 +16,7 @@ private:
     uint8_t numLeds;
     uint8_t pino;
     bool inicializado;
-    
+    char descricaoPorta[6];
     // Tabelas de pinos para ATmega328P (Arduino Nano/Uno)
     //static const uint8_t pinBit[];
     //static const uint8_t pinAddr[];
@@ -176,7 +176,13 @@ private:
     }
 
 public:
-    LEDStrip() : leds(nullptr), numLeds(0), pino(0), inicializado(false) {}
+    LEDStrip(PortaLed porta, int quantidade=10) {
+        leds = nullptr;
+        numLeds=quantidade;
+        pino=porta.pino;
+        inicializado=false;
+        strcpy(this->descricaoPorta, porta.descricao);
+    }
     
     ~LEDStrip() {
         if(leds != nullptr) {
@@ -185,14 +191,11 @@ public:
     }
     
     // Inicializa a fita de LEDs em uma porta de servo/led específica
-    void inicializa(PortaLed porta, uint8_t quantidade) {
-        if(quantidade == 0 || quantidade > 10) {
+    void inicializa() {
+        if(this->numLeds == 0 || this->numLeds > 10) {
             Serial.println(F("Erro: quantidade de LEDs invalida (1-10)"));
-            return;
+            while(1);
         }
-        
-        numLeds = quantidade;
-        pino = porta.pino;
         
         // Aloca memória para os LEDs
         leds = new LED_RGB[numLeds];
@@ -205,7 +208,7 @@ public:
         inicializado = true;
         
         Serial.print(F("Fita LED inicializada na porta "));
-        Serial.print(porta.descricao);
+        Serial.print(this->descricaoPorta);
         Serial.print(F(" com "));
         Serial.print(numLeds);
         Serial.println(F(" LEDs"));
@@ -218,7 +221,7 @@ public:
     // Define a cor de um LED específico (índice começa em 0)
     void setLED(uint8_t indice, uint8_t r, uint8_t g, uint8_t b) {
         if(!inicializado || indice >= numLeds) return;
-        
+       
         leds[indice].red = r;
         leds[indice].green = g;
         leds[indice].blue = b;
@@ -587,7 +590,3 @@ private:
         }
     }
 };
-
-
-
-LEDStrip ledStrip;
