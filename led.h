@@ -16,14 +16,14 @@ private:
     uint8_t numLeds;
     uint8_t pino;
     bool inicializado;
+    uint8_t brilho; // 0 a 100
     char descricaoPorta[6];
     // Tabelas de pinos para ATmega328P (Arduino Nano/Uno)
     //static const uint8_t pinBit[];
     //static const uint8_t pinAddr[];
     
     // Função assembly para pino 10 (PORTB bit 2)
-    void writeDataPin10() {
-        LED_RGB* colors = leds;
+    void writeDataPin10(LED_RGB* colors) {
         unsigned int count = numLeds;
         while(count--) {
             // Envia Green, Red, Blue (ordem WS2812B: GRB)
@@ -55,8 +55,7 @@ private:
     }
     
     // Função assembly para pino 11 (PORTB bit 3)
-    void writeDataPin11() {
-        LED_RGB* colors = leds;
+    void writeDataPin11(LED_RGB* colors) {
         unsigned int count = numLeds;
         while(count--) {
             asm volatile(
@@ -87,8 +86,7 @@ private:
     }
     
     // Função assembly para pino 12 (PORTB bit 4)
-    void writeDataPin12() {
-        LED_RGB* colors = leds;
+    void writeDataPin12(LED_RGB* colors) {
         unsigned int count = numLeds;
         while(count--) {
             asm volatile(
@@ -119,8 +117,7 @@ private:
     }
     
     // Função assembly para pino 13 (PORTB bit 5)
-    void writeDataPin13() {
-        LED_RGB* colors = leds;
+    void writeDataPin13(LED_RGB* colors) {
         unsigned int count = numLeds;
         while(count--) {
             asm volatile(
@@ -154,6 +151,32 @@ private:
     void writeData() {
         if(!inicializado) return;
         
+        // Aplica brilho (0-100%) em um buffer temporário antes de enviar
+        LED_RGB buffer[10];
+        if(numLeds > 10) return; // segurança
+
+        uint8_t brilhoLocal = brilho;
+        for(uint8_t i = 0; i < numLeds; i++) {
+            uint8_t r = leds[i].red;
+            uint8_t g = leds[i].green;
+            uint8_t b = leds[i].blue;
+
+            if(brilhoLocal == 0) {
+                r = g = b = 0;
+            } else if(brilhoLocal < 100) {
+                r = (uint16_t)r * brilhoLocal / 100;
+                g = (uint16_t)g * brilhoLocal / 100;
+                b = (uint16_t)b * brilhoLocal / 100;
+            }
+
+            buffer[i].red = r;
+            buffer[i].green = g;
+            buffer[i].blue = b;
+            buffer[i].next = &buffer[(i + 1) % numLeds];
+        }
+
+        LED_RGB* colors = buffer;
+
         pinMode(pino, OUTPUT);
         digitalWrite(pino, LOW);
         delayMicroseconds(60); // Reset time (>50µs LOW)
@@ -162,10 +185,10 @@ private:
         
         // Switch case para as 4 portas LED (pinos 10, 11, 12, 13)
         switch(pino) {
-            case 10: writeDataPin10(); break; // PORTA_LED_4
-            case 11: writeDataPin11(); break; // PORTA_LED_3
-            case 12: writeDataPin12(); break; // PORTA_LED_2
-            case 13: writeDataPin13(); break; // PORTA_LED_1
+            case 10: writeDataPin10(colors); break; // PORTA_LED_4
+            case 11: writeDataPin11(colors); break; // PORTA_LED_3
+            case 12: writeDataPin12(colors); break; // PORTA_LED_2
+            case 13: writeDataPin13(colors); break; // PORTA_LED_1
             default:
                 Serial.println(F("Erro: Pino LED invalido! Use PORTA_LED_1 a PORTA_LED_4"));
                 break;
@@ -181,6 +204,7 @@ public:
         numLeds=quantidade;
         pino=porta.pino;
         inicializado=false;
+        brilho = 100;
         strcpy(this->descricaoPorta, porta.descricao);
     }
     
@@ -236,6 +260,14 @@ public:
             leds[i].green = g;
             leds[i].blue = b;
         }
+    }
+
+    // Define o brilho global de todos os LEDs (0 a 100%)
+    // brilho = 0  -> apaga (0%)
+    // brilho = 100 -> brilho máximo das cores definidas
+    void setBrilho(uint8_t brilho) {
+        if(brilho > 100) brilho = 100;
+        this->brilho = brilho;
     }
     
     // Apaga todos os LEDs (preto)
