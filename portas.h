@@ -26,6 +26,13 @@ struct PortaLed{
     const char *descricao;
 };
 
+//mesmas portas do servo
+struct PortaBuzzer{
+    const uint8_t porta;
+    const uint8_t pino;
+    const char *descricao;
+};
+
 struct PortaAnalogica{
     const uint8_t pino1;
     const uint8_t pino2;
@@ -74,6 +81,12 @@ struct PortaMotor{
 #define PORTA_LED_2 {2, 12, "S2"}
 #define PORTA_LED_3 {3, 11, "S3"}
 #define PORTA_LED_4 {4, 5, "S4"}
+
+// Portas Buzzer
+#define PORTA_BUZZER_1 {1, 13, "S1"}
+#define PORTA_BUZZER_2 {2, 12, "S2"}
+#define PORTA_BUZZER_3 {3, 11, "S3"}
+#define PORTA_BUZZER_4 {4, 5, "S4"}
 
 // Portas Analógicas
 #define PORTA_ANALOGICA_1 {A0, A1}

@@ -8,6 +8,9 @@ VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
 LEDStrip led1 = LEDStrip(PORTA_LED_1);
 Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
 VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
+
+Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
+
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
@@ -27,7 +30,8 @@ void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
     
     brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    brick.adiciona(led1);    
+    brick.adiciona(led1); 
+    brick.adiciona(buzzer);   
     servos.iniciaServo(PORTA_SERVO_1);
     servos.iniciaServo(PORTA_SERVO_2);
     servos.iniciaServo(PORTA_SERVO_3);
