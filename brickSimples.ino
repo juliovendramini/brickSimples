@@ -12,6 +12,11 @@ bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
 Giroscopio giroscopio;
 
+
+Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_INVERTIDO);
+Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_NORMAL);
+
+
 uint16_t red, green, blue, clear;
 uint16_t red2, green2, blue2, clear2;
 uint16_t red3, green3, blue3, clear3;
@@ -19,6 +24,9 @@ uint32_t tempoAnterior = 0;
 uint8_t i=0;
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
+    
+    brick.adiciona(&Motor1, &Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
+    
     servos.iniciaServo(PORTA_SERVO_1);
     servos.iniciaServo(PORTA_SERVO_2);
     servos.iniciaServo(PORTA_SERVO_3);

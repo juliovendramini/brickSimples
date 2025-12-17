@@ -43,6 +43,12 @@ struct PortaSerial{
     const char *descricao;
 };
 
+struct PortaMotor{
+    const uint8_t pwm;
+    const uint8_t dir;
+    const char *descricao;
+};
+
 // Portas I2C
 #define PORTA_I2C_1 {14, 15, "I2C-1"}
 #define PORTA_I2C_2 {16, 17, "I2C-2"}
@@ -80,6 +86,12 @@ struct PortaSerial{
 #define PORTA_ULTRASSONICO_3 {8, 6, "US-3"}
 #define PORTA_ULTRASSONICO_4 {2, 3, "US-4"}
 #define PORTA_ULTRASSONICO_5 {18, 19, "US-5"}
+
+#define PORTA_MOTOR_1 {9, 7, "M1"}
+#define PORTA_MOTOR_2 {10, 4, "M2"}
+
+#define MOTOR_INVERTIDO true
+#define MOTOR_NORMAL false
 
 // // Definições das constantes static (necessário para linker)
 // constexpr PortaI2C Portas::PORTA_I2C_1;

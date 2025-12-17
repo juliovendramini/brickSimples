@@ -9,6 +9,56 @@
 
 #define MAXIMO_SENSORES 5
 
+
+class Motor{ //nao vou usar a struct PortaMotor porque não quero usar alocação dinamica
+private:
+    uint8_t pwm;
+    uint8_t dir;
+    char descricaoPorta[6];
+    int potenciaAtual = 0;
+    bool invertido = false;
+public:
+    Motor(PortaMotor p, bool invertido=false){
+        pwm = p.pwm;
+        dir = p.dir;
+        strcpy(this->descricaoPorta, p.descricao);
+        pinMode(pwm, OUTPUT);
+        pinMode(dir, OUTPUT);
+        digitalWrite(pwm, LOW);
+        digitalWrite(dir, LOW);
+        this->invertido = invertido;
+    }
+
+    ~Motor(){
+    }
+    void potencia(int potencia){
+        // Limita a potência entre -255 e 255
+        potencia = constrain(potencia, -255, 255);
+        if(invertido) potencia = -potencia;
+        this->potenciaAtual = potencia;
+        if(potencia >= 0){
+            // Frente: pino 10 com PWM, pino 4 LOW
+            analogWrite(pwm, potencia);
+            digitalWrite(dir, LOW);
+        } else {
+            // Reverso: pino 10 LOW, pino 4 HIGH (sem PWM no pino 4)
+            potencia = -potencia;
+            analogWrite(pwm, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
+            digitalWrite(dir, HIGH);
+        }
+    }
+    void frear(){
+        digitalWrite(pwm, HIGH);
+        digitalWrite(dir, HIGH);
+    }
+
+    void parar(){
+        digitalWrite(pwm, LOW);
+        digitalWrite(dir, LOW);
+    }
+};
+
+
 class BrickSimples{
 public:
     private:
@@ -17,6 +67,7 @@ public:
     TCS34725 *listaTCS34725[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
     VL53L0X *listaVL53L0X[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
     Ultrassonico *listaUltrassonico[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
+    Motor *listaMotor[2]={NULL, NULL};
 
     public:
     BrickSimples(){
@@ -26,16 +77,21 @@ public:
     void inicializa(){
         Serial.begin(115200);
         
+        //Vou fazer a configuração na classe do brick, porque mesmo que os motores não sejam usados, garanto que todos os pinos ficarão como devem
         // Configura Timer1 para PWM em ~122Hz (prescaler 1024)
         // Timer1 controla PWM dos pinos 9 e 10 (motores)
         TCCR1B = (TCCR1B & 0b11111000) | 0x05; // Prescaler 1024 (~31Hz PWM)
         //PINOS MOTOR ESQUERDO
         pinMode(9, OUTPUT);
         pinMode(7, OUTPUT);
+        digitalWrite(9, LOW);
+        digitalWrite(7, LOW);
 
         //PINOS MOTOR DIREITO
         pinMode(10, OUTPUT);
         pinMode(4, OUTPUT);
+        digitalWrite(10, LOW);
+        digitalWrite(4, LOW);
         Serial.println("Hello, Brick Simples!");
         Serial.print("Tensao da bateria: ");
         uint32_t tensao = analogRead(PINO_BATERIA);
@@ -71,78 +127,31 @@ public:
         return ::millis()*4;
     }
 
-    void inverteMotorEsquerdo(bool invertido){
-        motor1Invertido = invertido;
-    }
-    void inverteMotorDireito(bool invertido){
-        motor2Invertido = invertido;
-    }
     
     // Controla ambos os motores com a mesma potência
     // potencia: -255 a 255 (negativo = reverso, positivo = frente)
     void potenciaMotores(int potencia){
-        if(motor1Invertido) potencia = -potencia;
-        if(motor2Invertido) potencia = -potencia;
-        potenciaMotorEsquerdo(potencia);
-        potenciaMotorDireito(potencia);
+        motor[0]->potencia(potencia);
+        motor[1]->potencia(potencia);
     }
 
     // Controla motores independentemente
     // potenciaEsq, potenciaDir: -255 a 255
-    void potenciaMotores(int potenciaEsq, int potenciaDir){
-        if(motor1Invertido) potenciaEsq = -potenciaEsq;
-        if(motor2Invertido) potenciaDir = -potenciaDir;
-        potenciaMotorEsquerdo(potenciaEsq);
-        potenciaMotorDireito(potenciaDir);
+    void potenciaMotores(int pot1, int pot2){
+        motor[0]->potencia(pot1);
+        motor[1]->potencia(pot2);
     }
 
-    // Controla motor esquerdo (pinos 9 e 7)
-    void potenciaMotorEsquerdo(int potencia){
-        // Limita a potência entre -255 e 255
-        potencia = constrain(potencia, -255, 255);
-        
-        if(potencia >= 0){
-            // Frente: pino 9 com PWM, pino 7 LOW
-            analogWrite(9, potencia);
-            digitalWrite(7, LOW);
-        } else {
-            // Reverso: pino 9 LOW, pino 7 HIGH (sem PWM no pino 7)
-            potencia = -potencia;
-            analogWrite(9, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
-            digitalWrite(7, HIGH);
-        }
-    }
-
-    // Controla motor direito (pinos 5 e 4)
-    void potenciaMotorDireito(int potencia){
-        // Limita a potência entre -255 e 255
-        potencia = constrain(potencia, -255, 255);
-        
-        if(potencia >= 0){
-            // Frente: pino 10 com PWM, pino 4 LOW
-            analogWrite(10, potencia);
-            digitalWrite(4, LOW);
-        } else {
-            // Reverso: pino 10 LOW, pino 4 HIGH (sem PWM no pino 4)
-            potencia = -potencia;
-            analogWrite(10, 255 - potencia); //inverte o valor para evitar usar valor negativo no analogWrite
-            digitalWrite(4, HIGH);
-        }
-    }
 
     // Para ambos os motores
     void pararMotores(){
-        digitalWrite(9, LOW);
-        digitalWrite(7, LOW);
-        digitalWrite(10, LOW);
-        digitalWrite(4, LOW);
+        motor[0]->parar();
+        motor[1]->parar();
     }
 
     void frearMotores(){
-        digitalWrite(9, HIGH);
-        digitalWrite(7, HIGH);
-        digitalWrite(10, HIGH);
-        digitalWrite(4, HIGH);
+        motor[0]->frear();
+        motor[1]->frear();
     }
 
     bool botaoApertado(){
@@ -272,6 +281,11 @@ public:
             }
         }
         sensor->inicializa();
+    }
+
+    void adiciona(Motor *motor1, Motor *motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
+        listaMotor[0] = motor1;
+        listaMotor[1] = motor2;
     }
 };
 

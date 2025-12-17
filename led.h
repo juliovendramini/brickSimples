@@ -22,7 +22,7 @@ private:
     //static const uint8_t pinAddr[];
     
     // Função assembly para pino 10 (PORTB bit 2)
-    void writeDataPin10() {
+    void writeDataPin5() {
         LED_RGB* colors = leds;
         unsigned int count = numLeds;
         while(count--) {
@@ -42,10 +42,10 @@ private:
                 "rcall send_led_strip_bit%=\n" "rcall send_led_strip_bit%=\n"
                 "ret\n"
                 "send_led_strip_bit%=:\n"
-                "sbi 0x05, 2\n" "rol __tmp_reg__\n" "nop\n" "nop\n"
-                "brcs .+2\n" "cbi 0x05, 2\n"
+                "sbi 0x0B, 5\n" "rol __tmp_reg__\n" "nop\n" "nop\n"
+                "brcs .+2\n" "cbi 0x0B, 5\n"
                 "nop\n" "nop\n" "nop\n" "nop\n" "nop\n"
-                "brcc .+2\n" "cbi 0x05, 2\n" "ret\n"
+                "brcc .+2\n" "cbi 0x0B, 5\n" "ret\n"
                 "led_strip_asm_end%=:" 
                 : 
                 : [ptr] "z" (colors)
@@ -160,9 +160,9 @@ private:
         
         cli(); // Desabilita interrupções
         
-        // Switch case para as 4 portas LED (pinos 10, 11, 12, 13)
+        // Switch case para as 4 portas LED (pinos 5, 11, 12, 13)
         switch(pino) {
-            case 10: writeDataPin10(); break; // PORTA_LED_4
+            case 5: writeDataPin5(); break; // PORTA_LED_4
             case 11: writeDataPin11(); break; // PORTA_LED_3
             case 12: writeDataPin12(); break; // PORTA_LED_2
             case 13: writeDataPin13(); break; // PORTA_LED_1
