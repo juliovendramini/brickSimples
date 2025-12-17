@@ -22,7 +22,7 @@ private:
     //static const uint8_t pinAddr[];
     
     // Função assembly para pino 10 (PORTB bit 2)
-    void writeDataPin5() {
+    void writeDataPin10() {
         LED_RGB* colors = leds;
         unsigned int count = numLeds;
         while(count--) {
@@ -42,10 +42,10 @@ private:
                 "rcall send_led_strip_bit%=\n" "rcall send_led_strip_bit%=\n"
                 "ret\n"
                 "send_led_strip_bit%=:\n"
-                "sbi 0x0B, 5\n" "rol __tmp_reg__\n" "nop\n" "nop\n"
-                "brcs .+2\n" "cbi 0x0B, 5\n"
+                "sbi 0x05, 2\n" "rol __tmp_reg__\n" "nop\n" "nop\n"
+                "brcs .+2\n" "cbi 0x05, 2\n"
                 "nop\n" "nop\n" "nop\n" "nop\n" "nop\n"
-                "brcc .+2\n" "cbi 0x0B, 5\n" "ret\n"
+                "brcc .+2\n" "cbi 0x05, 2\n" "ret\n"
                 "led_strip_asm_end%=:" 
                 : 
                 : [ptr] "z" (colors)
@@ -160,9 +160,9 @@ private:
         
         cli(); // Desabilita interrupções
         
-        // Switch case para as 4 portas LED (pinos 5, 11, 12, 13)
+        // Switch case para as 4 portas LED (pinos 10, 11, 12, 13)
         switch(pino) {
-            case 5: writeDataPin5(); break; // PORTA_LED_4
+            case 10: writeDataPin10(); break; // PORTA_LED_4
             case 11: writeDataPin11(); break; // PORTA_LED_3
             case 12: writeDataPin12(); break; // PORTA_LED_2
             case 13: writeDataPin13(); break; // PORTA_LED_1
@@ -332,21 +332,35 @@ public:
     
     // Animação: Knight Rider (vai e volta)
     void knightRider(uint8_t r = 255, uint8_t g = 0, uint8_t b = 0, uint8_t velocidade = 50) {
+        if(!inicializado || numLeds == 0) return;
+
+        // Usa a cor atual do primeiro LED como base
+        uint8_t r_base = leds[0].red;
+        uint8_t g_base = leds[0].green;
+        uint8_t b_base = leds[0].blue;
+
+        // Se todos estiverem apagados, usa os parâmetros padrão
+        if(r_base == 0 && g_base == 0 && b_base == 0) {
+            r_base = r;
+            g_base = g;
+            b_base = b;
+        }
+
         // Ida
         for(uint8_t i = 0; i < numLeds; i++) {
             limpar();
-            setLED(i, r, g, b);
-            if(i > 0) setLED(i-1, r/4, g/4, b/4);
-            if(i < numLeds-1) setLED(i+1, r/4, g/4, b/4);
+            setLED(i, r_base, g_base, b_base);
+            if(i > 0) setLED(i-1, r_base/4, g_base/4, b_base/4);
+            if(i < numLeds-1) setLED(i+1, r_base/4, g_base/4, b_base/4);
             atualiza();
             delay(velocidade);
         }
         // Volta
         for(int8_t i = numLeds-1; i >= 0; i--) {
             limpar();
-            setLED(i, r, g, b);
-            if(i > 0) setLED(i-1, r/4, g/4, b/4);
-            if(i < numLeds-1) setLED(i+1, r/4, g/4, b/4);
+            setLED(i, r_base, g_base, b_base);
+            if(i > 0) setLED(i-1, r_base/4, g_base/4, b_base/4);
+            if(i < numLeds-1) setLED(i+1, r_base/4, g_base/4, b_base/4);
             atualiza();
             delay(velocidade);
         }
@@ -354,10 +368,21 @@ public:
     
     // Animação: Preenche gradualmente
     void preenchimento(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t velocidade = 100) {
+        if(!inicializado || numLeds == 0) return;
+
+        uint8_t r_base = leds[0].red;
+        uint8_t g_base = leds[0].green;
+        uint8_t b_base = leds[0].blue;
+        if(r_base == 0 && g_base == 0 && b_base == 0) {
+            r_base = r;
+            g_base = g;
+            b_base = b;
+        }
+
         limpar();
         atualiza();
         for(uint8_t i = 0; i < numLeds; i++) {
-            setLED(i, r, g, b);
+            setLED(i, r_base, g_base, b_base);
             atualiza();
             delay(velocidade);
         }
@@ -365,8 +390,19 @@ public:
     
     // Animação: Pisca tudo
     void piscar(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t vezes = 3, uint8_t velocidade = 200) {
+        if(!inicializado || numLeds == 0) return;
+
+        uint8_t r_base = leds[0].red;
+        uint8_t g_base = leds[0].green;
+        uint8_t b_base = leds[0].blue;
+        if(r_base == 0 && g_base == 0 && b_base == 0) {
+            r_base = r;
+            g_base = g;
+            b_base = b;
+        }
+
         for(uint8_t i = 0; i < vezes; i++) {
-            setTodos(r, g, b);
+            setTodos(r_base, g_base, b_base);
             atualiza();
             delay(velocidade);
             limpar();
@@ -377,20 +413,30 @@ public:
     
     // Animação: Fade in/out
     void fade(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255) {
+        if(!inicializado || numLeds == 0) return;
+
+        uint8_t r_base = leds[0].red;
+        uint8_t g_base = leds[0].green;
+        uint8_t b_base = leds[0].blue;
+        if(r_base == 0 && g_base == 0 && b_base == 0) {
+            r_base = r;
+            g_base = g;
+            b_base = b;
+        }
         // Fade in
         for(uint8_t brilho = 0; brilho < 255; brilho += 5) {
-            uint8_t r_dim = (r * brilho) / 255;
-            uint8_t g_dim = (g * brilho) / 255;
-            uint8_t b_dim = (b * brilho) / 255;
+            uint8_t r_dim = (r_base * brilho) / 255;
+            uint8_t g_dim = (g_base * brilho) / 255;
+            uint8_t b_dim = (b_base * brilho) / 255;
             setTodos(r_dim, g_dim, b_dim);
             atualiza();
             delay(20);
         }
         // Fade out
         for(int16_t brilho = 255; brilho >= 0; brilho -= 5) {
-            uint8_t r_dim = (r * brilho) / 255;
-            uint8_t g_dim = (g * brilho) / 255;
-            uint8_t b_dim = (b * brilho) / 255;
+            uint8_t r_dim = (r_base * brilho) / 255;
+            uint8_t g_dim = (g_base * brilho) / 255;
+            uint8_t b_dim = (b_base * brilho) / 255;
             setTodos(r_dim, g_dim, b_dim);
             atualiza();
             delay(20);
@@ -401,11 +447,21 @@ public:
     
     // Animação: Teatro (Chase)
     void teatro(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t ciclos = 10) {
+        if(!inicializado || numLeds == 0) return;
+
+        uint8_t r_base = leds[0].red;
+        uint8_t g_base = leds[0].green;
+        uint8_t b_base = leds[0].blue;
+        if(r_base == 0 && g_base == 0 && b_base == 0) {
+            r_base = r;
+            g_base = g;
+            b_base = b;
+        }
         for(uint8_t j = 0; j < ciclos; j++) {
             for(uint8_t q = 0; q < 3; q++) {
                 limpar();
                 for(uint8_t i = q; i < numLeds; i += 3) {
-                    setLED(i, r, g, b);
+                    setLED(i, r_base, g_base, b_base);
                 }
                 atualiza();
                 delay(100);
@@ -415,10 +471,20 @@ public:
     
     // Animação: Sparkle (faíscas aleatórias)
     void sparkle(uint8_t r = 255, uint8_t g = 255, uint8_t b = 255, uint8_t quantidade = 20) {
+        if(!inicializado || numLeds == 0) return;
+
+        uint8_t r_base = leds[0].red;
+        uint8_t g_base = leds[0].green;
+        uint8_t b_base = leds[0].blue;
+        if(r_base == 0 && g_base == 0 && b_base == 0) {
+            r_base = r;
+            g_base = g;
+            b_base = b;
+        }
         for(uint8_t i = 0; i < quantidade; i++) {
             limpar();
             uint8_t pixel = random(numLeds);
-            setLED(pixel, r, g, b);
+            setLED(pixel, r_base, g_base, b_base);
             atualiza();
             delay(100);
         }

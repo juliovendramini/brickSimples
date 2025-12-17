@@ -193,7 +193,7 @@ public:
             }
         }
         //while(micros() - microsInicio < 3800);
-        delayMicroseconds(3400);
+        delayMicroseconds(4200);
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->getRawData();
@@ -222,7 +222,7 @@ public:
             }
         }
         //while(micros() - microsInicio < 3800);
-        delayMicroseconds(3400);
+        delayMicroseconds(4200);
         uint16_t r_on, g_on, b_on, c_on;
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){

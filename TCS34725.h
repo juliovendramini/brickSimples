@@ -219,6 +219,22 @@ public:
   void limpaCalibracao();  // Limpa calibração da EEPROM
   uint8_t getNumeroPorta();  // Retorna número da porta (1-5)
   uint8_t last_status;
+
+  // Cores básicas detectadas pelo sensor
+  enum CorBasica {
+    COR_NADA = -1,
+    COR_PRETO,
+    COR_BRANCO,
+    COR_VERMELHO,
+    COR_VERDE,
+    COR_AZUL,
+    COR_AMARELO,
+    COR_DESCONHECIDA
+  };
+
+  // Detecta e retorna uma cor básica (já usando valores calibrados)
+  CorBasica detectaCorBasica();
+  bool ehCor(CorBasica cor);
     
 private:
   uint16_t r;

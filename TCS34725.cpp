@@ -458,6 +458,76 @@ uint8_t TCS34725::getNumeroPorta() {
   return numeroPorta;
 }
 
+
+// Detecta uma cor básica (preto, branco, vermelho, verde, azul ou amarelo)
+TCS34725::CorBasica TCS34725::detectaCorBasica() {
+  // Usa as funções de alto nível para garantir atualização/calibração automática
+  uint16_t r = getR();
+  uint16_t g = getG();
+  uint16_t b = getB();
+  uint16_t c = getC();
+
+  // Verifica se os valores são muito baixos (sem cor detectada)
+  if (c <= 3 && r < 5 && g < 5 && b < 5) {
+    return COR_NADA;
+  }
+
+  // Trata casos muito escuros e muito claros primeiro
+  if (c > 3 && c < 25) {
+    return COR_PRETO;
+  }
+
+  if (c > 230 && abs((int)r - (int)g) < 20 && abs((int)r - (int)b) < 20 && abs((int)g - (int)b) < 20) {
+    return COR_BRANCO;
+  }
+
+  // Normaliza em relação ao maior canal para comparar proporcionalmente
+  uint16_t maxVal = r;
+  if (g > maxVal) maxVal = g;
+  if (b > maxVal) maxVal = b;
+
+  if (maxVal == 0) {
+    return COR_NADA;
+  }
+
+  float rn = (float)r / (float)maxVal;
+  float gn = (float)g / (float)maxVal;
+  float bn = (float)b / (float)maxVal;
+
+  // Heurísticas simples para distinguir cores básicas
+  // Vermelho ou amarelo (vermelho dominante)
+  if (r == maxVal) {
+    // Se verde também é forte, tende a amarelo; senão é vermelho
+    if (gn > 0.6f && bn < 0.5f) {
+      return COR_AMARELO;
+    }
+    return COR_VERMELHO;
+  }
+
+  // Verde dominante
+  if (g == maxVal) {
+    // Se azul também alto, pode tender a ciano, mas aqui tratamos só como verde
+    return COR_VERDE;
+  }
+
+  // Azul dominante
+  if (b == maxVal) {
+    return COR_AZUL;
+  }
+
+  // Caso não encaixe bem em nenhuma regra, decide por branco/preto com base em C
+  if (c > 150) {
+    return COR_BRANCO;
+  }
+
+  return COR_DESCONHECIDA;
+}
+
+// Retorna true se a cor detectada for igual à cor passada como parâmetro
+bool TCS34725::ehCor(TCS34725::CorBasica cor) {
+  return detectaCorBasica() == cor;
+}
+
 /*!
  *  @brief  Calibra o sensor e salva os valores na EEPROM
  *          Endereço base: 100 + (numeroPorta - 1) * sizeof(DadosCalibracao)
