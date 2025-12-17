@@ -277,49 +277,49 @@ public:
         // }
     }
 
-    void adiciona(TCS34725 *sensor){
+    void adiciona(TCS34725 &sensor){
         for(int i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] == NULL){
-                listaTCS34725[i] = sensor;
+                listaTCS34725[i] = &sensor;
                 break;
             }
         }
-        sensor->begin();
+        sensor.begin();
     }
 
-    void adiciona(VL53L0X *sensor){
+    void adiciona(VL53L0X &sensor){
         for(int i=0; i<MAXIMO_SENSORES; i++){
             if(listaVL53L0X[i] == NULL){
-                listaVL53L0X[i] = sensor;
+                listaVL53L0X[i] =  &sensor;
                 break;
             }
         }
-        sensor->init();
+        sensor.init();
     }
 
-    void adiciona(Ultrassonico *sensor){
+    void adiciona(Ultrassonico &sensor){
         for(int i=0; i<MAXIMO_SENSORES; i++){
             if(listaUltrassonico[i] == NULL){
-                listaUltrassonico[i] = sensor;
+                listaUltrassonico[i] = &sensor;
                 break;
             }
         }
-        sensor->inicializa();
+        sensor.inicializa();
     }
 
-    void adiciona(LEDStrip *leds){
+    void adiciona(LEDStrip &leds){
         for(int i=0; i<4; i++){ // quantidade de portas de servo/led
             if(ledStrip[i] == NULL){
-                ledStrip[i] = leds;
+                ledStrip[i] = &leds;
                 break;
             }
         }
-        leds->inicializa();
+        leds.inicializa();
     }
 
-    void adiciona(Motor *motor1, Motor *motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
-        listaMotor[0] = motor1;
-        listaMotor[1] = motor2;
+    void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
+        listaMotor[0] = &motor1;
+        listaMotor[1] = &motor2;
     }
 };
 

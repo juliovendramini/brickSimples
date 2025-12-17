@@ -26,8 +26,8 @@ uint8_t i=0;
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
     
-    brick.adiciona(&Motor1, &Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    brick.adiciona(&led1);    
+    brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
+    brick.adiciona(led1);    
     servos.iniciaServo(PORTA_SERVO_1);
     servos.iniciaServo(PORTA_SERVO_2);
     servos.iniciaServo(PORTA_SERVO_3);
@@ -56,9 +56,9 @@ void setup(){
     //brick.adiciona(&sensorDistancia);
     //brick.adiciona(&sensorDistancia2);
     //brick.adiciona(&sensorDistancia3);
-    brick.adiciona(&sensor1);
+    brick.adiciona(sensor1);
     //brick.adiciona(&sensor2);
-    brick.adiciona(&sensor3);
+    brick.adiciona(sensor3);
     //brick.adiciona(&ultrassonico);
     //brick.inverteMotorEsquerdo(true);
     //sensorDistancia.init();
