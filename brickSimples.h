@@ -220,8 +220,13 @@ public:
             Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
             return;
         }
-        listaMotor[0]->acionaPorTempo(tempoMs);
-        listaMotor[1]->acionaPorTempo(tempoMs);
+        // Liga os dois motores praticamente ao mesmo tempo
+        listaMotor[0]->potencia();
+        listaMotor[1]->potencia();
+        delay(tempoMs);
+        // Para os dois motores juntos
+        listaMotor[0]->parar();
+        listaMotor[1]->parar();
     }
 
     // Aciona ambos os motores por um tempo em ms com a potencia informada
@@ -230,8 +235,13 @@ public:
             Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
             return;
         }
-        listaMotor[0]->acionaPorTempo(potencia, tempoMs);
-        listaMotor[1]->acionaPorTempo(potencia, tempoMs);
+        // Liga os dois com a mesma potencia praticamente ao mesmo tempo
+        listaMotor[0]->potencia(potencia);
+        listaMotor[1]->potencia(potencia);
+        delay(tempoMs);
+        // Para os dois juntos
+        listaMotor[0]->parar();
+        listaMotor[1]->parar();
     }
 
 
