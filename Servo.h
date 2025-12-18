@@ -78,4 +78,11 @@ private:
    uint8_t max;                       // valor guardado em ticks, 1 tick = 16us
 };
 
+
+
+#define MODO_SERVO_FINALIZADO 0
+#define MODO_SERVO_ATIVO 1
+static volatile uint8_t modoCicloServo = 0; // 1 - ativado, 0 - esperando o clico acabar
+
+
 #endif

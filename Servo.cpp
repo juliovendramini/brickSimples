@@ -5,22 +5,23 @@
 
 
 static volatile servo_t servos[MAX_SERVOS];                          // static array of servo structures
-static volatile uint8_t modo = 0; // 1 - ativado, 0 - esperando o clico acabar
+#define SERVO(_Canal)  (servos[_Canal])                    // acesso direto por canal
 
 uint8_t ServoCount = 0;                                     // the total number of attached servos
 // convenience macros - Timer2 apenas
-#define SERVO(_Canal)  (servos[_Canal])                    // acesso direto por canal
 
 #define SERVO_MIN this->min   // minimum value in ticks for this servo
 #define SERVO_MAX this->max  // maximum value in ticks for this servo
 
 /************ static functions common to all instances ***********************/
-//o tempo de ciclo é 20ms, 4ms de um modo e 16ms do outro
+//o tempo de ciclo é 20ms, 4ms de um modoCicloServo e 16ms do outro
+//a ideia nessa interrupção é ter duas partes. A primeira (valor 1, é curta e nao é recomendável desativar interrupções em nenhum lugar do código)
+//já no valor 0, estamos esperando o próximo ciclo, que demora 16ms, então nesse tempo podemos desativar interrupções se necessário
 static inline void handle_interrupts()
 {
   uint8_t menorPulso = 255;
   uint8_t Canal;
-  if(modo == 0){//o ciclo acabou, vou começar um novo
+  if(modoCicloServo == MODO_SERVO_FINALIZADO){//o ciclo acabou, vou começar um novo
     //mudo a velocidade do presscaller
     TCCR2B = _BV(CS22) | _BV(CS21);     // set prescaler of 256
     TCNT2 = 0;
@@ -36,14 +37,14 @@ static inline void handle_interrupts()
         }  
         Canal++;
     }
-    modo = 1 ;//modo ativado
+    modoCicloServo = MODO_SERVO_ATIVO ;//modoCicloServo ativado
     OCR2A = TCNT2 + menorPulso;
     return;
   }
-  if(modo == 1){
+  if(modoCicloServo == MODO_SERVO_ATIVO){
     //ve qual que tem q desativar
     if(OCR2A == 255){//chegou no final do ciclo de servos
-      modo = 0; //mudo para o modo de espera do próximo ciclo (longo)
+      modoCicloServo = MODO_SERVO_FINALIZADO; //mudo para o modoCicloServo de espera do próximo ciclo (longo)
       TCCR2B = _BV(CS22) | _BV(CS21) | _BV(CS20); // set prescaler of 1024
       OCR2A = 255;
       TCNT2 = 0;

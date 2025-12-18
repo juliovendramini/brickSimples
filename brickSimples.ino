@@ -1,20 +1,20 @@
 #include "brickSimples.h"
 
-TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
-TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
-TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
-VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
-//VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
-LEDStrip led1 = LEDStrip(PORTA_LED_1);
-Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
-VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
+// TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
+// TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
+// TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
+// VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
+// //VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
+// LEDStrip led1 = LEDStrip(PORTA_LED_1);
+// Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
+// VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 
-Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
+// Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
-Giroscopio giroscopio;
+Giroscopio giroscopio(PORTA_SERIAL_1);
 
 
 Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_INVERTIDO);
@@ -28,21 +28,15 @@ uint32_t tempoAnterior = 0;
 uint8_t i=0;
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
-    
-    brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    brick.adiciona(led1); 
-    brick.adiciona(buzzer);   
+    brick.adiciona(giroscopio);
+    // brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
+    // brick.adiciona(led1); 
+    // brick.adiciona(buzzer);   
     servos.iniciaServo(PORTA_SERVO_1);
     servos.iniciaServo(PORTA_SERVO_2);
     servos.iniciaServo(PORTA_SERVO_3);
-    while(true){
-        if(Serial.available()){
-            uint8_t grau = Serial.parseInt();
-            servos.moveServo(PORTA_SERVO_1, grau); //move servo 1 para 90 graus
-            Serial.print(F("Movendo servo para "));
-            Serial.print(grau);
-        }
-    }
+    giroscopio.setModo(BMI160_GYRO);
+    
     delay(2000);
     //delay(1000);
     //servos.moveServo(PORTA_SERVO_1, 0); //move servo 1 para 0 graus
@@ -60,9 +54,9 @@ void setup(){
     //brick.adiciona(&sensorDistancia);
     //brick.adiciona(&sensorDistancia2);
     //brick.adiciona(&sensorDistancia3);
-    brick.adiciona(sensor1);
+    //brick.adiciona(sensor1);
     //brick.adiciona(&sensor2);
-    brick.adiciona(sensor3);
+    //brick.adiciona(sensor3);
     //brick.adiciona(&ultrassonico);
     //brick.inverteMotorEsquerdo(true);
     //sensorDistancia.init();
@@ -143,8 +137,9 @@ void setup(){
     if(brick.botaoApertado()){
         Serial.println("Botao apertado no inicio");
         Serial.println("calibrando sensores...");
-        sensor1.calibrar();
-        sensor2.calibrar();
+        giroscopio.calibrar();
+        // sensor1.calibrar();
+        // sensor2.calibrar();
     }
 }
 
@@ -152,7 +147,8 @@ uint8_t contador = 0;
 int16_t erro = 0;
 void loop(){
     brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
-
+    Serial.println(giroscopio.getAnguloX());
+    // delay(100);
     // sensor1.getRGBC(red, green, blue, clear);
     // // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
     // //                         &red2, &green2, &blue2, &clear2);
@@ -177,16 +173,16 @@ void loop(){
     // Serial.print(" C:");
     // Serial.println(clear2);
 
-    sensor3.getRGBC(red3, green3, blue3, clear3);
-    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
-    Serial.print("Sensor3 - R:");
-    Serial.print(red3);
-    Serial.print(" G:");
-    Serial.print(green3);
-    Serial.print(" B:");
-    Serial.print(blue3);
-    Serial.print(" C:");
-    Serial.println(clear3);
+    // sensor3.getRGBC(red3, green3, blue3, clear3);
+    // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
+    // Serial.print("Sensor3 - R:");
+    // Serial.print(red3);
+    // Serial.print(" G:");
+    // Serial.print(green3);
+    // Serial.print(" B:");
+    // Serial.print(blue3);
+    // Serial.print(" C:");
+    // Serial.println(clear3);
 
     // uint16_t dist = sensorDistancia.getDistancia();
     // Serial.print("Distancia: ");

@@ -50,37 +50,40 @@ inline void SoftwareSerial::tunedDelay(uint16_t delay) {
 }
 
 //
-// Leitura bloqueante de um byte
+// Leitura bloqueante de um byte - otimizada para 115200 baud
 //
 int SoftwareSerial::readByteDirect()
 {
-  // Aguarda start bit (linha vai para LOW)
-  unsigned long start = millis();
-  while (rx_pin_read())
+  uint8_t d = 0;
+  uint8_t oldSREG = SREG;
+  
+  // Aguarda start bit (linha vai para LOW) - timeout baseado em loops
+  uint16_t timeout_count = 0;
+  while (*_receivePortRegister & _receiveBitMask)
   {
-    if (millis() - start > _timeout_ms)
+    if (++timeout_count > _timeout_loops)
       return -1;  // Timeout
   }
 
-  uint8_t d = 0;
+  //cli();  // Desabilita interrupções para timing preciso
 
   // Wait approximately 1/2 of a bit width to "center" the sample
   tunedDelay(_rx_delay_centering);
-  
 
   // Read each of the 8 bits
-  for (uint8_t i=8; i > 0; --i)
+  for (uint8_t i=0; i < 8; i++)
   {
     tunedDelay(_rx_delay_intrabit);
     d >>= 1;
     
-    if (rx_pin_read())
+    if (*_receivePortRegister & _receiveBitMask)
       d |= 0x80;
   }
 
   // skip the stop bit
   tunedDelay(_rx_delay_stopbit);
   
+  SREG = oldSREG;  // Restaura interrupções
 
   return d;
 }
@@ -102,7 +105,7 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin) :
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
   _tx_delay(0),
-  _timeout_ms(100)  // 100 ms de timeout padrão
+  _timeout_loops(30000)  // ~10ms timeout @ 16MHz (ajustar conforme necessário)
 {
   setTX(transmitPin);
   setRX(receivePin);
@@ -156,29 +159,29 @@ void SoftwareSerial::begin(long speed)
   // Precalculate the various delays, in number of 4-cycle delays
   uint16_t bit_delay = (F_CPU / speed) / 4;
 
-  // 12 (gcc 4.8.2) or 13 (gcc 4.3.2) cycles from start bit to first bit,
-  // 15 (gcc 4.8.2) or 16 (gcc 4.3.2) cycles between bits,
-  // 12 (gcc 4.8.2) or 14 (gcc 4.3.2) cycles from last bit to stop bit
-  // These are all close enough to just use 15 cycles, since the inter-bit
-  // timings are the most critical (deviations stack 8 times)
+  // Otimização para 115200 baud @ 16MHz:
+  // Bit time = 1/115200 = 8.68 µs = 138.88 cycles @ 16MHz
+  // bit_delay = 138.88 / 4 = 34.72 ~ 35 loops de 4 ciclos
+  
+  //TX: overhead de ~15 ciclos (store registers, bit test, etc)
   _tx_delay = subtract_cap(bit_delay, 15 / 4);
 
-  // Setup rx timings for blocking read (sem overhead de interrupção)
-  #if GCC_VERSION > 40800
-  // Timings para leitura bloqueante (mais simples que interrupção)
-  // Apenas ~20 ciclos de overhead no loop
+  // RX com interrupções desabilitadas: overhead mínimo ~10-12 ciclos
+  // Centering: metade do bit menos overhead de detecção start bit (~12 ciclos)
   _rx_delay_centering = subtract_cap(bit_delay / 2, 20 / 4);
-  _rx_delay_intrabit = subtract_cap(bit_delay, 20 / 4);
-  _rx_delay_stopbit = subtract_cap(bit_delay, 20 / 4);
-  #else
-  _rx_delay_centering = subtract_cap(bit_delay / 2, 20 / 4);
-  _rx_delay_intrabit = subtract_cap(bit_delay, 20 / 4);
-  _rx_delay_stopbit = subtract_cap(bit_delay, 20 / 4);
-  #endif
+  
+  // Intrabit: tempo total do bit menos overhead do loop (~10 ciclos)
+  _rx_delay_intrabit = subtract_cap(bit_delay, 16 / 4);
+  
+  // Stop bit: tempo do bit menos overhead final (~10 ciclos)
+  _rx_delay_stopbit = subtract_cap(bit_delay, 10 / 4);
+
+  // _tx_delay = bit_delay;
+  _rx_delay_centering = bit_delay / 4;
+  // _rx_delay_intrabit = bit_delay;
+  // _rx_delay_stopbit = bit_delay;
 
   tunedDelay(_tx_delay); // if we were low this establishes the end
-
-
 }
 
 void SoftwareSerial::end()

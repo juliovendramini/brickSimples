@@ -107,6 +107,7 @@ public:
     Motor *listaMotor[MAXIMO_MOTORES]={NULL, NULL};
     LEDStrip *ledStrip[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
     Buzzer *buzzer[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
+    Giroscopio *giroscopio = NULL;
 
     public:
     BrickSimples(){
@@ -274,7 +275,7 @@ public:
     }
 
     void atualiza(){
-        
+        bool giroscopioAtualizado = false;
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaVL53L0X[i] != NULL){
                 listaVL53L0X[i]->iniciaLeituraEmMilimetros();
@@ -303,7 +304,20 @@ public:
             }
         }
         //while(micros() - microsInicio < 3800);
-        delayMicroseconds(4200);
+
+        //como a leitura dos sensores serais que desenvolvi são rapidas (115200bps), preciso desativar todas as interrupções na hora da leitura da serial
+        //então só posso fazer isso, porque a demora pode afetar os servos, então só faço se o servo não estiver ativo
+        if(modoCicloServo == MODO_SERVO_FINALIZADO){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
+            if(giroscopio != NULL){
+                giroscopio->lerDados();
+                giroscopioAtualizado = true;
+            }
+        }else{
+            delayMicroseconds(900);    
+        }
+        delayMicroseconds(3300);
+
+
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->getRawData();
@@ -331,8 +345,17 @@ public:
                 listaTCS34725[i]->ledOff();
             }
         }
-        //while(micros() - microsInicio < 3800);
-        delayMicroseconds(4200);
+        
+        //tento atualizar novamente se nao consegui lá em cima
+        if(!giroscopioAtualizado && modoCicloServo == MODO_SERVO_FINALIZADO){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
+            if(giroscopio != NULL){
+                giroscopio->lerDados();
+                giroscopioAtualizado = true;
+            }
+        }else{
+            delayMicroseconds(900);    
+        }
+        delayMicroseconds(3300);
         uint16_t r_on, g_on, b_on, c_on;
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
@@ -411,6 +434,11 @@ public:
             }
         }
         buzzer.inicializa();
+    }
+
+    void adiciona(Giroscopio &giro){
+        this->giroscopio = &giro;
+        giro.inicializa();
     }
 
     void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"

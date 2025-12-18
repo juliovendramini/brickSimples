@@ -63,8 +63,8 @@ private:
   uint16_t _rx_delay_stopbit;
   uint16_t _tx_delay;
   
-  // Timeout para leitura (em milissegundos)
-  unsigned long _timeout_ms;
+  // Timeout baseado em loops (sem usar millis)
+  uint16_t _timeout_loops;
 
   // private methods
   int readByteDirect();  // Lê um byte diretamente (bloqueante)
@@ -84,7 +84,10 @@ public:
   ~SoftwareSerial();
   void begin(long speed);
   void end();
-  void setTimeout(unsigned long timeout) { _timeout_ms = timeout; }
+  void setTimeout(unsigned long timeout_ms) { 
+    // Converte ms para loops (aproximadamente 3 ciclos por loop @ 16MHz)
+    _timeout_loops = (timeout_ms * (F_CPU / 1000)) / 3;
+  }
   int peek();
 
   virtual size_t write(uint8_t byte);
