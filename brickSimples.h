@@ -48,6 +48,18 @@ public:
         potencia(this->potenciaPadraoMotor);
     }
 
+    void acionaPorTempo(unsigned long tempoMs){
+        potencia(this->potenciaPadraoMotor);
+        delay(tempoMs);
+        parar();
+    }
+
+    void acionaPorTempo(int potenciaAcionamento, unsigned long tempoMs){
+        potencia(potenciaAcionamento);
+        delay(tempoMs);
+        parar();
+    }
+
     void potencia(int potencia){
         // Agora a potência é de -100 a 100 (regra de 3 para 0-255 no PWM)
         potencia = constrain(potencia, -100, 100);
@@ -200,6 +212,26 @@ public:
         }
         listaMotor[0]->potencia(pot1);
         listaMotor[1]->potencia(pot2);
+    }
+
+    // Aciona ambos os motores pela potencia padrao por um tempo em ms
+    void acionaMotoresPorTempo(unsigned long tempoMs){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            return;
+        }
+        listaMotor[0]->acionaPorTempo(tempoMs);
+        listaMotor[1]->acionaPorTempo(tempoMs);
+    }
+
+    // Aciona ambos os motores por um tempo em ms com a potencia informada
+    void acionaMotoresPorTempo(int potencia, unsigned long tempoMs){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            return;
+        }
+        listaMotor[0]->acionaPorTempo(potencia, tempoMs);
+        listaMotor[1]->acionaPorTempo(potencia, tempoMs);
     }
 
 
