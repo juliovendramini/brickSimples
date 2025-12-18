@@ -82,6 +82,18 @@ struct PortaMotor{
 #define PORTA_LED_3 {3, 11, "S3"}
 #define PORTA_LED_4 {4, 5, "S4"}
 
+// Ddefinir indice dos leds
+# define LED_1 0
+# define LED_2 1
+# define LED_3 2
+# define LED_4 3
+# define LED_5 4
+# define LED_6 5
+# define LED_7 6
+# define LED_8 7
+# define LED_9 8
+# define LED_10 9
+
 // Portas Buzzer
 #define PORTA_BUZZER_1 {1, 13, "S1"}
 #define PORTA_BUZZER_2 {2, 12, "S2"}
@@ -99,6 +111,7 @@ struct PortaMotor{
 #define PORTA_ULTRASSONICO_3 {8, 6, "US-3"}
 #define PORTA_ULTRASSONICO_4 {2, 3, "US-4"}
 #define PORTA_ULTRASSONICO_5 {18, 19, "US-5"}
+
 
 #define PORTA_MOTOR_1 {9, 7, "M1"}
 #define PORTA_MOTOR_2 {10, 4, "M2"}
