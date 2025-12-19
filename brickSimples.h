@@ -5,8 +5,9 @@
 #include "VL53L0X.h"
 #include "led.h"
 #include "ultrassonico.h"
-#include "giroscopio.h"
 #include "buzzer.h"
+#include "giroscopio.h"
+#include "sensorLinha.h"
 
 
 #define MAXIMO_SENSORES 5
