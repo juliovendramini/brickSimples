@@ -109,6 +109,7 @@ public:
     LEDStrip *ledStrip[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
     Buzzer *buzzer[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
     Giroscopio *giroscopio = NULL;
+    SensorLinha *sensorLinha = NULL;
 
     public:
     BrickSimples(){
@@ -122,17 +123,21 @@ public:
         // Configura Timer1 para PWM em ~122Hz (prescaler 1024)
         // Timer1 controla PWM dos pinos 9 e 10 (motores)
         TCCR1B = (TCCR1B & 0b11111000) | 0x05; // Prescaler 1024 (~31Hz PWM)
+        
+        //(os pinos abaixo estão sendo iniciados na declaração dos motores)
         //PINOS MOTOR ESQUERDO
-        pinMode(9, OUTPUT);
-        pinMode(7, OUTPUT);
-        digitalWrite(9, LOW);
-        digitalWrite(7, LOW);
+        // pinMode(9, OUTPUT);
+        // pinMode(7, OUTPUT);
+        // digitalWrite(9, LOW);
+        // digitalWrite(7, LOW);
 
-        //PINOS MOTOR DIREITO
-        pinMode(10, OUTPUT);
-        pinMode(4, OUTPUT);
-        digitalWrite(10, LOW);
-        digitalWrite(4, LOW);
+        // //PINOS MOTOR DIREITO
+        // pinMode(10, OUTPUT);
+        // pinMode(4, OUTPUT);
+        // digitalWrite(10, LOW);
+        // digitalWrite(4, LOW);
+
+
         Serial.println("Hello, Brick Simples!");
         Serial.print("Tensao da bateria: ");
         uint32_t tensao = analogRead(PINO_BATERIA);
@@ -146,17 +151,17 @@ public:
                 tensao = analogRead(PINO_BATERIA);
                 tensao = 4887 * tensao; //microvolt (estou fazendo isso para nao usar float)
                 tensao = tensao / 1000; //milivolt
-                if(tensao > 1500) break;
+                if(tensao > 2000) break;
                 espera(500);
             }
-            Serial.println("Brick ligado, começando o código");
-            return;
         }
         if(tensao > 2000 && tensao < 3100){ //milivolt
             Serial.println("Bateria fraca!");
             Serial.println("Coloque o brick para carregar e aguarde.");
             while(1);
         }
+        Serial.println("Brick ligado, começando o código");
+        return;
     }
 
     void espera(uint32_t ms){
@@ -276,6 +281,14 @@ public:
     }
 
     void atualiza(){
+        //vejo se a chave foi desligada, se foi, reseto o código para parar de fazer qualquer coisa
+        uint32_t tensao = analogRead(PINO_BATERIA);
+        tensao = 4887 * tensao; //microvolt (estou fazendo isso para nao usar float)
+        tensao = tensao / 1000; //milivolt
+        if(tensao <= 2000){ //milivolt
+            delay(100);
+            this->reset();
+        }
         bool giroscopioAtualizado = false;
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaVL53L0X[i] != NULL){
@@ -295,6 +308,12 @@ public:
                 listaTCS34725[i]->enablePON();
             }
         }
+        //Se tiver sensor de linha, vou ler aqui
+        if(sensorLinha != NULL){
+            sensorLinha->atualizaDadosTimeOut();
+        }
+
+        //caso o tempo de atualização, seja menor que o tempo necessário para iniciar os sensores, espero o tempo restante
         while(micros() - microsInicio < 2500); //pequena espera para garantir que os sensores estejam prontos
         //delayMicroseconds(2500); //pequena espera para garantir que os sensores estejam prontos
         
@@ -442,9 +461,29 @@ public:
         giro.inicializa();
     }
 
+    void adiciona(SensorLinha &sensorLinha){
+        this->sensorLinha = &sensorLinha;
+        sensorLinha.inicializa();
+    }
+
     void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
         listaMotor[0] = &motor1;
         listaMotor[1] = &motor2;
+    }
+
+    void reset(){
+        // Configura todos os pinos das portas seriais como entrada
+        pinMode(14, INPUT);
+        pinMode(15, INPUT);
+        pinMode(16, INPUT);
+        pinMode(17, INPUT);
+        pinMode(8, INPUT);
+        pinMode(6, INPUT);
+        pinMode(2, INPUT);
+        pinMode(3, INPUT);
+        pinMode(18, INPUT);
+        pinMode(19, INPUT);
+        asm volatile ("jmp 0x0000");
     }
 };
 

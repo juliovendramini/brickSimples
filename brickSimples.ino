@@ -14,11 +14,12 @@
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
-Giroscopio giroscopio(PORTA_SERIAL_1);
+// Giroscopio giroscopio(PORTA_SERIAL_1);
+SensorLinha sensorLinha(PORTA_SERIAL_1);
 
 
-Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_INVERTIDO);
-Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_NORMAL);
+//Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_INVERTIDO);
+//Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_NORMAL);
 
 
 uint16_t red, green, blue, clear;
@@ -28,14 +29,15 @@ uint32_t tempoAnterior = 0;
 uint8_t i=0;
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
-    brick.adiciona(giroscopio);
+    // brick.adiciona(giroscopio);
     // brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
     // brick.adiciona(led1); 
     // brick.adiciona(buzzer);   
+    brick.adiciona(sensorLinha);
     servos.iniciaServo(PORTA_SERVO_1);
     servos.iniciaServo(PORTA_SERVO_2);
     servos.iniciaServo(PORTA_SERVO_3);
-    giroscopio.setModo(BMI160_GYRO);
+    // giroscopio.setModo(BMI160_GYRO);
     
     delay(2000);
     //delay(1000);
@@ -137,7 +139,7 @@ void setup(){
     if(brick.botaoApertado()){
         Serial.println("Botao apertado no inicio");
         Serial.println("calibrando sensores...");
-        giroscopio.calibrar();
+        // giroscopio.calibrar();
         // sensor1.calibrar();
         // sensor2.calibrar();
     }
@@ -147,7 +149,26 @@ uint8_t contador = 0;
 int16_t erro = 0;
 void loop(){
     brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
-    Serial.println(giroscopio.getAnguloX());
+
+    Serial.print("Linha1: ");
+    Serial.print(sensorLinha.getLinha(0));
+    Serial.print(" Linha2: ");
+    Serial.print(sensorLinha.getLinha(1));
+    Serial.print(" Linha3: ");
+    Serial.print(sensorLinha.getLinha(2));
+    Serial.print(" Linha4: ");
+    Serial.println(sensorLinha.getLinha(3));
+    Serial.print("SensorCor1: ");
+    Serial.print(" R:");
+    Serial.print(sensorLinha.getRedEsquerda());
+    Serial.print(" G:");
+    Serial.print(sensorLinha.getGreenEsquerda());
+    Serial.print(" B:");
+    Serial.print(sensorLinha.getBlueEsquerda());
+    Serial.print(" C:");
+    Serial.println(sensorLinha.getClearEsquerda());
+    delay(1000);
+    // Serial.println(giroscopio.getAnguloX());
     // delay(100);
     // sensor1.getRGBC(red, green, blue, clear);
     // // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,

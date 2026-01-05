@@ -52,7 +52,7 @@ private:
     uint32_t ultimaAtualizacao;
     
     // Timeout para leitura
-    const uint32_t TIMEOUT = 100; // ms
+    const uint32_t TIMEOUT = 66; // ms
     
 public:
     SensorLinha(PortaSerial porta, uint32_t baudRate = 115200) 
@@ -238,7 +238,7 @@ public:
     
     // Atualiza dados com timeout automático
     void atualizaDadosTimeOut() {
-        if(millis() - ultimaAtualizacao > TIMEOUT && modoCicloServo == MODO_SERVO_FINALIZADO) {
+        if(millis() - ultimaAtualizacao > TIMEOUT) {
             lerDados();
         }
     }
