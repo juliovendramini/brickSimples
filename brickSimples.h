@@ -8,6 +8,8 @@
 #include "buzzer.h"
 #include "giroscopio.h"
 #include "sensorLinha.h"
+#include "Bluetooth.h"
+#include "interrupcoes.h"
 
 
 #define MAXIMO_SENSORES 5

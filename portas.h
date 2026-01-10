@@ -39,8 +39,8 @@ struct PortaAnalogica{
 };
 
 struct PortaUltrassonico{
-    const uint8_t trig;
     const uint8_t echo;
+    const uint8_t trig;
     const char *descricao;
 };
 
@@ -105,8 +105,8 @@ struct PortaMotor{
 #define PORTA_ANALOGICA_2 {A2, A3}
 #define PORTA_ANALOGICA_5 {A4, A5}
 
-// Portas Ultrassônico
-#define PORTA_ULTRASSONICO_1 {14, 15, "US-1"}
+// Portas Ultrassônico //ORDEM DOS PINOS: ECHO, TRIGGER
+#define PORTA_ULTRASSONICO_1 {14, 15, "US-1"} 
 #define PORTA_ULTRASSONICO_2 {16, 17, "US-2"}
 #define PORTA_ULTRASSONICO_3 {8, 6, "US-3"}
 #define PORTA_ULTRASSONICO_4 {2, 3, "US-4"}

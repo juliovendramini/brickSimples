@@ -340,45 +340,4 @@ uint8_t Ultrassonico::estadoAnteriorPCINT0 = 0;
 uint8_t Ultrassonico::estadoAnteriorPCINT1 = 0;
 uint8_t Ultrassonico::estadoAnteriorPCINT2 = 0;
 
-// ISRs PCINT simplificadas - apenas para pinos usados: 15, 17, 9, 3, 19
-
-// PCINT0: Pino D9 (PB1)
-ISR(PCINT0_vect) {
-    // Apenas D9 usa PCINT0
-    uint8_t idx = Ultrassonico::pinoParaInstancia[9];
-    if(Ultrassonico::instancias[idx]) {
-        Ultrassonico::instancias[idx]->handleInterrupt();
-    }
-}
-
-// PCINT1: Pinos D15 (A1/PC1), D17 (A3/PC3), D19 (A5/PC5)
-ISR(PCINT1_vect) {
-    uint8_t estadoAtual = PINC;
-    uint8_t mudancas = estadoAtual ^ Ultrassonico::estadoAnteriorPCINT1;
-    Ultrassonico::estadoAnteriorPCINT1 = estadoAtual;
-    
-    // Verifica apenas os 3 pinos usados
-    if(mudancas & (1 << 1)) {  // PC1 = D15 (A1)
-        uint8_t idx = Ultrassonico::pinoParaInstancia[15];
-        if(Ultrassonico::instancias[idx]) Ultrassonico::instancias[idx]->handleInterrupt();
-    }
-    if(mudancas & (1 << 3)) {  // PC3 = D17 (A3)
-        uint8_t idx = Ultrassonico::pinoParaInstancia[17];
-        if(Ultrassonico::instancias[idx]) Ultrassonico::instancias[idx]->handleInterrupt();
-    }
-    if(mudancas & (1 << 5)) {  // PC5 = D19 (A5)
-        uint8_t idx = Ultrassonico::pinoParaInstancia[19];
-        if(Ultrassonico::instancias[idx]) Ultrassonico::instancias[idx]->handleInterrupt();
-    }
-}
-
-// PCINT2: Pino D3 (PD3)
-ISR(PCINT2_vect) {
-    // Apenas D3 usa PCINT2
-    uint8_t idx = Ultrassonico::pinoParaInstancia[3];
-    if(Ultrassonico::instancias[idx]) {
-        Ultrassonico::instancias[idx]->handleInterrupt();
-    }
-}
-
 #endif
