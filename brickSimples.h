@@ -588,6 +588,48 @@ class Servos{
         if(porta.porta < 1 || porta.porta > 4) return; //número inválido
         servos[porta.porta - 1].write(angulo);
     }
+        void moveServoTempo(PortaServo porta, int anguloDestino, unsigned long tempoMs){
+        if(porta.porta < 1 || porta.porta > 4) return; // número inválido
+
+        // Garante limite de ângulo dentro do suportado pela biblioteca
+        anguloDestino = constrain(anguloDestino, 0, 180);
+
+        uint8_t indice = porta.porta - 1;
+        int anguloAtual = servos[indice].read();
+
+        int diferenca = anguloDestino - anguloAtual;
+        int passos = abs(diferenca);
+
+        // Se já está na posição desejada ou não há tempo, apenas posiciona
+        if(passos == 0 || tempoMs == 0){
+            servos[indice].write(anguloDestino);
+            return;
+        }
+
+        // Define o intervalo entre cada passo em ms
+        unsigned long intervalo = tempoMs / passos;
+        if(intervalo == 0){
+            intervalo = 1; // passo mínimo de 1 ms
+        }
+
+        // Tempo total realmente gasto com os passos
+        unsigned long tempoUsado = intervalo * passos;
+        long ajusteFinal = (long)tempoMs - (long)tempoUsado;
+
+        int incremento = (diferenca > 0) ? 1 : -1;
+        int angulo = anguloAtual;
+
+        for(int i = 0; i < passos; i++){
+            angulo += incremento;
+            servos[indice].write(angulo);
+            delay(intervalo);
+        }
+
+        // Se ainda sobrou um pequeno tempo por causa de arredondamento, espera ele
+        if(ajusteFinal > 0){
+            delay((unsigned long)ajusteFinal);
+        }
+    }
     void desanexaServo(PortaServo porta){
         if(porta.porta < 1 || porta.porta > 4) return; //número inválido
         servos[porta.porta - 1].detach();
