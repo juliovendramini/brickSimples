@@ -1,0 +1,2 @@
+avrdude -C "c:\avrdude\avrdude.conf" -U efuse:w:0x05:m -U hfuse:w:0xda:m -U lfuse:w:0xff:m -e -F -v -p atmega328pb -c arduino -P \\.\COM7 -b 57600 -D -U flash:w:"brickSimples.ino.with_bootloader.eightanaloginputs.hex":i  -U lock:w:0xff:m 
+pause

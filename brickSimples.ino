@@ -1,25 +1,25 @@
 #include "brickSimples.h"
 
-// TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
-// TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
+TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
+TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
 // TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
-// VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
+VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
 // //VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
-// LEDStrip led1 = LEDStrip(PORTA_LED_1);
+LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 // Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
 // VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 
-// Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
+Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
 // Giroscopio giroscopio(PORTA_SERIAL_1);
 //SensorLinha sensorLinha(PORTA_SERIAL_1);
-Bluetooth bluetooth(PORTA_SERIAL_3);
+// Bluetooth bluetooth(PORTA_SERIAL_3);
 
-//Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_INVERTIDO);
-//Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_NORMAL);
+Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_NORMAL);
+Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_INVERTIDO);
 
 
 uint16_t red, green, blue, clear;
@@ -29,20 +29,21 @@ uint32_t tempoAnterior = 0;
 uint8_t i=0;
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
-    bluetooth.begin();
+    // bluetooth.begin();
     // brick.adiciona(giroscopio);
-    // brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    // brick.adiciona(led1); 
-    // brick.adiciona(buzzer);   
+    brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
+    brick.adiciona(led1); 
+    brick.adiciona(buzzer);   
     //brick.adiciona(sensorLinha);
-    //servos.iniciaServo(PORTA_SERVO_1);
-    servos.iniciaServo(PORTA_SERVO_3);
+    servos.iniciaServo(PORTA_SERVO_1);
+    // servos.iniciaServo(PORTA_SERVO_3);
     //servos.iniciaServo(PORTA_SERVO_3);
-    // giroscopio.setModo(BMI160_GYRO);
-    
-    delay(2000);
-    //delay(1000);
-    //servos.moveServo(PORTA_SERVO_1, 0); //move servo 1 para 0 graus
+    // giroscopio.setModo(BMI160_GYRO);    
+    delay(500);
+    servos.moveServo(PORTA_SERVO_1, 0); //move servo 1 para 0 graus
+    delay(1000);
+    servos.moveServo(PORTA_SERVO_1, 180); //move servo 1 para 0 graus
+    delay(1000);
     // brick.potenciaMotores(60, 0);
     // delay(2000);
     // brick.potenciaMotores(-60, 0);
@@ -54,11 +55,11 @@ void setup(){
     // brick.potenciaMotores(0, 0);
     //sensor1.limpaCalibracao();
     //sensor2.limpaCalibracao();
-    //brick.adiciona(&sensorDistancia);
+    brick.adiciona(sensorDistancia);
     //brick.adiciona(&sensorDistancia2);
     //brick.adiciona(&sensorDistancia3);
-    //brick.adiciona(sensor1);
-    //brick.adiciona(&sensor2);
+    brick.adiciona(sensor1);
+    brick.adiciona(sensor2);
     //brick.adiciona(sensor3);
     //brick.adiciona(&ultrassonico);
     //brick.inverteMotorEsquerdo(true);
@@ -88,13 +89,14 @@ void setup(){
     //buzzer.inicializa();
     //buzzer.powerRangers();
     //buzzer.jingleBells();
-    //ledStrip.inicializa(PORTA_LED_4, 1); //inicializa fita de 1 led na porta led 1
-    //buzzer.sucesso();
+    led1.inicializa();
+    buzzer.sucesso();
     //buzzer.alerta();
     tempoAnterior=0;
     //ledStrip.demo();
     //ledStrip.arcoIrisRotativo();
-    //ledStrip.knightRider();
+    led1.setLED(0, 255, 0, 0); //define o led como vermelho
+    led1.atualiza();
    /* uint8_t i=0;
     while(1){
         i=0;
@@ -144,20 +146,26 @@ void setup(){
         // sensor1.calibrar();
         // sensor2.calibrar();
     }
+    brick.ativaLedInterno();
 }
 
 uint8_t contador = 0;
 int16_t erro = 0;
 void loop(){
     brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
-    Serial.println("teste bluetooth");
-    bluetooth.println("Teste Bluetooth");
-    delay(1000);
-    if(bluetooth.available()){
-        char c = bluetooth.read();
-        Serial.print("Recebido via Bluetooth: ");
-        Serial.println(c);
-    }
+    brick.potenciaMotores(50, 50);
+    // brick.espera(2000);
+    // brick.potenciaMotores(-50, 50);
+    // brick.espera(2000);
+
+    // Serial.println("teste bluetooth");
+    // bluetooth.println("Teste Bluetooth");
+    // delay(1000);
+    // if(bluetooth.available()){
+    //     char c = bluetooth.read();
+    //     Serial.print("Recebido via Bluetooth: ");
+    //     Serial.println(c);
+    // }
     // Serial.print("Linha1: ");
     // Serial.print(sensorLinha.getLinha(0));
     // Serial.print(" Linha2: ");
@@ -178,29 +186,29 @@ void loop(){
     // delay(1000);
     // Serial.println(giroscopio.getAnguloX());
     // delay(100);
-    // sensor1.getRGBC(red, green, blue, clear);
+    sensor1.getRGBC(red, green, blue, clear);
     // // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
     // //                         &red2, &green2, &blue2, &clear2);
     // //sensor1.getRawDataOneShot(&red, &green, &blue, &clear);
-    // Serial.print("Sensor1 - R:");
-    // Serial.print(red);
-    // Serial.print(" G:");
-    // Serial.print(green);
-    // Serial.print(" B:");
-    // Serial.print(blue);
-    // Serial.print(" C:");
-    // Serial.println(clear);
+    Serial.print("Sensor1 - R:");
+    Serial.print(red);
+    Serial.print(" G:");
+    Serial.print(green);
+    Serial.print(" B:");
+    Serial.print(blue);
+    Serial.print(" C:");
+    Serial.println(clear);
     
-    // sensor2.getRGBC(red2, green2, blue2, clear2);
-    // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
-    // Serial.print("Sensor2 - R:");
-    // Serial.print(red2);
-    // Serial.print(" G:");
-    // Serial.print(green2);
-    // Serial.print(" B:");
-    // Serial.print(blue2);
-    // Serial.print(" C:");
-    // Serial.println(clear2);
+    sensor2.getRGBC(red2, green2, blue2, clear2);
+    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
+    Serial.print("Sensor2 - R:");
+    Serial.print(red2);
+    Serial.print(" G:");
+    Serial.print(green2);
+    Serial.print(" B:");
+    Serial.print(blue2);
+    Serial.print(" C:");
+    Serial.println(clear2);
 
     // sensor3.getRGBC(red3, green3, blue3, clear3);
     // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
@@ -213,11 +221,18 @@ void loop(){
     // Serial.print(" C:");
     // Serial.println(clear3);
 
-    // uint16_t dist = sensorDistancia.getDistancia();
-    // Serial.print("Distancia: ");
-    // Serial.print(dist);
-    // Serial.println(" mm"); 
-
+    uint16_t dist = sensorDistancia.getDistancia();
+    Serial.print("Distancia: ");
+    Serial.print(dist);
+    Serial.println(" mm"); 
+    if(dist < 100){
+        brick.pararMotores();
+        buzzer.alerta();
+        led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
+        led1.atualiza();
+        brick.potenciaMotores(-50, 50);
+        brick.espera(300);
+    }
 
     // // uint16_t dist2 = sensorDistancia2.getDistancia();
     // // Serial.print("Distancia2: ");
@@ -272,4 +287,5 @@ void loop(){
     // }else if (clear2 < 100){
     //     brick.potenciaMotores(-25, 0);
     // }
+    delay(30);
 }
