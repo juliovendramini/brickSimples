@@ -19,10 +19,10 @@ enum Cor {
     COR_PRETO = 0, 
     COR_BRANCO = 1, 
     COR_VERMELHO = 2, 
-    COR_AMARELO = 3, 
+    COR_VERDE = 3, 
     COR_AZUL = 4, 
-    COR_VERDE = 5, 
-    COR_INDEFINIDA = 6 
+    COR_AMARELO = 5, 
+    COR_INDEFINIDA = -1 
 };
 
 class SensorLinha {
