@@ -2,7 +2,6 @@
 #define VL53L0X_h
 
 #include <Arduino.h>
-#include <Wire.h>
 #include "SoftWire.h"
 #include "portas.h"
 class VL53L0X
@@ -118,8 +117,8 @@ class VL53L0X
     void writeMulti(uint8_t reg, uint8_t const * src, uint8_t count);
     void readMulti(uint8_t reg, uint8_t * dst, uint8_t count);
 
-    bool setSignalRateLimit(float limit_Mcps);
-    float getSignalRateLimit();
+    bool setSignalRateLimit(uint16_t limit_Mcps_x100);  // Em centesimos de MCPS (ex: 25 = 0.25 MCPS)
+    uint16_t getSignalRateLimit();  // Retorna em centesimos de MCPS
 
     bool setMeasurementTimingBudget(uint32_t budget_us);
     uint32_t getMeasurementTimingBudget();

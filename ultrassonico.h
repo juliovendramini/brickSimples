@@ -336,8 +336,5 @@ public:
 Ultrassonico* Ultrassonico::instancias[5] = {NULL, NULL, NULL, NULL, NULL};
 uint8_t Ultrassonico::numInstancias = 0;
 uint8_t Ultrassonico::pinoParaInstancia[20] = {0};
-uint8_t Ultrassonico::estadoAnteriorPCINT0 = 0;
-uint8_t Ultrassonico::estadoAnteriorPCINT1 = 0;
-uint8_t Ultrassonico::estadoAnteriorPCINT2 = 0;
 
 #endif

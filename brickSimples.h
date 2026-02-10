@@ -1,14 +1,34 @@
 #include "portas.h"
-#include "Servo.h"
 #include "SoftWire.h"
+#include "Servo.h"
 #include "TCS34725.h"
+
+#ifdef SUPORTE_SENSOR_VL53L0X
 #include "VL53L0X.h"
+#endif
+
+#ifdef SUPORTE_SENSOR_BMI160
+#include "BMI160.h"
+#endif
+
 #include "led.h"
+
+#ifdef SUPORTE_SENSOR_ULTRASSONICO
 #include "ultrassonico.h"
+#endif
+
 #include "buzzer.h"
+
+#ifdef SUPORTE_SENSOR_GIROSCOPIO
 #include "giroscopio.h"
+#endif
+
+#ifdef SUPORTE_SENSOR_LINHA
 #include "sensorLinha.h"
+#endif
+
 #include "Bluetooth.h"
+
 #include "interrupcoes.h"
 
 
@@ -104,14 +124,34 @@ public:
     bool motor1Invertido = false;
     bool motor2Invertido = false;
     int potenciaPadraoBrick = 60;
+    int delta = 0;
+    
     TCS34725 *listaTCS34725[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
+    
+    #ifdef SUPORTE_SENSOR_VL53L0X
     VL53L0X *listaVL53L0X[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
+    #endif
+        
+    #ifdef SUPORTE_SENSOR_ULTRASSONICO
     Ultrassonico *listaUltrassonico[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
+    #endif
+    
     Motor *listaMotor[MAXIMO_MOTORES]={NULL, NULL};
     LEDStrip *ledStrip[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
     Buzzer *buzzer[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
+    
+    #ifdef SUPORTE_SENSOR_GIROSCOPIO
     Giroscopio *giroscopio = NULL;
+    #endif
+    
+    #ifdef SUPORTE_SENSOR_BMI160
+    BMI160 *bmi160 = NULL; //teremos apenas 1 BMI160 por brick
+    #endif
+    
+    #ifdef SUPORTE_SENSOR_LINHA
     SensorLinha *sensorLinha = NULL;
+    #endif
+
 
     public:
     BrickSimples(){
@@ -141,15 +181,15 @@ public:
 
         DDRE |= (1 << DDE0); // Configura PE0 como saída (pino do LED interno)
         ativaLedInterno();
-        Serial.println("Hello, Brick Simples!");
-        Serial.print("Tensao da bateria: ");
+        Serial.println(F("Hello, Brick Simples!"));
+        Serial.print(F("Tensao da bateria: "));
         uint32_t tensao = analogRead(PINO_BATERIA);
         tensao = 4887 * tensao; //microvolt (estou fazendo isso para nao usar float)
         tensao = tensao / 1000; //milivolt
         Serial.print(tensao);
-        Serial.println(" mV");
+        Serial.println(F(" mV"));
         if(tensao <= 2000){ //milivolt
-            Serial.println("Brick ligado apenas na USB, para ele funcionar, ligue a chave liga/desliga.");
+            Serial.println(F("Brick ligado apenas na USB, para ele funcionar, ligue a chave liga/desliga."));
             desativaLedInterno();
             while(1){
                 tensao = analogRead(PINO_BATERIA);
@@ -160,12 +200,12 @@ public:
             }
         }
         if(tensao > 2000 && tensao < 3100){ //milivolt
-            Serial.println("Bateria fraca!");
-            Serial.println("Coloque o brick para carregar e aguarde.");
+            Serial.println(F("Bateria fraca!"));
+            Serial.println(F("Coloque o brick para carregar e aguarde."));
             desativaLedInterno();
             while(1);
         }
-        Serial.println("Brick ligado, começando o código");
+        Serial.println(F("Brick ligado, começando o código"));
         desativaLedInterno();
         return;
     }
@@ -201,7 +241,7 @@ public:
     // Controla ambos os motores usando a potência padrão configurada
     void potenciaMotores(){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         listaMotor[0]->potencia();
@@ -213,7 +253,7 @@ public:
     // potencia: -100 a 100 (negativo = reverso, positivo = frente)
     void potenciaMotores(int potencia){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         listaMotor[0]->potencia(potencia);
@@ -224,7 +264,7 @@ public:
     // potenciaEsq, potenciaDir: -100 a 100
     void potenciaMotores(int pot1, int pot2){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         listaMotor[0]->potencia(pot1);
@@ -234,7 +274,7 @@ public:
     // Aciona ambos os motores pela potencia padrao por um tempo em ms
     void acionaMotoresPorTempo(unsigned long tempoMs){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         // Liga os dois motores praticamente ao mesmo tempo
@@ -249,7 +289,7 @@ public:
     // Aciona ambos os motores por um tempo em ms com a potencia informada
     void acionaMotoresPorTempo(int potencia, unsigned long tempoMs){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         // Liga os dois com a mesma potencia praticamente ao mesmo tempo
@@ -265,7 +305,7 @@ public:
     // Para ambos os motores
     void pararMotores(){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         listaMotor[0]->parar();
@@ -274,11 +314,15 @@ public:
 
     void frearMotores(){
         if (listaMotor[0] == NULL || listaMotor[1] == NULL){
-            Serial.println(F("Erro: Motores nao inicializados! Use inicializaMotores() antes de controlar os motores."));
+            erroMotorNaoInicializado();
             return;
         }
         listaMotor[0]->frear();
         listaMotor[1]->frear();
+    }
+
+    void erroMotorNaoInicializado(){
+        Serial.println(F("Erro: Motor nao inicializado! Use inicializaMotores() antes de controlar os motores."));
     }
 
     bool botaoApertado(){
@@ -301,17 +345,22 @@ public:
         }
         bool giroscopioAtualizado = false;
         bool sensorLinhaAtualizado = false;
+
+        #ifdef SUPORTE_SENSOR_VL53L0X
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaVL53L0X[i] != NULL){
                 listaVL53L0X[i]->iniciaLeituraEmMilimetros();
             }
         }
+        #endif
 
+        #ifdef SUPORTE_SENSOR_ULTRASSONICO
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaUltrassonico[i] != NULL){
                 listaUltrassonico[i]->iniciaMedicao();
             }
         }
+        #endif
         
         uint32_t microsInicio = micros();
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
@@ -338,18 +387,24 @@ public:
         //como a leitura dos sensores serais que desenvolvi são rapidas (115200bps), preciso desativar todas as interrupções na hora da leitura da serial
         //então só posso fazer isso, porque a demora pode afetar os servos, então só faço se o servo não estiver ativo
         if(modoCicloServo == MODO_SERVO_FINALIZADO){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
+            #ifdef SUPORTE_SENSOR_GIROSCOPIO
             if(giroscopio != NULL){
                 giroscopio->lerDados();
                 giroscopioAtualizado = true;
             }
+            #endif
 
+            #ifdef SUPORTE_SENSOR_LINHA
             //Se tiver sensor de linha, vou ler aqui
             if(sensorLinha != NULL){
                 sensorLinha->atualizaDadosTimeOut();
                 sensorLinhaAtualizado = true;
             }
+            #endif
 
         }
+
+
         // else{
         //     delayMicroseconds(900);    
         // }
@@ -392,20 +447,31 @@ public:
         //serial dessa forma, tentando duas vezes com essa verificação para evitar espasmos nos servos, já que eu preciso desativar as interrupções
         //enquanto leio o retorno da serial dos sensores
         if(modoCicloServo == MODO_SERVO_FINALIZADO){
+            #ifdef SUPORTE_SENSOR_GIROSCOPIO
             if(!giroscopioAtualizado){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
                 if(giroscopio != NULL){
                     giroscopio->lerDados();
                     giroscopioAtualizado = true;
                 }
             }
+            #endif
+            #ifdef SUPORTE_SENSOR_LINHA
             if(!sensorLinhaAtualizado){
                 if(sensorLinha != NULL){
                     sensorLinha->atualizaDadosTimeOut();
                     sensorLinhaAtualizado = true;
                 }
             }
+            #endif
         }
-
+        #ifdef SUPORTE_SENSOR_BMI160
+        if(!giroscopioAtualizado){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
+            if(bmi160 != NULL){
+                bmi160->atualizaDados();
+                giroscopioAtualizado = true;
+            }
+        }
+        #endif
         // else{
         //     delayMicroseconds(900);    
         // }
@@ -429,11 +495,13 @@ public:
             }
         }
 
+        #ifdef SUPORTE_SENSOR_VL53L0X
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaVL53L0X[i] != NULL){
                 listaVL53L0X[i]->finalizaLeituraEmMilimetros();
             }
         }
+        #endif
 
         // for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
         //     if(listaUltrassonico[i] != NULL){
@@ -452,6 +520,7 @@ public:
         sensor.begin();
     }
 
+    #ifdef SUPORTE_SENSOR_VL53L0X
     void adiciona(VL53L0X &sensor){
         for(int i=0; i<MAXIMO_SENSORES; i++){
             if(listaVL53L0X[i] == NULL){
@@ -461,7 +530,21 @@ public:
         }
         sensor.init();
     }
+    #endif
 
+    #ifdef SUPORTE_SENSOR_BMI160
+    void adiciona(BMI160 &sensor){
+        if(this->bmi160 == NULL){
+            this->bmi160 = &sensor;
+        }else{
+            Serial.println(F("Erro: Apenas um sensor BMI160 pode ser adicionado por Brick!"));
+            while(1);
+        }
+        sensor.begin();
+    }
+    #endif
+
+    #ifdef SUPORTE_SENSOR_ULTRASSONICO
     void adiciona(Ultrassonico &sensor){
         for(int i=0; i<MAXIMO_SENSORES; i++){
             if(listaUltrassonico[i] == NULL){
@@ -471,6 +554,7 @@ public:
         }
         sensor.inicializa();
     }
+    #endif
 
     void adiciona(LEDStrip &leds){
         for(int i=0; i<MAXIMO_SERVOS; i++){ // quantidade de portas de servo/led
@@ -492,15 +576,20 @@ public:
         buzzer.inicializa();
     }
 
+    #ifdef SUPORTE_SENSOR_GIROSCOPIO
     void adiciona(Giroscopio &giro){
         this->giroscopio = &giro;
         giro.inicializa();
     }
+    #endif
 
+    #ifdef SUPORTE_SENSOR_LINHA
     void adiciona(SensorLinha &sensorLinha){
         this->sensorLinha = &sensorLinha;
         sensorLinha.inicializa();
     }
+    #endif
+    
 
     void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
         listaMotor[0] = &motor1;
