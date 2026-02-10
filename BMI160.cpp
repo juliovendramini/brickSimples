@@ -44,6 +44,8 @@ THE SOFTWARE.
 
 /******************************************************************************/
 
+uint8_t bufferGlobal[120]; //vou deixar declarado sempre para saber o espaço global alocado na compilação
+
 // Construtor que aceita PortaI2C
 BMI160::BMI160(PortaI2C porta) {
     this->sda = porta.sda;
@@ -1395,7 +1397,8 @@ void BMI160::atualizaDados(){
         if (numSamples > 60) numSamples = 60;
         
         if (numSamples > 0) {
-            uint8_t buffer[120];  // Buffer para ate 60 samples (dois bytes só, eixo Z apenas)
+            //uint8_t buffer[120];  // Buffer para ate 60 samples (dois bytes só, eixo Z apenas)
+            uint8_t *buffer = bufferGlobal;
             buffer[0] = 0;  // Sera preenchido pela getFIFOBytes
             
             getFIFOBytesZOnly(buffer, numSamples * 6);  // Le apenas os dados do gyro Z da FIFO (a quantidade realmente é x6 pq na FIFO tem todos os eixos)
