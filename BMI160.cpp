@@ -1422,20 +1422,26 @@ void BMI160::atualizaDados(){
 }
 
 int16_t BMI160::getPlanoX(){
+    if(millis() - ultimaAtualizacao > 40) // se passaram mais de 40ms desde a ultima leitura, atualiza os dados
+        this->atualizaDados();
     return this->planoX;
 }
 
 int16_t BMI160::getPlanoY(){
+    if(millis() - ultimaAtualizacao > 40) // se passaram mais de 40ms desde a ultima leitura, atualiza os dados
+        this->atualizaDados();
     return this->planoY;
 }
 
 int16_t BMI160::getEixoZ(){
+    if(millis() - ultimaAtualizacao > 40) // se passaram mais de 40ms desde a ultima leitura, atualiza os dados
+        this->atualizaDados();
     return this->eixoZ;
 }
 
 void BMI160::calibrar(){
     Serial.println(F("Iniciando calibragem do BMI160, deixe o robo parado..."));
-    delay(10);
+    delay(100);
     
     // Le valores atuais para offsets do acelerometro
     int16_t ax, ay, az, gx, gy, gz;
