@@ -4,7 +4,7 @@
 //#define SUPORTE_SENSOR_ULTRASSONICO 0
 #define SUPORTE_SENSOR_TCS34725 1
 #define SUPORTE_SENSOR_VL53L0X 1
-
+#define SUPORTE_DISPLAY_SSD1306 1
 #include "brickSimples.h"
 
 TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
@@ -19,6 +19,8 @@ LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 BMI160 bmi160Sensor = BMI160(PORTA_I2C_5);
 Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
+//SSD1306 tela = SSD1306(PORTA_I2C_3);
+Teclado teclado = Teclado(PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
@@ -43,6 +45,7 @@ void setup(){
     brick.adiciona(led1); 
     brick.adiciona(buzzer);   
     brick.adiciona(bmi160Sensor);
+    brick.adiciona(teclado);
     //brick.adiciona(sensorLinha);
     servos.iniciaServo(PORTA_SERVO_1);
     // servos.iniciaServo(PORTA_SERVO_3);
@@ -155,6 +158,9 @@ void setup(){
         // sensor2.calibrar();
     }
     brick.ativaLedInterno();
+    // tela.clear();
+    // tela.setCursor(0, 0);
+    //tela.setFonteGrande();
 }
 
 uint8_t contador = 0;
@@ -311,5 +317,14 @@ void loop(){
     // }else if (clear2 < 100){
     //     brick.potenciaMotores(-25, 0);
     // }
-    delay(30);
+    // tela.setCursor(0, 0);
+    // tela.print("    ");
+    // tela.setCursor(0, 0);
+    // tela.print(bmi160Sensor.getEixoZ());
+    if(teclado.leBotao(1) == Teclado::APERTADO){
+        Serial.println("Botao 1 apertado");
+        teclado.alteraLed(1, true);
+    }else{
+        teclado.alteraLed(1, false);
+    }
 }

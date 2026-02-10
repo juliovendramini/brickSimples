@@ -29,6 +29,12 @@
 
 #include "Bluetooth.h"
 
+#ifdef SUPORTE_DISPLAY_SSD1306
+#include "SSD1306.h"
+#endif
+
+#include "Teclado.h"
+
 #include "interrupcoes.h"
 
 
@@ -152,6 +158,11 @@ public:
     SensorLinha *sensorLinha = NULL;
     #endif
 
+    #ifdef SUPORTE_DISPLAY_SSD1306
+    SSD1306 *display = NULL; //teremos apenas 1 display por brick
+    #endif
+
+    Teclado *teclado = NULL; //teremos apenas 1 teclado por brick
 
     public:
     BrickSimples(){
@@ -590,6 +601,27 @@ public:
     }
     #endif
     
+    #ifdef SUPORTE_DISPLAY_SSD1306
+    void adiciona(SSD1306 &display){
+        if(this->display == NULL){
+            this->display = &display;
+        }else{
+            Serial.println(F("Erro: Apenas um display SSD1306 pode ser adicionado por Brick!"));
+            while(1);
+        }
+        display.init();
+    }
+    #endif
+
+    void adiciona(Teclado &teclado){
+        if(this->teclado == NULL){
+            this->teclado = &teclado;
+        }else{
+            Serial.println(F("Erro: Apenas um teclado pode ser adicionado por Brick!"));
+            while(1);
+        }
+        teclado.init();
+    }
 
     void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
         listaMotor[0] = &motor1;
