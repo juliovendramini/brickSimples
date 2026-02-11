@@ -4,7 +4,6 @@
 // VL53L0X datasheet.
 
 #include "VL53L0X.h"
-#include <Wire.h>
 #include "portas.h"
 // Defines /////////////////////////////////////////////////////////////////////
 
@@ -124,7 +123,7 @@ bool VL53L0X::init(bool io_2v8)
   writeReg(MSRC_CONFIG_CONTROL, readReg(MSRC_CONFIG_CONTROL) | 0x12);
 
   // set final range signal rate limit to 0.25 MCPS (million counts per second)
-  setSignalRateLimit(0.25);
+  setSignalRateLimit(25);  // 25 centesimos = 0.25 MCPS
 
   writeReg(SYSTEM_SEQUENCE_CONFIG, 0xFF);
 
@@ -279,7 +278,7 @@ bool VL53L0X::init(bool io_2v8)
 
   // -- VL53L0X_SetGpioConfig() end
 
-  measurement_timing_budget_us = getMeasurementTimingBudget();
+  //measurement_timing_budget_us = getMeasurementTimingBudget();
 
   // "Disable MSRC and TCC by default"
   // MSRC = Minimum Signal Rate Check
@@ -291,7 +290,7 @@ bool VL53L0X::init(bool io_2v8)
   // -- VL53L0X_SetSequenceStepEnable() end
 
   // "Recalculate timing budget"
-  setMeasurementTimingBudget(measurement_timing_budget_us);
+  //setMeasurementTimingBudget(measurement_timing_budget_us);
 
   // VL53L0X_StaticInit() end
 
@@ -438,19 +437,25 @@ void VL53L0X::readMulti(uint8_t reg, uint8_t * dst, uint8_t count)
 // seems to increase the likelihood of getting an inaccurate reading because of
 // unwanted reflections from objects other than the intended target.
 // Defaults to 0.25 MCPS as initialized by the ST API and this library.
-bool VL53L0X::setSignalRateLimit(float limit_Mcps)
+// Set signal rate limit em centesimos de MCPS (ex: 25 = 0.25 MCPS, 100 = 1.00 MCPS)
+// Range: 0 a 51199 (0.00 a 511.99 MCPS)
+bool VL53L0X::setSignalRateLimit(uint16_t limit_Mcps_x100)
 {
-  if (limit_Mcps < 0 || limit_Mcps > 511.99) { return false; }
+  if (limit_Mcps_x100 > 51199) { return false; }
 
   // Q9.7 fixed point format (9 integer bits, 7 fractional bits)
-  writeReg16Bit(FINAL_RANGE_CONFIG_MIN_COUNT_RATE_RTN_LIMIT, limit_Mcps * (1 << 7));
+  // Converte de centesimos para Q9.7: (valor * 128) / 100
+  uint16_t reg_value = ((uint32_t)limit_Mcps_x100 << 7) / 100;
+  writeReg16Bit(FINAL_RANGE_CONFIG_MIN_COUNT_RATE_RTN_LIMIT, reg_value);
   return true;
 }
 
-// Get the return signal rate limit check value in MCPS
-float VL53L0X::getSignalRateLimit()
+// Get the return signal rate limit check value em centesimos de MCPS
+uint16_t VL53L0X::getSignalRateLimit()
 {
-  return (float)readReg16Bit(FINAL_RANGE_CONFIG_MIN_COUNT_RATE_RTN_LIMIT) / (1 << 7);
+  // Converte de Q9.7 para centesimos: (valor * 100) / 128
+  uint16_t reg_value = readReg16Bit(FINAL_RANGE_CONFIG_MIN_COUNT_RATE_RTN_LIMIT);
+  return ((uint32_t)reg_value * 100) / 128;
 }
 
 // Set the measurement timing budget in microseconds, which is the time allowed

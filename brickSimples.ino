@@ -1,3 +1,10 @@
+#define SUPORTE_SENSOR_BMI160 1
+//#define SUPORTE_SENSOR_GIROSCOPIO 1
+// #define SUPORTE_SENSOR_LINHA 1
+//#define SUPORTE_SENSOR_ULTRASSONICO 0
+#define SUPORTE_SENSOR_TCS34725 1
+#define SUPORTE_SENSOR_VL53L0X 1
+#define SUPORTE_DISPLAY_SSD1306 1
 #include "brickSimples.h"
 
 TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
@@ -9,8 +16,11 @@ LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 // Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
 // VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 
+BMI160 bmi160Sensor = BMI160(PORTA_I2C_5);
 Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
+//SSD1306 tela = SSD1306(PORTA_I2C_3);
+Teclado teclado = Teclado(PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
@@ -34,16 +44,16 @@ void setup(){
     brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
     brick.adiciona(led1); 
     brick.adiciona(buzzer);   
+    brick.adiciona(bmi160Sensor);
+    brick.adiciona(teclado);
     //brick.adiciona(sensorLinha);
     servos.iniciaServo(PORTA_SERVO_1);
     // servos.iniciaServo(PORTA_SERVO_3);
     //servos.iniciaServo(PORTA_SERVO_3);
     // giroscopio.setModo(BMI160_GYRO);    
     delay(500);
-    servos.moveServo(PORTA_SERVO_1, 0); //move servo 1 para 0 graus
-    delay(1000);
-    servos.moveServo(PORTA_SERVO_1, 180); //move servo 1 para 0 graus
-    delay(1000);
+    servos.moveServo(PORTA_SERVO_1, 90); //move servo 1 para 0 graus
+    
     // brick.potenciaMotores(60, 0);
     // delay(2000);
     // brick.potenciaMotores(-60, 0);
@@ -90,7 +100,7 @@ void setup(){
     //buzzer.powerRangers();
     //buzzer.jingleBells();
     led1.inicializa();
-    buzzer.sucesso();
+    //buzzer.sucesso();
     //buzzer.alerta();
     tempoAnterior=0;
     //ledStrip.demo();
@@ -142,18 +152,33 @@ void setup(){
     if(brick.botaoApertado()){
         Serial.println("Botao apertado no inicio");
         Serial.println("calibrando sensores...");
+        //bmi160Sensor.calibrar();
         // giroscopio.calibrar();
         // sensor1.calibrar();
         // sensor2.calibrar();
     }
     brick.ativaLedInterno();
+    // tela.clear();
+    // tela.setCursor(0, 0);
+    //tela.setFonteGrande();
 }
 
 uint8_t contador = 0;
 int16_t erro = 0;
 void loop(){
     brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
+    if(brick.botaoApertado()){
+        bmi160Sensor.resetaZ();
+    }
     brick.potenciaMotores(50, 50);
+    Serial.print("Teste BMI160: ");
+    Serial.print("Plano X: ");
+    Serial.print(bmi160Sensor.getPlanoX());
+    Serial.print(" Plano Y: "); 
+    Serial.print(bmi160Sensor.getPlanoY());
+    Serial.print(" Eixo Z: ");
+    Serial.println(bmi160Sensor.getEixoZ());
+    //Serial.println(bmi160Sensor.getAccelerationZ());
     // brick.espera(2000);
     // brick.potenciaMotores(-50, 50);
     // brick.espera(2000);
@@ -230,7 +255,12 @@ void loop(){
         buzzer.alerta();
         led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
         led1.atualiza();
-        brick.potenciaMotores(-50, 50);
+        int8_t x = rand()%2;
+        if(x==0){
+            brick.potenciaMotores(50, -50);
+        }else{
+            brick.potenciaMotores(-50, 50);
+        }
         brick.espera(300);
     }
 
@@ -287,5 +317,14 @@ void loop(){
     // }else if (clear2 < 100){
     //     brick.potenciaMotores(-25, 0);
     // }
-    delay(30);
+    // tela.setCursor(0, 0);
+    // tela.print("    ");
+    // tela.setCursor(0, 0);
+    // tela.print(bmi160Sensor.getEixoZ());
+    if(teclado.leBotao(1) == Teclado::APERTADO){
+        Serial.println("Botao 1 apertado");
+        teclado.alteraLed(1, true);
+    }else{
+        teclado.alteraLed(1, false);
+    }
 }
