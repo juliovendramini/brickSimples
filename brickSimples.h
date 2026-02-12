@@ -1,7 +1,10 @@
 #include "portas.h"
 #include "SoftWire.h"
 #include "Servo.h"
+
+#ifdef SUPORTE_SENSOR_TCS34725
 #include "TCS34725.h"
+#endif
 
 #ifdef SUPORTE_SENSOR_VL53L0X
 #include "VL53L0X.h"
@@ -132,8 +135,10 @@ public:
     int potenciaPadraoBrick = 60;
     int delta = 0;
     
+    #ifdef SUPORTE_SENSOR_TCS34725
     TCS34725 *listaTCS34725[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
-    
+    #endif
+
     #ifdef SUPORTE_SENSOR_VL53L0X
     VL53L0X *listaVL53L0X[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
     #endif
@@ -374,23 +379,30 @@ public:
         #endif
         
         uint32_t microsInicio = micros();
+
+        #ifdef SUPORTE_SENSOR_TCS34725
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->enablePON();
             }
         }
-        
+        #endif
 
         //caso o tempo de atualização, seja menor que o tempo necessário para iniciar os sensores, espero o tempo restante
         while(micros() - microsInicio < 2500); //pequena espera para garantir que os sensores estejam prontos
         //delayMicroseconds(2500); //pequena espera para garantir que os sensores estejam prontos
         
+
         // microsInicio = micros();
+        
+        #ifdef SUPORTE_SENSOR_TCS34725
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->enablePON_AEN();
             }
         }
+        #endif
+
         //while(micros() - microsInicio < 3800);
         microsInicio = micros();
         //AQUI EMBAIXO POSSO ADICIONAR MAIS FUNCÕES JÁ QUE ESPERO 5MS
@@ -423,6 +435,7 @@ public:
 
         while(micros() - microsInicio < 5000); //pequena espera para garantir que os sensores estejam prontos
 
+        #ifdef SUPORTE_SENSOR_TCS34725
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->getRawData();
@@ -433,24 +446,30 @@ public:
                 listaTCS34725[i]->disable();
             }
         }
+        #endif
         
         microsInicio = micros();
+
+        #ifdef SUPORTE_SENSOR_TCS34725
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->enablePON();
             }
         }
+        #endif
         while(micros() - microsInicio < 2500); //pequena espera para garantir que os sensores estejam prontos
         
         //delayMicroseconds(2500); //pequena espera para garantir que os sensores estejam prontos
         //microsInicio = micros();
+        #ifdef SUPORTE_SENSOR_TCS34725
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
                 listaTCS34725[i]->enablePON_AEN();
                 listaTCS34725[i]->ledOff();
             }
         }
-
+        #endif
+        
         microsInicio = micros();
 
         //tento atualizar novamente se nao consegui lá em cima
@@ -489,6 +508,7 @@ public:
         // delayMicroseconds(3300);
         while(micros() - microsInicio < 5000);
 
+        #ifdef SUPORTE_SENSOR_TCS34725
         uint16_t r_on, g_on, b_on, c_on;
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] != NULL){
@@ -505,6 +525,7 @@ public:
                 listaTCS34725[i]->disable();
             }
         }
+        #endif
 
         #ifdef SUPORTE_SENSOR_VL53L0X
         for(uint8_t i=0; i<MAXIMO_SENSORES; i++){
@@ -521,6 +542,7 @@ public:
         // }
     }
 
+    #ifdef SUPORTE_SENSOR_TCS34725
     void adiciona(TCS34725 &sensor){
         for(int i=0; i<MAXIMO_SENSORES; i++){
             if(listaTCS34725[i] == NULL){
@@ -530,6 +552,7 @@ public:
         }
         sensor.begin();
     }
+    #endif
 
     #ifdef SUPORTE_SENSOR_VL53L0X
     void adiciona(VL53L0X &sensor){

@@ -2,13 +2,13 @@
 //#define SUPORTE_SENSOR_GIROSCOPIO 1
 // #define SUPORTE_SENSOR_LINHA 1
 //#define SUPORTE_SENSOR_ULTRASSONICO 0
-#define SUPORTE_SENSOR_TCS34725 1
+//#define SUPORTE_SENSOR_TCS34725 1
 #define SUPORTE_SENSOR_VL53L0X 1
 #define SUPORTE_DISPLAY_SSD1306 1
 #include "brickSimples.h"
 
-TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
-TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
+//TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
+//TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
 // TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
 VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
 // //VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
@@ -68,8 +68,8 @@ void setup(){
     brick.adiciona(sensorDistancia);
     //brick.adiciona(&sensorDistancia2);
     //brick.adiciona(&sensorDistancia3);
-    brick.adiciona(sensor1);
-    brick.adiciona(sensor2);
+    //brick.adiciona(sensor1);
+    //brick.adiciona(sensor2);
     //brick.adiciona(sensor3);
     //brick.adiciona(&ultrassonico);
     //brick.inverteMotorEsquerdo(true);
@@ -211,29 +211,29 @@ void loop(){
     // delay(1000);
     // Serial.println(giroscopio.getAnguloX());
     // delay(100);
-    sensor1.getRGBC(red, green, blue, clear);
+    // sensor1.getRGBC(red, green, blue, clear);
     // // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
     // //                         &red2, &green2, &blue2, &clear2);
     // //sensor1.getRawDataOneShot(&red, &green, &blue, &clear);
-    Serial.print("Sensor1 - R:");
-    Serial.print(red);
-    Serial.print(" G:");
-    Serial.print(green);
-    Serial.print(" B:");
-    Serial.print(blue);
-    Serial.print(" C:");
-    Serial.println(clear);
+    // Serial.print("Sensor1 - R:");
+    // Serial.print(red);
+    // Serial.print(" G:");
+    // Serial.print(green);
+    // Serial.print(" B:");
+    // Serial.print(blue);
+    // Serial.print(" C:");
+    // Serial.println(clear);
     
-    sensor2.getRGBC(red2, green2, blue2, clear2);
-    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
-    Serial.print("Sensor2 - R:");
-    Serial.print(red2);
-    Serial.print(" G:");
-    Serial.print(green2);
-    Serial.print(" B:");
-    Serial.print(blue2);
-    Serial.print(" C:");
-    Serial.println(clear2);
+    // sensor2.getRGBC(red2, green2, blue2, clear2);
+    // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
+    // Serial.print("Sensor2 - R:");
+    // Serial.print(red2);
+    // Serial.print(" G:");
+    // Serial.print(green2);
+    // Serial.print(" B:");
+    // Serial.print(blue2);
+    // Serial.print(" C:");
+    // Serial.println(clear2);
 
     // sensor3.getRGBC(red3, green3, blue3, clear3);
     // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
