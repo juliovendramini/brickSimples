@@ -155,6 +155,7 @@ class SSD1306 : public Print
     uint8_t height(void);
     uint8_t width(void);
     void setFonteGrande();
+    void setFonteMedia();
     void setFontePequena();
 
   private:

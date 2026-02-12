@@ -2,13 +2,15 @@
 //#define SUPORTE_SENSOR_GIROSCOPIO 1
 // #define SUPORTE_SENSOR_LINHA 1
 //#define SUPORTE_SENSOR_ULTRASSONICO 0
-//#define SUPORTE_SENSOR_TCS34725 1
+#define SUPORTE_SENSOR_TCS34725 1
 #define SUPORTE_SENSOR_VL53L0X 1
 #define SUPORTE_DISPLAY_SSD1306 1
+
+
 #include "brickSimples.h"
 
-//TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
-//TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
+TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
+TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
 // TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
 VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
 // //VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
@@ -19,8 +21,8 @@ LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 BMI160 bmi160Sensor = BMI160(PORTA_I2C_5);
 Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
-//SSD1306 tela = SSD1306(PORTA_I2C_3);
-Teclado teclado = Teclado(PORTA_I2C_3);
+SSD1306 tela = SSD1306(PORTA_I2C_3);
+// Teclado teclado = Teclado(PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
@@ -45,8 +47,8 @@ void setup(){
     brick.adiciona(led1); 
     brick.adiciona(buzzer);   
     brick.adiciona(bmi160Sensor);
-    brick.adiciona(teclado);
-    //brick.adiciona(sensorLinha);
+    //brick.adiciona(teclado);
+    brick.adiciona(tela);
     servos.iniciaServo(PORTA_SERVO_1);
     // servos.iniciaServo(PORTA_SERVO_3);
     //servos.iniciaServo(PORTA_SERVO_3);
@@ -66,12 +68,9 @@ void setup(){
     //sensor1.limpaCalibracao();
     //sensor2.limpaCalibracao();
     brick.adiciona(sensorDistancia);
-    //brick.adiciona(&sensorDistancia2);
-    //brick.adiciona(&sensorDistancia3);
-    //brick.adiciona(sensor1);
-    //brick.adiciona(sensor2);
+    brick.adiciona(sensor1);
+    brick.adiciona(sensor2);
     //brick.adiciona(sensor3);
-    //brick.adiciona(&ultrassonico);
     //brick.inverteMotorEsquerdo(true);
     //sensorDistancia.init();
     //giroscopio.inicializa(PORTA_SERIAL_1);
@@ -158,14 +157,21 @@ void setup(){
         // sensor2.calibrar();
     }
     brick.ativaLedInterno();
-    // tela.clear();
-    // tela.setCursor(0, 0);
-    //tela.setFonteGrande();
+    tela.clear();
+    tela.setCursor(0, 0);
+    tela.setFontePequena();
 }
 
 uint8_t contador = 0;
 int16_t erro = 0;
+
 void loop(){
+    if(millis() - tempoAnterior >= 1000){
+        tempoAnterior = millis();
+        Serial.println(contador);
+        contador = 0;
+    }
+    contador++;
     brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
     if(brick.botaoApertado()){
         bmi160Sensor.resetaZ();
@@ -215,25 +221,25 @@ void loop(){
     // // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
     // //                         &red2, &green2, &blue2, &clear2);
     // //sensor1.getRawDataOneShot(&red, &green, &blue, &clear);
-    // Serial.print("Sensor1 - R:");
-    // Serial.print(red);
-    // Serial.print(" G:");
-    // Serial.print(green);
-    // Serial.print(" B:");
-    // Serial.print(blue);
-    // Serial.print(" C:");
-    // Serial.println(clear);
+    Serial.print("Sensor1 - R:");
+    Serial.print(red);
+    Serial.print(" G:");
+    Serial.print(green);
+    Serial.print(" B:");
+    Serial.print(blue);
+    Serial.print(" C:");
+    Serial.println(clear);
     
-    // sensor2.getRGBC(red2, green2, blue2, clear2);
-    // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
-    // Serial.print("Sensor2 - R:");
-    // Serial.print(red2);
-    // Serial.print(" G:");
-    // Serial.print(green2);
-    // Serial.print(" B:");
-    // Serial.print(blue2);
-    // Serial.print(" C:");
-    // Serial.println(clear2);
+    sensor2.getRGBC(red2, green2, blue2, clear2);
+    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
+    Serial.print("Sensor2 - R:");
+    Serial.print(red2);
+    Serial.print(" G:");
+    Serial.print(green2);
+    Serial.print(" B:");
+    Serial.print(blue2);
+    Serial.print(" C:");
+    Serial.println(clear2);
 
     // sensor3.getRGBC(red3, green3, blue3, clear3);
     // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
@@ -317,14 +323,15 @@ void loop(){
     // }else if (clear2 < 100){
     //     brick.potenciaMotores(-25, 0);
     // }
-    // tela.setCursor(0, 0);
-    // tela.print("    ");
-    // tela.setCursor(0, 0);
-    // tela.print(bmi160Sensor.getEixoZ());
-    if(teclado.leBotao(1) == Teclado::APERTADO){
-        Serial.println("Botao 1 apertado");
-        teclado.alteraLed(1, true);
-    }else{
-        teclado.alteraLed(1, false);
-    }
+    tela.setCursor(0, 0);
+    char buffer[16];
+    sprintf(buffer, "%4d", (int)bmi160Sensor.getEixoZ()); // 4 caracteres com padding
+    tela.print(buffer);
+    delay(1000);
+    // if(teclado.leBotao(1) == Teclado::APERTADO){
+    //     Serial.println("Botao 1 apertado");
+    //     teclado.alteraLed(1, true);
+    // }else{
+    //     teclado.alteraLed(1, false);
+    // }
 }

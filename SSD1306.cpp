@@ -401,6 +401,10 @@ void SSD1306::drawChar(unsigned char c, bool inverted){
         return;
       }
  
+  // Buffer para acumular dados de uma linha (página) - máximo: 5 colunas * 4 multiplicador + espaçamento = ~24 bytes
+  uint8_t buffer[32]; 
+  uint8_t bufferIndex;
+  
   // top half
   uint8_t x_inicio = _x;
   uint8_t paginaInicial = 0;
@@ -415,6 +419,10 @@ void SSD1306::drawChar(unsigned char c, bool inverted){
 		//ssd1306_command(SSD1306_SETSTARTLINE | (_y / SSD1306_FONT_HEIGHT));
 		ssd1306_command(SSD1306_SETLOWCOLUMN | (_x & 0x0F));
 		ssd1306_command(SSD1306_SETHIGHCOLUMN | ((_x & 0xF0) >> 4));
+		
+    // Acumular dados no buffer
+    bufferIndex = 0;
+    
 		for (uint8_t i = 0; i < 5; ++i){
 			uint8_t b = pgm_read_byte(&flash_font[((c - 0x20) * 5) + i]);
 			if (inverted)
@@ -432,12 +440,21 @@ void SSD1306::drawChar(unsigned char c, bool inverted){
 			}
 			b = temp;
 			for(uint8_t i = 0; i < multiplicadorTamanho; ++i){
-				ssd1306_data(b);
+				buffer[bufferIndex++] = b;
 			}
 		}
-    for(int8_t parte = multiplicadorTamanho-1; parte >= 0; parte--){
-		  ssd1306_data(0x00);
+    // Adicionar espaçamento
+    for(int8_t espacamento = multiplicadorTamanho-1; espacamento >= 0; espacamento--){
+		  buffer[bufferIndex++] = 0x00;
     }
+    
+    // Enviar todos os dados de uma vez
+    bus->beginTransmission(_i2caddr);
+    bus->write(0x40); // Co = 0, D/C = 1
+    for(uint8_t i = 0; i < bufferIndex; i++){
+      bus->write(buffer[i]);
+    }
+    bus->endTransmission();
     
 		linhaTela++;
 	}
@@ -464,11 +481,18 @@ void SSD1306::ssd1306_data(uint8_t d)
   bus->endTransmission();
 }
 
-
-void SSD1306::setFonteGrande(){
+void SSD1306::setFonteMedia(){
   multiplicadorTamanhoFonte = 2;
   SSD1306_FONT_WIDTH = 10;
   SSD1306_FONT_HEIGHT = 16;
+  this->clear();
+}
+
+
+void SSD1306::setFonteGrande(){
+  multiplicadorTamanhoFonte = 4;
+  SSD1306_FONT_WIDTH = 20;
+  SSD1306_FONT_HEIGHT = 32;
   this->clear();
 }
 

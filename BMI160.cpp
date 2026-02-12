@@ -1388,7 +1388,8 @@ void BMI160::atualizaDados(){
     //vou pegar apenas o eixoZ na FIFO, faço isso porque assim consigo pegar 3x mais valores, ocupando o mesmo espaço na ram do MCU
     // Processa todos os samples do gyro acumulados na FIFO
     uint16_t fifoCount = getFIFOCount();
-    
+    Serial.print(F("FIFO Count: "));
+    Serial.println(fifoCount);
     if (fifoCount > 0) {
         // Cada sample do gyro tem 6 bytes (gx, gy, gz em 16 bits cada)
         uint8_t numSamples = fifoCount / 6;
@@ -1401,15 +1402,15 @@ void BMI160::atualizaDados(){
             uint8_t *buffer = bufferGlobal;
             buffer[0] = 0;  // Sera preenchido pela getFIFOBytes
             
-            getFIFOBytesZOnly(buffer, numSamples * 6);  // Le apenas os dados do gyro Z da FIFO (a quantidade realmente é x6 pq na FIFO tem todos os eixos)
+            getFIFOBytesZOnly(buffer, fifoCount);  // Le apenas os dados do gyro Z da FIFO (a quantidade realmente é x6 pq na FIFO tem todos os eixos)
             resetFIFO();
             // Processa cada sample acumulado
             for (uint8_t i = 0; i < numSamples; i++) {
                 uint8_t idx = i * 2;
                 
                 // Le gz (bytes 4 e 5 de cada sample)
-                int16_t gz = (((int16_t)buffer[idx + 1]) << 8) | buffer[idx];
-                
+                int16_t gz = (((int16_t)buffer[idx]) << 8) | buffer[idx+1];
+                Serial.println(gz);
                 // Integracao do gyro Z usando aritmetica inteira
                 // Sensibilidade: 16.4 LSB/deg/s para range 2000
                 // Taxa de amostragem: 25Hz = 40ms por sample
