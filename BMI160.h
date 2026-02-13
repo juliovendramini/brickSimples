@@ -635,7 +635,7 @@ class BMI160 {
 
         uint16_t getFIFOCount();
         void getFIFOBytes(uint8_t *data, uint16_t length);
-        void getFIFOBytesZOnly(uint8_t *data, uint16_t length);
+        void getFIFOBytesZOnly(uint8_t *data, uint8_t length);
 
         uint8_t getDeviceID();
 
@@ -667,7 +667,7 @@ class BMI160 {
         void resetaZ();
     private:
         int serial_buffer_transfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt);
-        int serial_buffer_transfer_Z_Only(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt);
+        int8_t serial_buffer_transfer_Z_Only(uint8_t *buf, uint8_t tx_cnt, uint8_t rx_cnt);
         uint8_t reg_read (uint8_t reg);
         void reg_write(uint8_t reg, uint8_t data);
         void reg_write_bits(uint8_t reg, uint8_t data, unsigned pos, unsigned len);

@@ -9,6 +9,17 @@
 #include <util/delay.h>
 #endif
 
+// Definição dos membros static (compartilhados entre todas as instâncias)
+uint8_t SoftWire::_rxBuffer[128];
+const uint8_t SoftWire::_rxBufferSize;
+uint8_t SoftWire::_rxBufferIndex = 0;
+uint8_t SoftWire::_rxBufferBytesRead = 0;
+
+uint8_t SoftWire::_txAddress = 8;  // First non-reserved address
+uint8_t SoftWire::_txBuffer[32];
+const uint8_t SoftWire::_txBufferSize;
+uint8_t SoftWire::_txBufferIndex = 0;
+
 // Macro para obter os registradores PORT, DDR e PIN de um pino digital
 #define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
 #define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
@@ -102,10 +113,6 @@ SoftWire::SoftWire(uint8_t sda, uint8_t scl) :
   _scl(scl),
   _inputMode(INPUT_PULLUP), // Pullups disabled by default
   _timeout_ms(defaultTimeout_ms),
-  _rxBufferIndex(0),
-  _rxBufferBytesRead(0),
-  _txAddress(8),  // First non-reserved address
-  _txBufferIndex(0),
   _transmissionInProgress(false),
   _sdaLow(sdaLow),
   _sdaHigh(sdaHigh),

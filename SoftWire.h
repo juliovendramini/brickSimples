@@ -153,15 +153,16 @@ class SoftWire : public Stream {
     uint8_t _sclMask;            // Máscara de bit do SCL
 
     // Additional member variables to support compatibility with Wire library
-    uint8_t _rxBuffer[32];
-    uint8_t _rxBufferSize=32;
-    uint8_t _rxBufferIndex;
-    uint8_t _rxBufferBytesRead;
+    // Static para economizar RAM - todas as instâncias compartilham os mesmos buffers
+    static uint8_t _rxBuffer[128];
+    static const uint8_t _rxBufferSize = 128;
+    static uint8_t _rxBufferIndex;
+    static uint8_t _rxBufferBytesRead;
 
-    uint8_t _txAddress; // The address where data is to be sent to
-    uint8_t _txBuffer[32]; // Address of user-supplied buffer
-    uint8_t _txBufferSize=32; // Size of user-supplied buffer
-    uint8_t _txBufferIndex; // Index into buffer
+    static uint8_t _txAddress; // The address where data is to be sent to
+    static uint8_t _txBuffer[32]; // Address of user-supplied buffer
+    static const uint8_t _txBufferSize = 32; // Size of user-supplied buffer
+    static uint8_t _txBufferIndex; // Index into buffer
     mutable bool _transmissionInProgress;
 
     void (*_sdaLow)(const SoftWire *p);

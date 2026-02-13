@@ -67,6 +67,8 @@ DATE      VER   WHO   WHAT
 #define SSD1306_LCDWIDTH                  128 //estou fazendo isso como solução temporaria para escrita errada do sh1106 ele tem 132 colunas e o display 128
 #define SSD1306_LCDHEIGHT                 64
 
+#define TAMANHO_MAXIMO_COLUNAS 21 //tamanho da linha com a fonte grande, que é a maior
+
 #define SSD1306_SETCONTRAST 0x81
 #define SSD1306_DISPLAYALLON_RESUME 0xA4
 #define SSD1306_DISPLAYALLON 0xA5
@@ -132,9 +134,10 @@ class SSD1306 : public Print
 
     void setBus(SoftWire * bus) { this->bus = bus; }
     SoftWire * getBus() { return bus; }
-    void begin(uint8_t cols, uint8_t rows);
+    void begin();
     void init();
     void clear(bool inverted = false);
+    void limpaBuffer();
     void white();
     void home();
 
@@ -154,10 +157,11 @@ class SSD1306 : public Print
     void setY(uint8_t y);
     uint8_t height(void);
     uint8_t width(void);
-    void setFonteGrande();
-    void setFonteMedia();
-    void setFontePequena();
-
+    void setFonte(uint8_t tamanhoFonte);
+    void limpaLinha(uint8_t linha);
+    static const uint8_t FONTE_PEQUENA = 1;
+    static const uint8_t FONTE_MEDIA = 2;
+    static const uint8_t FONTE_GRANDE = 3;
   private:
     SoftWire * bus;
     uint8_t sda;
@@ -171,7 +175,7 @@ class SSD1306 : public Print
     uint8_t SSD1306_FONT_WIDTH  = 5;
     uint8_t SSD1306_FONT_HEIGHT  = 8;
     uint8_t multiplicadorTamanhoFonte = 1;
-
+    uint8_t bufferLinha[TAMANHO_MAXIMO_COLUNAS];
     void ssd1306_command(uint8_t c);
     void ssd1306_data(uint8_t d);
 };

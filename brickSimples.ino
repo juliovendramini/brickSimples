@@ -159,7 +159,9 @@ void setup(){
     brick.ativaLedInterno();
     tela.clear();
     tela.setCursor(0, 0);
-    tela.setFontePequena();
+    tela.setFonte(SSD1306::FONTE_GRANDE);
+    tela.println("Hello");
+
 }
 
 uint8_t contador = 0;
@@ -217,10 +219,7 @@ void loop(){
     // delay(1000);
     // Serial.println(giroscopio.getAnguloX());
     // delay(100);
-    // sensor1.getRGBC(red, green, blue, clear);
-    // // seguidor.getRGBCCalibrado(&red, &green, &blue, &clear,
-    // //                         &red2, &green2, &blue2, &clear2);
-    // //sensor1.getRawDataOneShot(&red, &green, &blue, &clear);
+    sensor1.getRGBC(red, green, blue, clear);
     Serial.print("Sensor1 - R:");
     Serial.print(red);
     Serial.print(" G:");
@@ -269,7 +268,9 @@ void loop(){
         }
         brick.espera(300);
     }
-
+    //tela.limpaLinha(0);
+    tela.print((int)bmi160Sensor.getEixoZ());
+    tela.print('\r');
     // // uint16_t dist2 = sensorDistancia2.getDistancia();
     // // Serial.print("Distancia2: ");
     // // Serial.print(dist2);
@@ -323,11 +324,11 @@ void loop(){
     // }else if (clear2 < 100){
     //     brick.potenciaMotores(-25, 0);
     // }
-    tela.setCursor(0, 0);
-    char buffer[16];
-    sprintf(buffer, "%4d", (int)bmi160Sensor.getEixoZ()); // 4 caracteres com padding
-    tela.print(buffer);
-    delay(1000);
+    // tela.setCursor(0, 0);
+    // char buffer[16];
+    // sprintf(buffer, "%4d", (int)bmi160Sensor.getEixoZ()); // 4 caracteres com padding
+    //tela.print(buffer);
+    //delay(1000);
     // if(teclado.leBotao(1) == Teclado::APERTADO){
     //     Serial.println("Botao 1 apertado");
     //     teclado.alteraLed(1, true);

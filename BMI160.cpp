@@ -138,7 +138,7 @@ int BMI160::serial_buffer_transfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cn
 }
 
 // Implementação do serial_buffer_transfer usando SoftWire
-int BMI160::serial_buffer_transfer_Z_Only(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt) {
+int8_t BMI160::serial_buffer_transfer_Z_Only(uint8_t *buf, uint8_t tx_cnt, uint8_t rx_cnt) {
     if (bus == NULL) return -1;
     
     if (rx_cnt == 0) {
@@ -156,9 +156,11 @@ int BMI160::serial_buffer_transfer_Z_Only(uint8_t *buf, unsigned tx_cnt, unsigne
         if (last_status != 0) return last_status;
         
         // Lê os dados
-        bus->requestFrom(deviceAddress, (uint8_t)rx_cnt);
-        unsigned totalZ = rx_cnt/3;
-        for (unsigned i = 0; i < totalZ; i+=2) { 
+        bus->requestFrom(deviceAddress, rx_cnt);
+        uint8_t totalZ = rx_cnt/3;
+        // Serial.println(F("totalz:"));
+        // Serial.println(totalZ);
+        for (uint8_t i = 0; i < totalZ; i+=2) { 
             if (bus->available()) { //pega somente o eixo Z (últimos 2 bytes)
                 bus->read();
                 bus->read();
@@ -166,7 +168,12 @@ int BMI160::serial_buffer_transfer_Z_Only(uint8_t *buf, unsigned tx_cnt, unsigne
                 bus->read();
                 buf[i] = bus->read();
                 buf[i+1] = bus->read();
+                // uint16_t temp = (((uint16_t)buf[i+1]) << 8) | buf[i];
+                // Serial.print(F("Leu da FIFO (Z-only): "));
+                // Serial.println((int16_t)temp);
             } else {
+                // Serial.println(F("Iniciando mais uma leitura da FIFO (Z-only) devido a falta de dados disponíveis"));
+                //bus->requestFrom(deviceAddress, rx_cnt);
                 return -1;
             }
         }
@@ -980,7 +987,8 @@ void BMI160::getFIFOBytes(uint8_t *data, uint16_t length) {
     }
 }
 
-void BMI160::getFIFOBytesZOnly(uint8_t *data, uint16_t length) {
+//maximo de 255 bytes
+void BMI160::getFIFOBytesZOnly(uint8_t *data, uint8_t length) {
     if (length) {
         data[0] = BMI160_RA_FIFO_DATA;
         serial_buffer_transfer_Z_Only(data, 1, length);
@@ -1388,8 +1396,8 @@ void BMI160::atualizaDados(){
     //vou pegar apenas o eixoZ na FIFO, faço isso porque assim consigo pegar 3x mais valores, ocupando o mesmo espaço na ram do MCU
     // Processa todos os samples do gyro acumulados na FIFO
     uint16_t fifoCount = getFIFOCount();
-    Serial.print(F("FIFO Count: "));
-    Serial.println(fifoCount);
+    // Serial.print(F("FIFO Count: "));
+    // Serial.println(fifoCount);
     if (fifoCount > 0) {
         // Cada sample do gyro tem 6 bytes (gx, gy, gz em 16 bits cada)
         uint8_t numSamples = fifoCount / 6;
@@ -1402,22 +1410,25 @@ void BMI160::atualizaDados(){
             uint8_t *buffer = bufferGlobal;
             buffer[0] = 0;  // Sera preenchido pela getFIFOBytes
             
-            getFIFOBytesZOnly(buffer, fifoCount);  // Le apenas os dados do gyro Z da FIFO (a quantidade realmente é x6 pq na FIFO tem todos os eixos)
+            getFIFOBytesZOnly(buffer, (uint8_t)fifoCount);  // Le apenas os dados do gyro Z da FIFO (a quantidade realmente é x6 pq na FIFO tem todos os eixos)
             resetFIFO();
             // Processa cada sample acumulado
+            int32_t acumulado = 0;
             for (uint8_t i = 0; i < numSamples; i++) {
                 uint8_t idx = i * 2;
                 
                 // Le gz (bytes 4 e 5 de cada sample)
-                int16_t gz = (((int16_t)buffer[idx]) << 8) | buffer[idx+1];
-                Serial.println(gz);
+                int16_t gz = (((int16_t)buffer[idx + 1]) << 8) | buffer[idx];
+                acumulado += gz;
+                //Serial.println(gz);
                 // Integracao do gyro Z usando aritmetica inteira
                 // Sensibilidade: 16.4 LSB/deg/s para range 2000
                 // Taxa de amostragem: 25Hz = 40ms por sample
                 // Formula: (gz / 16.4) * 0.04 = gz / 410 graus por sample
                 // Para centesimos de grau: gz * 100 / 410 = gz * 10 / 41
-                angleZ += ((int32_t)gz * 10) / 41;  // Acumula em centesimos de grau
             }
+            //2026-02-12 estava 41 na linha abaixo, mas percebi que 40 ta dando resultados melhores
+            angleZ += (acumulado * 10) / 40;  // Acumula em centesimos de grau
         }
     }
     
