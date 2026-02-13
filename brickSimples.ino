@@ -5,6 +5,12 @@
 #define SUPORTE_SENSOR_TCS34725 1
 #define SUPORTE_SENSOR_VL53L0X 1
 #define SUPORTE_DISPLAY_SSD1306 1
+#define SUPORTE_BLUETOOTH 1
+//#define SUPORTE_TECLADO 1
+#define SUPORTE_BUZZER 1
+#define SUPORTE_LED 1
+#define SUPORTE_MOTOR 1
+#define SUPORTE_SERVO 1
 
 
 #include "brickSimples.h"
@@ -21,14 +27,14 @@ LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 BMI160 bmi160Sensor = BMI160(PORTA_I2C_5);
 Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
-SSD1306 tela = SSD1306(PORTA_I2C_3);
+// SSD1306 tela = SSD1306(PORTA_I2C_3);
 // Teclado teclado = Teclado(PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
 // Giroscopio giroscopio(PORTA_SERIAL_1);
 //SensorLinha sensorLinha(PORTA_SERIAL_1);
-// Bluetooth bluetooth(PORTA_SERIAL_3);
+Bluetooth bluetooth(PORTA_SERIAL_3);
 
 Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_NORMAL);
 Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_INVERTIDO);
@@ -41,14 +47,15 @@ uint32_t tempoAnterior = 0;
 uint8_t i=0;
 void setup(){
     brick.inicializa(); //essa linha é obrigatória existir e ser a primeira do setup
-    // bluetooth.begin();
+    
     // brick.adiciona(giroscopio);
     brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
     brick.adiciona(led1); 
     brick.adiciona(buzzer);   
     brick.adiciona(bmi160Sensor);
+    brick.adiciona(bluetooth);
     //brick.adiciona(teclado);
-    brick.adiciona(tela);
+    //brick.adiciona(tela);
     servos.iniciaServo(PORTA_SERVO_1);
     // servos.iniciaServo(PORTA_SERVO_3);
     //servos.iniciaServo(PORTA_SERVO_3);
@@ -157,10 +164,10 @@ void setup(){
         // sensor2.calibrar();
     }
     brick.ativaLedInterno();
-    tela.clear();
-    tela.setCursor(0, 0);
-    tela.setFonte(SSD1306::FONTE_PEQUENA);
-    tela.println("Hello");
+    // tela.clear();
+    // tela.setCursor(0, 0);
+    // tela.setFonte(SSD1306::FONTE_PEQUENA);
+    // tela.println("Hello");
 
 }
 
@@ -168,24 +175,24 @@ uint8_t contador = 0;
 int16_t erro = 0;
 
 void loop(){
-    if(millis() - tempoAnterior >= 1000){
-        tempoAnterior = millis();
-        Serial.println(contador);
-        contador = 0;
-    }
-    contador++;
+    // if(millis() - tempoAnterior >= 1000){
+    //     tempoAnterior = millis();
+    //     Serial.println(contador);
+    //     contador = 0;
+    // }
+    // contador++;
     brick.atualiza(); //essa linha é obrigatória existir e ser a primeira do loop
     if(brick.botaoApertado()){
         bmi160Sensor.resetaZ();
     }
-    brick.potenciaMotores(50, 50);
-    Serial.print("Teste BMI160: ");
-    Serial.print("Plano X: ");
-    Serial.print(bmi160Sensor.getPlanoX());
-    Serial.print(" Plano Y: "); 
-    Serial.print(bmi160Sensor.getPlanoY());
-    Serial.print(" Eixo Z: ");
-    Serial.println(bmi160Sensor.getEixoZ());
+    // brick.potenciaMotores(50, 50);
+    // Serial.print("Teste BMI160: ");
+    // Serial.print("Plano X: ");
+    // Serial.print(bmi160Sensor.getPlanoX());
+    // Serial.print(" Plano Y: "); 
+    // Serial.print(bmi160Sensor.getPlanoY());
+    // Serial.print(" Eixo Z: ");
+    // Serial.println(bmi160Sensor.getEixoZ());
     //Serial.println(bmi160Sensor.getAccelerationZ());
     // brick.espera(2000);
     // brick.potenciaMotores(-50, 50);
@@ -194,11 +201,47 @@ void loop(){
     // Serial.println("teste bluetooth");
     // bluetooth.println("Teste Bluetooth");
     // delay(1000);
-    // if(bluetooth.available()){
-    //     char c = bluetooth.read();
-    //     Serial.print("Recebido via Bluetooth: ");
-    //     Serial.println(c);
-    // }
+    if(bluetooth.available()){
+        Serial.print("Recebido via Bluetooth: ");
+        while(bluetooth.available()){
+            char c = bluetooth.read();
+            if(c == 'Y'){
+                buzzer.tocar(500,300);
+            }
+            if(c == 'S'){
+                brick.pararMotores();
+            }
+            if(c == 'F'){
+                brick.potenciaMotores(60, 60);
+            }
+            if(c == 'B'){
+                brick.potenciaMotores(-60, -60);
+            }
+            if(c == 'R'){
+                brick.potenciaMotores(40, -40);
+            }
+            if(c == 'L'){
+                brick.potenciaMotores(-40, 40);
+            }
+            if(c == 'H'){
+                brick.potenciaMotores(40, 10);
+            }
+            if(c == 'G'){
+                brick.potenciaMotores(10, 40);
+            }
+            if(c == 'I'){
+                brick.potenciaMotores(-10, -40);
+            }
+            if(c == 'J'){
+                brick.potenciaMotores(-40, -10);
+            }
+            if(c == 'Z'){
+                led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
+                led1.atualiza();
+            }
+            Serial.print(c);
+        }
+    }
     // Serial.print("Linha1: ");
     // Serial.print(sensorLinha.getLinha(0));
     // Serial.print(" Linha2: ");
@@ -219,26 +262,26 @@ void loop(){
     // delay(1000);
     // Serial.println(giroscopio.getAnguloX());
     // delay(100);
-    sensor1.getRGBC(red, green, blue, clear);
-    Serial.print("Sensor1 - R:");
-    Serial.print(red);
-    Serial.print(" G:");
-    Serial.print(green);
-    Serial.print(" B:");
-    Serial.print(blue);
-    Serial.print(" C:");
-    Serial.println(clear);
+    // sensor1.getRGBC(red, green, blue, clear);
+    // Serial.print("Sensor1 - R:");
+    // Serial.print(red);
+    // Serial.print(" G:");
+    // Serial.print(green);
+    // Serial.print(" B:");
+    // Serial.print(blue);
+    // Serial.print(" C:");
+    // Serial.println(clear);
     
-    sensor2.getRGBC(red2, green2, blue2, clear2);
-    // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
-    Serial.print("Sensor2 - R:");
-    Serial.print(red2);
-    Serial.print(" G:");
-    Serial.print(green2);
-    Serial.print(" B:");
-    Serial.print(blue2);
-    Serial.print(" C:");
-    Serial.println(clear2);
+    // sensor2.getRGBC(red2, green2, blue2, clear2);
+    // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
+    // Serial.print("Sensor2 - R:");
+    // Serial.print(red2);
+    // Serial.print(" G:");
+    // Serial.print(green2);
+    // Serial.print(" B:");
+    // Serial.print(blue2);
+    // Serial.print(" C:");
+    // Serial.println(clear2);
 
     // sensor3.getRGBC(red3, green3, blue3, clear3);
     // // //sensor2.getRawDataOneShot(&red, &green, &blue, &clear2);
@@ -251,26 +294,31 @@ void loop(){
     // Serial.print(" C:");
     // Serial.println(clear3);
 
-    uint16_t dist = sensorDistancia.getDistancia();
-    Serial.print("Distancia: ");
-    Serial.print(dist);
-    Serial.println(" mm"); 
-    if(dist < 100){
-        brick.pararMotores();
-        buzzer.alerta();
-        led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
-        led1.atualiza();
-        int8_t x = rand()%2;
-        if(x==0){
-            brick.potenciaMotores(50, -50);
-        }else{
-            brick.potenciaMotores(-50, 50);
-        }
-        brick.espera(300);
-    }
+
+    // uint16_t dist = sensorDistancia.getDistancia();
+    // Serial.print("Distancia: ");
+    // Serial.print(dist);
+    // Serial.println(" mm"); 
+    // if(dist < 100){
+    //     brick.pararMotores();
+    //     buzzer.alerta();
+    //     led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
+    //     led1.atualiza();
+    //     int8_t x = rand()%2;
+    //     if(x==0){
+    //         brick.potenciaMotores(50, -50);
+    //     }else{
+    //         brick.potenciaMotores(-50, 50);
+    //     }
+    //     brick.espera(300);
+    // }
+
+
+
+
     //tela.limpaLinha(0);
-    tela.print((int)bmi160Sensor.getEixoZ());
-    tela.print('\r');
+    // tela.print((int)bmi160Sensor.getEixoZ());
+    // tela.print('\r');
     // // uint16_t dist2 = sensorDistancia2.getDistancia();
     // // Serial.print("Distancia2: ");
     // // Serial.print(dist2);

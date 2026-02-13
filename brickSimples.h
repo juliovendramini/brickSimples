@@ -30,13 +30,17 @@
 #include "sensorLinha.h"
 #endif
 
+#ifdef SUPORTE_BLUETOOTH
 #include "Bluetooth.h"
+#endif
 
 #ifdef SUPORTE_DISPLAY_SSD1306
 #include "SSD1306.h"
 #endif
 
+#ifdef SUPORTE_TECLADO
 #include "Teclado.h"
+#endif
 
 #include "interrupcoes.h"
 
@@ -167,7 +171,13 @@ public:
     SSD1306 *display = NULL; //teremos apenas 1 display por brick
     #endif
 
+    #ifdef SUPORTE_TECLADO
     Teclado *teclado = NULL; //teremos apenas 1 teclado por brick
+    #endif
+
+    #ifdef SUPORTE_BLUETOOTH
+    Bluetooth *bluetooth = NULL; //teremos apenas 1 módulo bluetooth por brick
+    #endif
 
     public:
     BrickSimples(){
@@ -636,6 +646,7 @@ public:
     }
     #endif
 
+    #ifdef SUPORTE_TECLADO
     void adiciona(Teclado &teclado){
         if(this->teclado == NULL){
             this->teclado = &teclado;
@@ -645,6 +656,19 @@ public:
         }
         teclado.init();
     }
+    #endif
+
+    #ifdef SUPORTE_BLUETOOTH
+    void adiciona(Bluetooth &bluetooth){
+        if(this->bluetooth == NULL){
+            this->bluetooth = &bluetooth;
+        }else{
+            Serial.println(F("Erro: Apenas um módulo Bluetooth pode ser adicionado por Brick!"));
+            while(1);
+        }
+        bluetooth.begin();
+    }
+    #endif
 
     void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
         listaMotor[0] = &motor1;
