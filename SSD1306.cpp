@@ -365,12 +365,8 @@ inline size_t SSD1306::write(uint8_t value)
     limpaBuffer();
   }
   else if (value == '\r'){
-    for(uint8_t col = _c; col < _cols;col++){
-        if(bufferLinha[col] == ' '){
-            continue; //pula colunas vazias
-        }
+    for(uint8_t col = _c; col < this->_cols;col++){
         drawChar(' ');
-        delay(500);
         bufferLinha[col] = ' ';
     }
     _x = DESLOCAMENTO_ESQUERDA;
@@ -378,7 +374,7 @@ inline size_t SSD1306::write(uint8_t value)
   }
   else{
       drawChar(value);
-      _c++;
+      //_c++; //passou pra funcao drawChar
     
   }
   return 1; // assume success
@@ -436,60 +432,60 @@ void SSD1306::drawChar(unsigned char c, bool inverted){
   uint8_t paginaInicial = 0;
   // mas cada gravação, vai em 8 linhas
   uint8_t linhaTela = _r;
-	for(int8_t parte = multiplicadorTamanho-1; parte >= 0; parte--){
+  //este for abaixo desenha o caractere de acordo com o multiplicador, ou seja, se for 2, ele desenha a letra em 2 partes, se for 4, ele desenha em 4 partes
+  for(int8_t parte = multiplicadorTamanho-1; parte >= 0; parte--){
 		_x = x_inicio;
     if(_x == 0){
       _x = DESLOCAMENTO_ESQUERDA; //caso a primeira coluna seja 0, eu coloco DESLOCAMENTO_ESQUERDA para nao cortar
     }
     
     if(bufferLinha[_c] != c){ //só redesenha a letra se for diferente da que já está no buffer
-
-		ssd1306_command(SSD1306_SETPAGESTART | linhaTela);
-		//ssd1306_command(SSD1306_SETSTARTLINE | (_y / SSD1306_FONT_HEIGHT));
-		ssd1306_command(SSD1306_SETLOWCOLUMN | (_x & 0x0F));
-		ssd1306_command(SSD1306_SETHIGHCOLUMN | ((_x & 0xF0) >> 4));
-		
-    // Acumular dados no buffer
-    bufferIndex = 0;
-    
-		for (uint8_t i = 0; i < 5; ++i){
-			uint8_t b = pgm_read_byte(&flash_font[((c - 0x20) * 5) + i]);
-			if (inverted)
-			{
-			  b ^= 0xFF;
-			}
-			uint8_t temp=0; 
-			int8_t inicioFor = (7-(parte*(8/multiplicadorTamanho)));
-			int8_t fimFor = inicioFor - 8/multiplicadorTamanho + 1;
-			for(int8_t k = inicioFor ; k >= fimFor; k--){
-				for(uint8_t i = 0; i < multiplicadorTamanho; ++i){
-					temp = (temp << 1);
-					temp = temp | ((b >> k) & 0x01);
-				}
-			}
-			b = temp;
-			for(uint8_t i = 0; i < multiplicadorTamanho; ++i){
-				buffer[bufferIndex++] = b;
-			}
-		}
-    // Adicionar espaçamento
-    for(int8_t espacamento = multiplicadorTamanho-1; espacamento >= 0; espacamento--){
-		  buffer[bufferIndex++] = 0x00;
-    }
-    
-   
-      // Enviar todos os dados de uma vez
-      bus->beginTransmission(_i2caddr);
-      bus->write(0x40); // Co = 0, D/C = 1
-      for(uint8_t i = 0; i < bufferIndex; i++){
-        bus->write(buffer[i]);
+      ssd1306_command(SSD1306_SETPAGESTART | linhaTela);
+      //ssd1306_command(SSD1306_SETSTARTLINE | (_y / SSD1306_FONT_HEIGHT));
+      ssd1306_command(SSD1306_SETLOWCOLUMN | (_x & 0x0F));
+      ssd1306_command(SSD1306_SETHIGHCOLUMN | ((_x & 0xF0) >> 4));
+      
+      // Acumular dados no buffer
+      bufferIndex = 0;
+      
+      for (uint8_t i = 0; i < 5; ++i){
+        uint8_t b = pgm_read_byte(&flash_font[((c - 0x20) * 5) + i]);
+        if (inverted)
+        {
+          b ^= 0xFF;
+        }
+        uint8_t temp=0; 
+        int8_t inicioFor = (7-(parte*(8/multiplicadorTamanho)));
+        int8_t fimFor = inicioFor - 8/multiplicadorTamanho + 1;
+        for(int8_t k = inicioFor ; k >= fimFor; k--){
+          for(uint8_t i = 0; i < multiplicadorTamanho; ++i){
+            temp = (temp << 1);
+            temp = temp | ((b >> k) & 0x01);
+          }
+        }
+        b = temp;
+        for(uint8_t i = 0; i < multiplicadorTamanho; ++i){
+          buffer[bufferIndex++] = b;
+        }
       }
-      bus->endTransmission();
-      bufferLinha[_c] = c;
+      // Adicionar espaçamento
+      for(int8_t espacamento = multiplicadorTamanho-1; espacamento >= 0; espacamento--){
+        buffer[bufferIndex++] = 0x00;
+      }
+      
+    
+        // Enviar todos os dados de uma vez
+        bus->beginTransmission(_i2caddr);
+        bus->write(0x40); // Co = 0, D/C = 1
+        for(uint8_t i = 0; i < bufferIndex; i++){
+          bus->write(buffer[i]);
+        }
+        bus->endTransmission();
     }
-    _c++;
-		linhaTela++;
+    linhaTela++;
 	}
+  this->bufferLinha[this->_c] = c;
+  this->_c++;
 	_x += tamanhoXLetra + multiplicadorTamanho;
 }
 
@@ -549,21 +545,21 @@ void SSD1306::limpaLinha(uint8_t linha){
       return;
     }
     this->setCursor(0, linha);
-    this->print(F("                ")); // 16 espaços para limpar a linha
+    this->print(F("                     ")); // 21 espaços para limpar a linha
   }
   if(multiplicadorTamanhoFonte == 2){
     if(linha > 3){
       return;
     }
     this->setCursor(0, linha);
-    this->print(F("        ")); // 8 espaços para limpar a linha
+    this->print(F("          ")); // 10 espaços para limpar a linha
   }
   if(multiplicadorTamanhoFonte == 4){
     if(linha > 1){
       return;
     }
     this->setCursor(0, linha);
-    this->print(F("    ")); // 4 espaços para limpar a linha
+    this->print(F("     ")); // 5 espaços para limpar a linha
   }
   this->setCursor(0, linha);
 }

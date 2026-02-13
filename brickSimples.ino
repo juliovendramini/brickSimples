@@ -159,7 +159,7 @@ void setup(){
     brick.ativaLedInterno();
     tela.clear();
     tela.setCursor(0, 0);
-    tela.setFonte(SSD1306::FONTE_GRANDE);
+    tela.setFonte(SSD1306::FONTE_PEQUENA);
     tela.println("Hello");
 
 }
