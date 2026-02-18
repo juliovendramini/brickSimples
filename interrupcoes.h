@@ -21,9 +21,11 @@ ISR(PCINT0_vect) {
     }
     #endif
 
+    #ifdef SUPORTE_BLUETOOTH
     if(Bluetooth::bluetooth_active_object){
-            Bluetooth::bluetooth_active_object->handle_interrupt();
+        Bluetooth::bluetooth_active_object->handle_interrupt();
     }
+    #endif
 }
 
 // PCINT1: Pinos D14 (A0/PC0), D16 (A2/PC2), D18 (A4/PC4)
@@ -37,27 +39,33 @@ ISR(PCINT1_vect) {
         uint8_t idx = Ultrassonico::pinoParaInstancia[14];
         if(Ultrassonico::instancias[idx]) Ultrassonico::instancias[idx]->handleInterrupt();
         #endif
+        #ifdef SUPORTE_BLUETOOTH
         if(Bluetooth::bluetooth_active_object){
             Bluetooth::bluetooth_active_object->handle_interrupt();
         }
+        #endif
     }
     if(mudancas & (1 << 2)) {  // PC2 = D16 (A2)
         #ifdef SUPORTE_SENSOR_ULTRASSONICO
         uint8_t idx = Ultrassonico::pinoParaInstancia[16];
         if(Ultrassonico::instancias[idx]) Ultrassonico::instancias[idx]->handleInterrupt();
         #endif
+        #ifdef SUPORTE_BLUETOOTH
         if(Bluetooth::bluetooth_active_object){
             Bluetooth::bluetooth_active_object->handle_interrupt();
         }
+        #endif
     }
     if(mudancas & (1 << 4)) {  // PC4 = D18 (A4)
         #ifdef SUPORTE_SENSOR_ULTRASSONICO
         uint8_t idx = Ultrassonico::pinoParaInstancia[18];
         if(Ultrassonico::instancias[idx]) Ultrassonico::instancias[idx]->handleInterrupt();
         #endif
+        #ifdef SUPORTE_BLUETOOTH
         if(Bluetooth::bluetooth_active_object){
             Bluetooth::bluetooth_active_object->handle_interrupt();
         }
+        #endif
     }
 }
 
@@ -70,8 +78,10 @@ ISR(PCINT2_vect) {
         Ultrassonico::instancias[idx]->handleInterrupt();
     }
     #endif
+    #ifdef SUPORTE_BLUETOOTH
     if(Bluetooth::bluetooth_active_object){
         Bluetooth::bluetooth_active_object->handle_interrupt();
     }
+    #endif
 }
 
