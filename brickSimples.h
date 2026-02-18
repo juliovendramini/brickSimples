@@ -137,6 +137,8 @@ public:
     bool motor1Invertido = false;
     bool motor2Invertido = false;
     int potenciaPadraoBrick = 60;
+    int16_t posicaoGiroscopioZInicioMovimento = 0;
+    bool usandoGiroscopioNoMovimento = false;
     int delta = 0;
     
     #ifdef SUPORTE_SENSOR_TCS34725
@@ -274,6 +276,23 @@ public:
         listaMotor[1]->potencia();
     }
 
+    void andarPraFrente(int potencia, bool giroscopioInvertido=false){
+        if(listaMotor[0] == NULL || listaMotor[1] == NULL){
+            erroMotorNaoInicializado();
+            return;
+        }
+        int16_t posicaoAtualZ = 0;
+        if(usandoGiroscopioNoMovimento && bmi160 != NULL){
+            posicaoAtualZ = bmi160->getEixoZ()/10;
+        }else{
+            posicaoGiroscopioZInicioMovimento = bmi160->getEixoZ()/10;
+            usandoGiroscopioNoMovimento = true;
+        }
+        int16_t delta = posicaoGiroscopioZInicioMovimento - posicaoAtualZ;
+        if(giroscopioInvertido) delta = -delta;
+        listaMotor[0]->potencia(potencia-delta);
+        listaMotor[1]->potencia(potencia+delta);
+    }
     
     // Controla ambos os motores com a mesma potência
     // potencia: -100 a 100 (negativo = reverso, positivo = frente)
@@ -282,6 +301,7 @@ public:
             erroMotorNaoInicializado();
             return;
         }
+        usandoGiroscopioNoMovimento = false;
         listaMotor[0]->potencia(potencia);
         listaMotor[1]->potencia(potencia);
     }
@@ -293,6 +313,7 @@ public:
             erroMotorNaoInicializado();
             return;
         }
+        usandoGiroscopioNoMovimento = false;
         listaMotor[0]->potencia(pot1);
         listaMotor[1]->potencia(pot2);
     }
@@ -304,6 +325,7 @@ public:
             return;
         }
         // Liga os dois motores praticamente ao mesmo tempo
+        usandoGiroscopioNoMovimento = false;
         listaMotor[0]->potencia();
         listaMotor[1]->potencia();
         delay(tempoMs);
@@ -318,6 +340,7 @@ public:
             erroMotorNaoInicializado();
             return;
         }
+        usandoGiroscopioNoMovimento = false;
         // Liga os dois com a mesma potencia praticamente ao mesmo tempo
         listaMotor[0]->potencia(potencia);
         listaMotor[1]->potencia(potencia);
@@ -334,6 +357,7 @@ public:
             erroMotorNaoInicializado();
             return;
         }
+        usandoGiroscopioNoMovimento = false;
         listaMotor[0]->parar();
         listaMotor[1]->parar();
     }
@@ -343,6 +367,7 @@ public:
             erroMotorNaoInicializado();
             return;
         }
+        usandoGiroscopioNoMovimento = false;
         listaMotor[0]->frear();
         listaMotor[1]->frear();
     }

@@ -212,7 +212,8 @@ void loop(){
                 brick.pararMotores();
             }
             if(c == 'F'){
-                brick.potenciaMotores(60, 60);
+                //brick.potenciaMotores(60, 60);
+                brick.andarPraFrente(60);
             }
             if(c == 'B'){
                 brick.potenciaMotores(-60, -60);
