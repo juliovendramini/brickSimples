@@ -1,6 +1,9 @@
 #include "portas.h"
 #include "SoftWire.h"
+
+#ifdef SUPORTE_SERVO
 #include "Servo.h"
+#endif
 
 #ifdef SUPORTE_SENSOR_TCS34725
 #include "TCS34725.h"
@@ -14,13 +17,18 @@
 #include "BMI160.h"
 #endif
 
+#ifdef SUPORTE_LED
 #include "led.h"
+#endif
 
 #ifdef SUPORTE_SENSOR_ULTRASSONICO
 #include "ultrassonico.h"
 #endif
 
+
+#ifdef SUPORTE_BUZZER
 #include "buzzer.h"
+#endif
 
 #ifdef SUPORTE_SENSOR_GIROSCOPIO
 #include "giroscopio.h"
@@ -49,6 +57,7 @@
 #define MAXIMO_MOTORES 2
 #define MAXIMO_SERVOS 4
 
+#ifdef SUPORTE_MOTOR
 class Motor{ //nao vou usar a struct PortaMotor porque não quero usar alocação dinamica
 private:
     uint8_t pwm;
@@ -129,7 +138,7 @@ public:
         potencia(this->potenciaAtual);
     }
 };
-
+#endif
 
 class BrickSimples{
 public:
@@ -153,10 +162,18 @@ public:
     Ultrassonico *listaUltrassonico[MAXIMO_SENSORES]={NULL, NULL, NULL, NULL, NULL};
     #endif
     
+    #ifdef SUPORTE_MOTOR
     Motor *listaMotor[MAXIMO_MOTORES]={NULL, NULL};
+    #endif
+
+    #ifdef SUPORTE_LED
     LEDStrip *ledStrip[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
-    Buzzer *buzzer[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
+    #endif
     
+    #ifdef SUPORTE_BUZZER
+    Buzzer *buzzer[MAXIMO_SERVOS] = {NULL, NULL, NULL, NULL};
+    #endif
+
     #ifdef SUPORTE_SENSOR_GIROSCOPIO
     Giroscopio *giroscopio = NULL;
     #endif
@@ -251,6 +268,7 @@ public:
         return ::millis();
     }
 
+    #ifdef SUPORTE_MOTOR
     void setPotenciaPadrao(int potencia){
         potencia = constrain(potencia, -100, 100);
         this->potenciaPadraoBrick = potencia;
@@ -375,6 +393,8 @@ public:
     void erroMotorNaoInicializado(){
         Serial.println(F("Erro: Motor nao inicializado! Use inicializaMotores() antes de controlar os motores."));
     }
+    #endif //SUPORTE_MOTOR
+
 
     bool botaoApertado(){
         uint16_t valor = analogRead(A6);
@@ -625,6 +645,7 @@ public:
     }
     #endif
 
+    #ifdef SUPORTE_LED
     void adiciona(LEDStrip &leds){
         for(int i=0; i<MAXIMO_SERVOS; i++){ // quantidade de portas de servo/led
             if(ledStrip[i] == NULL){
@@ -634,7 +655,9 @@ public:
         }
         leds.inicializa();
     }
+    #endif
 
+    #ifdef SUPORTE_BUZZER
     void adiciona(Buzzer &buzzer){
         for(int i=0; i<MAXIMO_SERVOS; i++){ // quantidade de portas de servo/led/buzzer
             if(this->buzzer[i] == NULL){
@@ -644,6 +667,7 @@ public:
         }
         buzzer.inicializa();
     }
+    #endif
 
     #ifdef SUPORTE_SENSOR_GIROSCOPIO
     void adiciona(Giroscopio &giro){
@@ -730,6 +754,7 @@ public:
 
 BrickSimples brick;
 
+#ifdef SUPORTE_SERVO
 class Servos{
     private:
     Servo *servos;
@@ -833,3 +858,4 @@ class Servos{
 
 Servos servos;
 
+#endif
