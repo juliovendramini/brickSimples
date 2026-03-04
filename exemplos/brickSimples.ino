@@ -155,30 +155,15 @@ void setup(){
         Serial.println(clear);
         Serial.println(sensorDistancia.readRangeSingleMillimeters());
     }*/
+    if(brick.botaoApertado()){
+        Serial.println("Botao apertado no inicio");
+        Serial.println("calibrando sensores...");
+        //bmi160Sensor.calibrar();
+        // giroscopio.calibrar();
+        // sensor1.calibrar();
+        // sensor2.calibrar();
+    }
     brick.ativaLedInterno();
-    led1.setLED(0, 255, 0, 0); //define o led como vermelho
-    led1.atualiza();
-    delay(100);
-    led1.setLED(0, 0, 255, 0); //define o led como verde
-    led1.atualiza();
-    delay(100);
-    led1.setLED(0, 0, 0, 255); //define o led como azul
-    led1.atualiza();
-    delay(100);
-    led1.setLED(0, 0, 0, 0); //define o led como apagado
-    led1.atualiza();
-    while(!brick.botaoApertado());
-    led1.setLED(0, 255, 0, 0); //define o led como vermelho
-    led1.atualiza();
-    delay(1000);
-    led1.setLED(0, 0, 255, 0); //define o led como verde
-    led1.atualiza();
-    brick.potenciaMotores(100, 100);
-    delay(5000);
-    brick.potenciaMotores(0, 0);
-    led1.setLED(0, 0, 0, 255); //define o led como azul
-    led1.atualiza();
-    while(1);
     // tela.clear();
     // tela.setCursor(0, 0);
     // tela.setFonte(SSD1306::FONTE_PEQUENA);
