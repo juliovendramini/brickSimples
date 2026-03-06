@@ -1,16 +1,16 @@
-#define SUPORTE_SENSOR_BMI160 1
+//#define SUPORTE_SENSOR_BMI160 1
 //#define SUPORTE_SENSOR_GIROSCOPIO 1
-// #define SUPORTE_SENSOR_LINHA 1
+#define SUPORTE_SENSOR_LINHA 1
 //#define SUPORTE_SENSOR_ULTRASSONICO 0
-#define SUPORTE_SENSOR_TCS34725 1
-#define SUPORTE_SENSOR_VL53L0X 1
-#define SUPORTE_DISPLAY_SSD1306 1
-#define SUPORTE_BLUETOOTH 1
+//#define SUPORTE_SENSOR_TCS34725 1
+//#define SUPORTE_SENSOR_VL53L0X 1
+//#define SUPORTE_DISPLAY_SSD1306 1
+//#define SUPORTE_BLUETOOTH 1
 //#define SUPORTE_TECLADO 1
-#define SUPORTE_BUZZER 1
-#define SUPORTE_LED 1
+//#define SUPORTE_BUZZER 1
+//#define SUPORTE_LED 1
 #define SUPORTE_MOTOR 1
-#define SUPORTE_SERVO 1
+//#define SUPORTE_SERVO 1
 
 
 #include "brickSimples.h"
@@ -20,12 +20,12 @@
 // TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
 // VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_4);
 // VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_5);
-LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
+//LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 // Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
 // VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 
 // BMI160 bmi160Sensor = BMI160(PORTA_I2C_5);
-Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
+//Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
 // SSD1306 tela = SSD1306(PORTA_I2C_3);
 // Teclado teclado = Teclado(PORTA_I2C_3);
@@ -33,10 +33,11 @@ Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
 // Giroscopio giroscopio(PORTA_SERIAL_1);
-//SensorLinha sensorLinha(PORTA_SERIAL_1);
-Bluetooth bluetooth(PORTA_SERIAL_3);
+SensorLinha sensorLinha(PORTA_SERIAL_3);
+//Bluetooth bluetooth(PORTA_SERIAL_3);
 
-Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_INVERTIDO);
+
+Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_NORMAL);
 Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_NORMAL);
 
 
@@ -50,10 +51,11 @@ void setup(){
     
     // brick.adiciona(giroscopio);
     brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    brick.adiciona(led1); 
-    brick.adiciona(buzzer);   
+    // brick.adiciona(led1); 
+    // brick.adiciona(buzzer);   
+    brick.adiciona(sensorLinha);
     // brick.adiciona(bmi160Sensor);
-    brick.adiciona(bluetooth);
+    //brick.adiciona(bluetooth);
     //brick.adiciona(teclado);
     //brick.adiciona(tela);
     // servos.iniciaServo(PORTA_SERVO_1);
@@ -63,9 +65,9 @@ void setup(){
     // delay(500);
     // servos.moveServo(PORTA_SERVO_1, 90); //move servo 1 para 0 graus
     
-    // brick.potenciaMotores(60, 0);
+    // brick.potenciaMotores(100, 100);
     // delay(2000);
-    // brick.potenciaMotores(-60, 0);
+    // brick.potenciaMotores(-100, -100);
     // delay(2000);
     // brick.potenciaMotores(0, 60);
     // delay(2000);
@@ -155,30 +157,46 @@ void setup(){
         Serial.println(clear);
         Serial.println(sensorDistancia.readRangeSingleMillimeters());
     }*/
-    brick.ativaLedInterno();
-    led1.setLED(0, 255, 0, 0); //define o led como vermelho
-    led1.atualiza();
-    delay(100);
-    led1.setLED(0, 0, 255, 0); //define o led como verde
-    led1.atualiza();
-    delay(100);
-    led1.setLED(0, 0, 0, 255); //define o led como azul
-    led1.atualiza();
-    delay(100);
-    led1.setLED(0, 0, 0, 0); //define o led como apagado
-    led1.atualiza();
-    while(!brick.botaoApertado());
-    led1.setLED(0, 255, 0, 0); //define o led como vermelho
-    led1.atualiza();
-    delay(1000);
-    led1.setLED(0, 0, 255, 0); //define o led como verde
-    led1.atualiza();
-    brick.potenciaMotores(100, 100);
-    delay(5000);
-    brick.potenciaMotores(0, 0);
-    led1.setLED(0, 0, 0, 255); //define o led como azul
-    led1.atualiza();
-    while(1);
+
+    //aula!
+    // brick.ativaLedInterno();
+    // led1.setLED(0, 255, 0, 0); //define o led como vermelho
+    // led1.atualiza();
+    // delay(100);
+    // led1.setLED(0, 0, 255, 0); //define o led como verde
+    // led1.atualiza();
+    // delay(100);
+    // led1.setLED(0, 0, 0, 255); //define o led como azul
+    // led1.atualiza();
+    // delay(100);
+    // led1.setLED(0, 0, 0, 0); //define o led como apagado
+    // led1.atualiza();
+    // while(!brick.botaoApertado());
+    // led1.setLED(0, 255, 0, 0); //define o led como vermelho
+    // led1.atualiza();
+    // delay(1000);
+    // led1.setLED(0, 0, 255, 0); //define o led como verde
+    // led1.atualiza();
+    // brick.potenciaMotores(100, 100);
+    // delay(5000);
+    // brick.potenciaMotores(0, 0);
+    // led1.setLED(0, 0, 0, 255); //define o led como azul
+    // led1.atualiza();
+    // while(1);
+
+    // delay(2000);
+    // if(brick.botaoApertado()){
+    //     Serial.println("Botao apertado");
+    //     delay(2000);
+    //     Serial.println("Fazendo calibração do branco");
+    //     sensorLinha.calibrarBranco();
+    //     Serial.println("Calibracao do branco feita");
+    //     Serial.println("Fazendo calibração do preto");
+    //     while(!brick.botaoApertado());
+    //     sensorLinha.calibrarPreto();
+    //     Serial.println("Calibracao do preto feita");
+    // }
+
     // tela.clear();
     // tela.setCursor(0, 0);
     // tela.setFonte(SSD1306::FONTE_PEQUENA);
@@ -216,57 +234,57 @@ void loop(){
     // Serial.println("teste bluetooth");
     // bluetooth.println("Teste Bluetooth");
     // delay(1000);
-    if(bluetooth.available()){
-        Serial.print("Recebido via Bluetooth: ");
-        while(bluetooth.available()){
-            char c = bluetooth.read();
-            if(c == 'Y'){
-                buzzer.tocar(500,300);
-            }
-            if(c == 'S'){
-                brick.pararMotores();
-            }
-            if(c == 'F'){
-                brick.potenciaMotores(100, 100);
-                //brick.andarPraFrente(60);
+    // if(bluetooth.available()){
+    //     Serial.print("Recebido via Bluetooth: ");
+    //     while(bluetooth.available()){
+    //         char c = bluetooth.read();
+    //         if(c == 'Y'){
+    //             buzzer.tocar(500,300);
+    //         }
+    //         if(c == 'S'){
+    //             brick.pararMotores();
+    //         }
+    //         if(c == 'F'){
+    //             brick.potenciaMotores(100, 100);
+    //             //brick.andarPraFrente(60);
                 
-            }
-            if(c == 'B'){
-                brick.potenciaMotores(-60, -60);
-            }
-            if(c == 'L'){
-                brick.potenciaMotores(40, -40);
-            }
-            if(c == 'R'){
-                brick.potenciaMotores(-40, 40);
-            }
-            if(c == 'H'){
-                brick.potenciaMotores(40, 10);
-            }
-            if(c == 'G'){
-                brick.potenciaMotores(10, 40);
-            }
-            if(c == 'I'){
-                brick.potenciaMotores(-10, -40);
-            }
-            if(c == 'J'){
-                brick.potenciaMotores(-40, -10);
-            }
-            if(c == 'Z'){
-                led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
-                led1.atualiza();
-            }
-            Serial.print(c);
-        }
-    }
-    // Serial.print("Linha1: ");
-    // Serial.print(sensorLinha.getLinha(0));
-    // Serial.print(" Linha2: ");
-    // Serial.print(sensorLinha.getLinha(1));
-    // Serial.print(" Linha3: ");
-    // Serial.print(sensorLinha.getLinha(2));
-    // Serial.print(" Linha4: ");
-    // Serial.println(sensorLinha.getLinha(3));
+    //         }
+    //         if(c == 'B'){
+    //             brick.potenciaMotores(-60, -60);
+    //         }
+    //         if(c == 'L'){
+    //             brick.potenciaMotores(40, -40);
+    //         }
+    //         if(c == 'R'){
+    //             brick.potenciaMotores(-40, 40);
+    //         }
+    //         if(c == 'H'){
+    //             brick.potenciaMotores(40, 10);
+    //         }
+    //         if(c == 'G'){
+    //             brick.potenciaMotores(10, 40);
+    //         }
+    //         if(c == 'I'){
+    //             brick.potenciaMotores(-10, -40);
+    //         }
+    //         if(c == 'J'){
+    //             brick.potenciaMotores(-40, -10);
+    //         }
+    //         if(c == 'Z'){
+    //             led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
+    //             led1.atualiza();
+    //         }
+    //         Serial.print(c);
+    //     }
+    // }
+    Serial.print("Linha1: ");
+    Serial.print(sensorLinha.getLinha(0));
+    Serial.print(" Linha2: ");
+    Serial.print(sensorLinha.getLinha(1));
+    Serial.print(" Linha3: ");
+    Serial.print(sensorLinha.getLinha(2));
+    Serial.print(" Linha4: ");
+    Serial.println(sensorLinha.getLinha(3));
     // Serial.print("SensorCor1: ");
     // Serial.print(" R:");
     // Serial.print(sensorLinha.getRedEsquerda());

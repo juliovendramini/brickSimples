@@ -1,6 +1,8 @@
 #include "portas.h"
 #include "SoftWire.h"
 
+
+
 #ifdef SUPORTE_SERVO
 #include "Servo.h"
 #endif
@@ -300,12 +302,14 @@ public:
             return;
         }
         int16_t posicaoAtualZ = 0;
+        #ifdef SUPORTE_SENSOR_BMI160
         if(usandoGiroscopioNoMovimento && bmi160 != NULL){
             posicaoAtualZ = bmi160->getEixoZ()/10;
         }else{
             posicaoGiroscopioZInicioMovimento = bmi160->getEixoZ()/10;
             usandoGiroscopioNoMovimento = true;
         }
+        #endif
         int16_t delta = posicaoGiroscopioZInicioMovimento - posicaoAtualZ;
         if(giroscopioInvertido) delta = -delta;
         listaMotor[0]->potencia(potencia-delta);
@@ -464,7 +468,9 @@ public:
 
         //como a leitura dos sensores serais que desenvolvi são rapidas (115200bps), preciso desativar todas as interrupções na hora da leitura da serial
         //então só posso fazer isso, porque a demora pode afetar os servos, então só faço se o servo não estiver ativo
+        #ifdef SUPORTE_SERVO //tenho q remover o IF se nao tiver servo
         if(modoCicloServo == MODO_SERVO_FINALIZADO){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
+        #endif
             #ifdef SUPORTE_SENSOR_GIROSCOPIO
             if(giroscopio != NULL){
                 giroscopio->lerDados();
@@ -479,8 +485,9 @@ public:
                 sensorLinhaAtualizado = true;
             }
             #endif
-
+        #ifdef SUPORTE_SERVO //tenho q remover o IF se nao tiver servo
         }
+        #endif
 
 
         // else{
@@ -531,6 +538,7 @@ public:
         //isso pode acontecer pelo tempo de movimentação de como os servos funcionam, então faço as duas tentativas. O ideal é por todos os sensores
         //serial dessa forma, tentando duas vezes com essa verificação para evitar espasmos nos servos, já que eu preciso desativar as interrupções
         //enquanto leio o retorno da serial dos sensores
+        #ifdef SUPORTE_SERVO //tenho q remover o IF completo, pois já fiz ele lá em cima
         if(modoCicloServo == MODO_SERVO_FINALIZADO){
             #ifdef SUPORTE_SENSOR_GIROSCOPIO
             if(!giroscopioAtualizado){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
@@ -549,6 +557,7 @@ public:
             }
             #endif
         }
+        #endif
         #ifdef SUPORTE_SENSOR_BMI160
         if(!giroscopioAtualizado){ //posso atualizar o giroscopio (gasto aproximadamente 900uS)
             if(bmi160 != NULL){
