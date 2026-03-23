@@ -372,6 +372,32 @@ public:
         listaMotor[1]->parar();
     }
 
+    // Aciona ambos os motores por um tempo em ms com potencias independentes
+    void acionaMotoresPorTempo(int potencia1, int potencia2, unsigned long tempoMs){
+        if (listaMotor[0] == NULL || listaMotor[1] == NULL){
+            erroMotorNaoInicializado();
+            return;
+        }
+        usandoGiroscopioNoMovimento = false;
+        // Liga os dois com a mesma potencia praticamente ao mesmo tempo
+        listaMotor[0]->potencia(potencia1);
+        listaMotor[1]->potencia(potencia2);
+        delay(tempoMs);
+        // Para os dois juntos
+        listaMotor[0]->parar();
+        listaMotor[1]->parar();
+    }
+
+    // Gira o robo por um tempo em ms usando potencias independentes nos motores
+    // pot1: potencia do motor 1 (-100 a 100)
+    // pot2: potencia do motor 2 (-100 a 100)
+    // tempoMs: tempo em milissegundos
+    void gireMotoresPorTempo(int pot1, int pot2, unsigned long tempoMs){
+        potenciaMotores(pot1, pot2);
+        delay(tempoMs);
+        pararMotores();
+    }
+
 
     // Para ambos os motores
     void pararMotores(){
