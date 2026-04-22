@@ -228,7 +228,7 @@ public:
 
         DDRE |= (1 << DDE0); // Configura PE0 como saída (pino do LED interno)
         ativaLedInterno();
-        Serial.println(F("Hello, Brick Simples!"));
+        Serial.println(F("Hello, Brick Simples!!!!!!!"));
         Serial.print(F("Tensao da bateria: "));
         uint32_t tensao = analogRead(PINO_BATERIA);
         tensao = 4887 * tensao; //microvolt (estou fazendo isso para nao usar float)
