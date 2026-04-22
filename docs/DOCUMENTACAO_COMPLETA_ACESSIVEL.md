@@ -477,12 +477,8 @@ Problema: travamento na inicializacao.
 
 ## 15. Acessibilidade desta documentacao
 
-Para facilitar para pessoas com deficiencia visual:
-
 - as informacoes estao em listas lineares e previsiveis
 - cada secao tem titulo numerado
 - evitamos depender de tabela visual para entender conteudo
 - os nomes de classe e metodo sao sempre escritos por extenso
 - ha um fluxo recomendado passo a passo
-
-Se voce quiser, o proximo passo pode ser gerar uma versao "manual de voz" em frases ainda mais curtas, com um comando por linha para leitura por sintetizador.
