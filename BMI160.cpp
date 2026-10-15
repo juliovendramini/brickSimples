@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "BMI160.h"
 
 #define ENDERECO_EEPROM_BMI160 200
+#define BMI160_MARCA_CALIBRADO 0xB1   // gravado em +10 pelo calibrar()
 
 #define BMI160_CHIP_ID 0xD1
 
@@ -40,11 +41,10 @@ THE SOFTWARE.
 
 /* Test the sign bit and set remaining MSBs if sign bit is set */
 #define BMI160_SIGN_EXTEND(val, from) \
-    (((val) & (1 << ((from) - 1))) ? (val | (((1 << (1 + (sizeof(val) << 3) - (from))) - 1) << (from))) : val)
+    (((val) & (1 << ((from) - 1))) ? (int16_t)((uint16_t)(val) | (uint16_t)(0xFFFFu << (from))) : (int16_t)(val))
 
 /******************************************************************************/
 
-uint8_t bufferGlobal[120]; //vou deixar declarado sempre para saber o espaço global alocado na compilação
 
 // Construtor que aceita PortaI2C
 BMI160::BMI160(PortaI2C porta) {
@@ -61,6 +61,9 @@ BMI160::BMI160(PortaI2C porta) {
     bus = NULL;
     planoX = planoY = eixoZ = 0;
     angleZ = 0;
+    restoZ = 0;
+    divisorZ = BMI160_DIVISOR_Z_PADRAO;
+    fifoCheia = false;
     accelOffsetX = accelOffsetY = 0;
     ultimaAtualizacao = 0;
 }
@@ -74,6 +77,9 @@ BMI160::BMI160() {
     bus = NULL;
     planoX = planoY = eixoZ = 0;
     angleZ = 0;
+    restoZ = 0;
+    divisorZ = BMI160_DIVISOR_Z_PADRAO;
+    fifoCheia = false;
     accelOffsetX = accelOffsetY = 0;
     ultimaAtualizacao = 0;
 }
@@ -567,9 +573,10 @@ void BMI160::autoCalibrateXAccelOffset(int target) {
 
     reg_write(BMI160_RA_FOC_CONF, foc_conf);
     reg_write(BMI160_RA_CMD, BMI160_CMD_START_FOC);
+    uint32_t t0 = millis();
     while (!(reg_read_bits(BMI160_RA_STATUS,
                            BMI160_STATUS_FOC_RDY,
-                           1)))
+                           1)) && (millis() - t0) < 1000)
         delay(1);
 }
 
@@ -604,9 +611,10 @@ void BMI160::autoCalibrateYAccelOffset(int target) {
 
     reg_write(BMI160_RA_FOC_CONF, foc_conf);
     reg_write(BMI160_RA_CMD, BMI160_CMD_START_FOC);
+    uint32_t t0 = millis();
     while (!(reg_read_bits(BMI160_RA_STATUS,
                            BMI160_STATUS_FOC_RDY,
-                           1)))
+                           1)) && (millis() - t0) < 1000)
         delay(1);
 }
 
@@ -641,9 +649,10 @@ void BMI160::autoCalibrateZAccelOffset(int target) {
 
     reg_write(BMI160_RA_FOC_CONF, foc_conf);
     reg_write(BMI160_RA_CMD, BMI160_CMD_START_FOC);
+    uint32_t t0 = millis();
     while (!(reg_read_bits(BMI160_RA_STATUS,
                            BMI160_STATUS_FOC_RDY,
-                           1)))
+                           1)) && (millis() - t0) < 1000)
         delay(1);
 }
 
@@ -747,9 +756,10 @@ void BMI160::autoCalibrateGyroOffset() {
     uint8_t foc_conf = (1 << BMI160_FOC_GYR_EN);
     reg_write(BMI160_RA_FOC_CONF, foc_conf);
     reg_write(BMI160_RA_CMD, BMI160_CMD_START_FOC);
+    uint32_t t0 = millis();
     while (!(reg_read_bits(BMI160_RA_STATUS,
                            BMI160_STATUS_FOC_RDY,
-                           1)))
+                           1)) && (millis() - t0) < 1000)
         delay(1);
 }
 
@@ -1391,49 +1401,63 @@ void BMI160::atualizaDados(){
     // Aproximacao linear simples (funciona bem para angulos pequenos)
     this->planoX = ((int32_t)(ay - accelOffsetY) * 90) >> 15;  // ~+/-90 graus
     this->planoY = ((int32_t)(ax - accelOffsetX) * 90) >> 15;  // ~+/-90 graus
-    
 
-    //vou pegar apenas o eixoZ na FIFO, faço isso porque assim consigo pegar 3x mais valores, ocupando o mesmo espaço na ram do MCU
-    // Processa todos os samples do gyro acumulados na FIFO
-    uint16_t fifoCount = getFIFOCount();
-    // Serial.print(F("FIFO Count: "));
-    // Serial.println(fifoCount);
-    if (fifoCount > 0) {
-        // Cada sample do gyro tem 6 bytes (gx, gy, gz em 16 bits cada)
-        uint8_t numSamples = fifoCount / 6;
-        
-        // Limita para evitar overflow do buffer 
-        if (numSamples > 60) numSamples = 60;
-        
-        if (numSamples > 0) {
-            //uint8_t buffer[120];  // Buffer para ate 60 samples (dois bytes só, eixo Z apenas)
-            uint8_t *buffer = bufferGlobal;
-            buffer[0] = 0;  // Sera preenchido pela getFIFOBytes
-            
-            getFIFOBytesZOnly(buffer, (uint8_t)fifoCount);  // Le apenas os dados do gyro Z da FIFO (a quantidade realmente é x6 pq na FIFO tem todos os eixos)
-            resetFIFO();
-            // Processa cada sample acumulado
-            int32_t acumulado = 0;
-            for (uint8_t i = 0; i < numSamples; i++) {
-                uint8_t idx = i * 2;
-                
-                // Le gz (bytes 4 e 5 de cada sample)
-                int16_t gz = (((int16_t)buffer[idx + 1]) << 8) | buffer[idx];
-                acumulado += gz;
-                //Serial.println(gz);
-                // Integracao do gyro Z usando aritmetica inteira
-                // Sensibilidade: 16.4 LSB/deg/s para range 2000
-                // Taxa de amostragem: 25Hz = 40ms por sample
-                // Formula: (gz / 16.4) * 0.04 = gz / 410 graus por sample
-                // Para centesimos de grau: gz * 100 / 410 = gz * 10 / 41
-            }
-            //2026-02-12 estava 41 na linha abaixo, mas percebi que 40 ta dando resultados melhores
-            angleZ += (acumulado * 10) / 40;  // Acumula em centesimos de grau
+    lerFIFO();
+}
+
+// Integra TODAS as amostras do giro que estao na FIFO do BMI160.
+// - Nao usa resetFIFO(): a amostra que chega durante a leitura fica na FIFO
+//   para a proxima vez (antes ela era apagada e o giro "sumia").
+// - Le em pedacos de ate 120 bytes (o buffer do SoftWire tem 128), entao
+//   da conta da FIFO inteira: 1024 bytes = 170 amostras = 6,8 s a 25 Hz.
+//   Pode usar delay() longo no meio de uma curva sem perder giro.
+// - Guarda o resto da divisao, para nao perder fracao de grau a cada leitura.
+void BMI160::lerFIFO(){
+    uint8_t b[2];
+    b[0] = BMI160_RA_FIFO_LENGTH_0;
+    if (serial_buffer_transfer(b, 1, 2) != 0) return;
+    uint16_t bytes = ((uint16_t)(b[1] & 0x07) << 8) | b[0];
+    if (bytes >= 1020) fifoCheia = true;          // FIFO cheia: amostras antigas foram perdidas
+    bytes -= bytes % 6;                           // so quadros inteiros (gx, gy, gz)
+
+    int32_t soma = 0;
+    while (bytes > 0) {
+        uint8_t n = (bytes > 120) ? 120 : (uint8_t)bytes;
+        bus->beginTransmission(deviceAddress);
+        bus->write(BMI160_RA_FIFO_DATA);
+        last_status = bus->endTransmission();
+        if (last_status != 0) break;
+        uint8_t lidos = bus->requestFrom(deviceAddress, n);
+        uint8_t i = 0;
+        for (; (uint8_t)(i + 6) <= lidos; i += 6) {
+            bus->read(); bus->read();              // gx
+            bus->read(); bus->read();              // gy
+            uint8_t lo = bus->read();
+            uint8_t hi = bus->read();
+            soma += (int16_t)(((uint16_t)hi << 8) | lo);
         }
+        if (lidos != n) break;                    // erro de I2C: o resto fica para a proxima
+        bytes -= n;
     }
-    
-    // Retorna angulo Z em graus inteiros
+
+    // centesimos de grau = soma * 100 / divisorZ
+    // divisorZ = 16,4 LSB/(grau/s) * 25 amostras/s = 410 (faixa de 2000 graus/s, 25 Hz)
+    restoZ += soma * 100;
+    angleZ += restoZ / divisorZ;
+    restoZ %= divisorZ;
+
+    // eixoZ em decimos de grau (getEixoZ()/10 = graus)
     this->eixoZ = (int16_t)(angleZ / 10);
+}
+
+void BMI160::setDivisorZ(int16_t divisor){
+    if (divisor > 0) divisorZ = divisor;
+}
+
+bool BMI160::fifoEstourou(){
+    bool f = fifoCheia;
+    fifoCheia = false;
+    return f;
 }
 
 int16_t BMI160::getPlanoX(){
@@ -1465,6 +1489,13 @@ void BMI160::calibrar(){
     // Armazena offsets do acelerometro (assumindo posicao horizontal)
     accelOffsetX = ax;
     accelOffsetY = ay;
+
+    // Mede o vies (bias) do giroscopio com o FOC do proprio BMI160 e liga a
+    // compensacao. (Antes so se salvavam os registradores de offset, que
+    // estavam zerados depois do soft reset: o vies nunca era corrigido.)
+    setGyroOffsetEnabled(false);
+    autoCalibrateGyroOffset();
+    setGyroOffsetEnabled(true);
     
     // Salva offsets do gyro na EEPROM
     int16_t temp;
@@ -1478,13 +1509,28 @@ void BMI160::calibrar(){
     // Salva offsets do acelerometro
     EEPROM.put(ENDERECO_EEPROM_BMI160 + 6, accelOffsetX);
     EEPROM.put(ENDERECO_EEPROM_BMI160 + 8, accelOffsetY);
-    
-    this->setGyroOffsetEnabled(true);
+    EEPROM.update(ENDERECO_EEPROM_BMI160 + 10, BMI160_MARCA_CALIBRADO);
+
+    Serial.print(F("Vies do giro Z: "));
+    Serial.print(getZGyroOffset() * 0.061, 2);
+    Serial.println(F(" graus/s"));
+
+    resetFIFO();       // descarta as amostras de antes da calibragem
     angleZ = 0;
+    restoZ = 0;
+    eixoZ = 0;
     Serial.println(F("Calibragem do BMI160 concluida!"));
 }
 
 void BMI160::carregaCalibracao(){
+    angleZ = 0;
+    restoZ = 0;
+    if (EEPROM.read(ENDERECO_EEPROM_BMI160 + 10) != BMI160_MARCA_CALIBRADO) {
+        // EEPROM vazia ou gravada pela versao antiga do calibrar() (offsets zerados)
+        accelOffsetX = accelOffsetY = 0;
+        Serial.println(F("BMI160 sem calibragem salva: rode calibrar() uma vez com o robo parado"));
+        return;
+    }
     // Le a EEPROM e passa os parametros de calibracao para o BMI160
     int16_t temp;
     EEPROM.get(ENDERECO_EEPROM_BMI160, temp);
@@ -1493,14 +1539,17 @@ void BMI160::carregaCalibracao(){
     this->setYGyroOffset(temp);
     EEPROM.get(ENDERECO_EEPROM_BMI160 + 4, temp);
     this->setZGyroOffset(temp);
+    this->setGyroOffsetEnabled(true);
     
     // Carrega offsets do acelerometro
     EEPROM.get(ENDERECO_EEPROM_BMI160 + 6, accelOffsetX);
     EEPROM.get(ENDERECO_EEPROM_BMI160 + 8, accelOffsetY);
-    
-    angleZ = 0;
+    resetFIFO();
 }
 
 void BMI160::resetaZ(){
+    lerFIFO();         // o que ja aconteceu entra na conta antes de zerar
     angleZ = 0;
+    restoZ = 0;
+    eixoZ = 0;
 }

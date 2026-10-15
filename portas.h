@@ -63,6 +63,13 @@ struct PortaBuzzer{
     const char *descricao;
 };
 
+//sensores de 1 fio digital (DHT11, DHT22, DS18B20): mesmas portas do servo
+struct PortaDigital{
+    const uint8_t porta;
+    const uint8_t pino;
+    const char *descricao;
+};
+
 struct PortaAnalogica{
     const uint8_t pino1;
     const uint8_t pino2;
@@ -130,6 +137,17 @@ struct PortaMotor{
 #define PORTA_BUZZER_3 {3, 11, "S3"}
 #define PORTA_BUZZER_4 {4, 5, "S4"}
 
+// Portas para sensores digitais de 1 fio (DHT11/DHT22 e DS18B20)
+#define PORTA_DHT_1 {1, 13, "S1"}
+#define PORTA_DHT_2 {2, 12, "S2"}
+#define PORTA_DHT_3 {3, 11, "S3"}
+#define PORTA_DHT_4 {4, 5, "S4"}
+
+#define PORTA_DS18B20_1 {1, 13, "S1"}
+#define PORTA_DS18B20_2 {2, 12, "S2"}
+#define PORTA_DS18B20_3 {3, 11, "S3"}
+#define PORTA_DS18B20_4 {4, 5, "S4"}
+
 // Portas Analógicas
 #define PORTA_ANALOGICA_1 {A0, A1}
 #define PORTA_ANALOGICA_2 {A2, A3}
@@ -156,4 +174,4 @@ struct PortaMotor{
 // constexpr PortaI2C Portas::PORTA_I2C_4;
 // constexpr PortaI2C Portas::PORTA_I2C_5;
 
-#endif
+#endif

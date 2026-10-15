@@ -1,0 +1,10 @@
+# NOME: texto   (uma fala por linha; o nome vira FALA_NOME no falas.h)
+# Escreva como se fala: siglas e números por extenso.
+OLA: Olá! Eu sou o Paçoca.
+VITIMA_ENCONTRADA: Vítima encontrada.
+OBSTACULO: Obstáculo.
+RESGATE: Iniciando o resgate.
+SALA_TRES: Sala três.
+VERDE: Verde.
+VERMELHO: Vermelho.
+BATERIA_FRACA: Bateria fraca.

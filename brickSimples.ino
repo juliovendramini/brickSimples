@@ -3,12 +3,12 @@
 //#define SUPORTE_SENSOR_LINHA 1
 //#define SUPORTE_SENSOR_ULTRASSONICO 0
 //#define SUPORTE_SENSOR_TCS34725 1
-#define SUPORTE_SENSOR_VL53L0X 1
-#define SUPORTE_DISPLAY_SSD1306 1
-//#define SUPORTE_BLUETOOTH 1
+//#define SUPORTE_SENSOR_VL53L0X 1
+//#define SUPORTE_DISPLAY_SSD1306 1
+#define SUPORTE_BLUETOOTH 1
 //#define SUPORTE_TECLADO 1
-//#define SUPORTE_BUZZER 1
-//#define SUPORTE_LED 1
+#define SUPORTE_BUZZER 1
+#define SUPORTE_LED 1
 #define SUPORTE_MOTOR 1
 //#define SUPORTE_SERVO 1
 
@@ -18,27 +18,27 @@
 // TCS34725 sensor1 = TCS34725(PORTA_I2C_1);
 // TCS34725 sensor2 = TCS34725(PORTA_I2C_2);
 // TCS34725 sensor3 = TCS34725(PORTA_I2C_3);
-VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_1);
-VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_2);
-//LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
+// VL53L0X sensorDistancia = VL53L0X(PORTA_I2C_1);
+// VL53L0X sensorDistancia2 = VL53L0X(PORTA_I2C_2);
+LEDStrip led1 = LEDStrip(PORTA_LED_4,1);
 // Ultrassonico ultrassonico = Ultrassonico(PORTA_ULTRASSONICO_5);
 // VL53L0X sensorDistancia3 = VL53L0X(PORTA_I2C_3);
 
 // BMI160 bmi160Sensor = BMI160(PORTA_I2C_5);
-//Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
+Buzzer buzzer = Buzzer(PORTA_BUZZER_3);
 
-SSD1306 tela = SSD1306(PORTA_I2C_5);
+// SSD1306 tela = SSD1306(PORTA_I2C_5);
 // Teclado teclado = Teclado(PORTA_I2C_3);
 //Servo servo;
 bool sensor1Detectado = false;
 //Ultrassonico ultrassonico;
 // Giroscopio giroscopio(PORTA_SERIAL_1);
 //SensorLinha sensorLinha(PORTA_SERIAL_3);
-//Bluetooth bluetooth(PORTA_SERIAL_3);
+Bluetooth bluetooth(PORTA_SERIAL_3);
 
 
 Motor Motor1 = Motor(PORTA_MOTOR_1, MOTOR_NORMAL);
-Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_NORMAL);
+Motor Motor2 = Motor(PORTA_MOTOR_2, MOTOR_INVERTIDO);
 
 
 uint16_t red, green, blue, clear;
@@ -51,13 +51,13 @@ void setup(){
     
     // brick.adiciona(giroscopio);
     brick.adiciona(Motor1, Motor2); //adiciona de uma vez (mas podemos fazer a função de adicionar somente um motor)
-    // brick.adiciona(led1); 
-    // brick.adiciona(buzzer);   
+    brick.adiciona(led1); 
+    brick.adiciona(buzzer);   
     // brick.adiciona(sensorLinha);
     // brick.adiciona(bmi160Sensor);
-    //brick.adiciona(bluetooth);
+    brick.adiciona(bluetooth);
     //brick.adiciona(teclado);
-    brick.adiciona(tela);
+    // brick.adiciona(tela);
     // servos.iniciaServo(PORTA_SERVO_1);
     // servos.iniciaServo(PORTA_SERVO_3);
     //servos.iniciaServo(PORTA_SERVO_3);
@@ -76,8 +76,8 @@ void setup(){
     // brick.potenciaMotores(0, 0);
     //sensor1.limpaCalibracao();
     //sensor2.limpaCalibracao();
-    brick.adiciona(sensorDistancia);
-    brick.adiciona(sensorDistancia2);
+    // brick.adiciona(sensorDistancia);
+    // brick.adiciona(sensorDistancia2);
     // brick.adiciona(sensor1);
     // brick.adiciona(sensor2);
     //brick.adiciona(sensor3);
@@ -203,8 +203,8 @@ void setup(){
     // tela.setCursor(0, 0);
     // tela.setFonte(SSD1306::FONTE_PEQUENA);
     // tela.println("Hello");
-    tela.setFonte(SSD1306::FONTE_MEDIA);
-    tela.println("Aguardando");
+    // tela.setFonte(SSD1306::FONTE_MEDIA);
+    // tela.println("Aguardando");
 
 }
 
@@ -239,78 +239,78 @@ void loop(){
     // Serial.println("teste bluetooth");
     // bluetooth.println("Teste Bluetooth");
     // delay(1000);
-    // if(bluetooth.available()){
-    //     Serial.print("Recebido via Bluetooth: ");
-    //     while(bluetooth.available()){
-    //         char c = bluetooth.read();
-    //         if(c == 'Y'){
-    //             buzzer.tocar(500,300);
-    //         }
-    //         if(c == 'S'){
-    //             brick.pararMotores();
-    //         }
-    //         if(c == 'F'){
-    //             brick.potenciaMotores(100, 100);
-    //             //brick.andarPraFrente(60);
+    if(bluetooth.available()){
+        Serial.print("Recebido via Bluetooth: ");
+        while(bluetooth.available()){
+            char c = bluetooth.read();
+            if(c == 'Y'){
+                buzzer.tocar(500,300);
+            }
+            if(c == 'S'){
+                brick.pararMotores();
+            }
+            if(c == 'F'){
+                brick.potenciaMotores(100, 100);
+                //brick.andarPraFrente(60);
                 
-    //         }
-    //         if(c == 'B'){
-    //             brick.potenciaMotores(-60, -60);
-    //         }
-    //         if(c == 'L'){
-    //             brick.potenciaMotores(40, -40);
-    //         }
-    //         if(c == 'R'){
-    //             brick.potenciaMotores(-40, 40);
-    //         }
-    //         if(c == 'H'){
-    //             brick.potenciaMotores(40, 10);
-    //         }
-    //         if(c == 'G'){
-    //             brick.potenciaMotores(10, 40);
-    //         }
-    //         if(c == 'I'){
-    //             brick.potenciaMotores(-10, -40);
-    //         }
-    //         if(c == 'J'){
-    //             brick.potenciaMotores(-40, -10);
-    //         }
-    //         if(c == 'Z'){
-    //             led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
-    //             led1.atualiza();
-    //         }
-    //         Serial.print(c);
-    //     }
+            }
+            if(c == 'B'){
+                brick.potenciaMotores(-60, -60);
+            }
+            if(c == 'L'){
+                brick.potenciaMotores(40, -40);
+            }
+            if(c == 'R'){
+                brick.potenciaMotores(-40, 40);
+            }
+            if(c == 'H'){
+                brick.potenciaMotores(40, 10);
+            }
+            if(c == 'G'){
+                brick.potenciaMotores(10, 40);
+            }
+            if(c == 'I'){
+                brick.potenciaMotores(-10, -40);
+            }
+            if(c == 'J'){
+                brick.potenciaMotores(-40, -10);
+            }
+            if(c == 'Z'){
+                led1.setLED(0, random(0, 256), random(0, 256), random(0, 256));
+                led1.atualiza();
+            }
+            Serial.print(c);
+        }
+    }
+    // Serial.println(sensorDistancia.getDistancia());
+    // if(tempoSensor1 == 0 && sensorDistancia.getDistancia() < 300){
+    //         tempoSensor1 = millis();
     // }
-    Serial.println(sensorDistancia.getDistancia());
-    if(tempoSensor1 == 0 && sensorDistancia.getDistancia() < 300){
-            tempoSensor1 = millis();
-    }
-    Serial.println(sensorDistancia2.getDistancia());
-    if(tempoSensor2 == 0 && sensorDistancia2.getDistancia() < 300){
-        tempoSensor2 = millis();
-    }
-    Serial.println("\n");
-    if(tempoSensor1 != 0 && tempoSensor2 != 0){
-        uint32_t tempo = tempoSensor2 - tempoSensor1;
-        float velocidade = 0.3/(tempo/1000.0); //considerando que a distância entre os sensores é de 30cm (0.3 metros)
-        tela.clear();
-        tela.print(tempo);
-        tela.print(" ms");
-        tela.setCursor(0, 1);
-        char buffer[10];
-        dtostrf(velocidade, 4, 2, buffer); //converte a velocidade para string com 2 casas decimais
-        tela.print(buffer);
-        //tela.print(velocidade);
-        tela.print(" m/s");
-        velocidade = velocidade*3.6; //converter para km/h
-        tela.setCursor(0, 2);
-        dtostrf(velocidade, 4, 2, buffer); //converte a velocidade para string com 2 casas decimais
-        tela.print(buffer);
-        tela.print(" km/h");
-        //tela.atualiza();
-        while(1);
-    }
+    // Serial.println(sensorDistancia2.getDistancia());
+    // if(tempoSensor2 == 0 && sensorDistancia2.getDistancia() < 300){
+    //     tempoSensor2 = millis();
+    // }
+    // Serial.println("\n");
+    // if(tempoSensor1 != 0 && tempoSensor2 != 0){
+    //     uint32_t tempo = tempoSensor2 - tempoSensor1;
+    //     float velocidade = 0.3/(tempo/1000.0); //considerando que a distância entre os sensores é de 30cm (0.3 metros)
+    //     tela.clear();
+    //     tela.print(tempo);
+    //     tela.print(" ms");
+    //     tela.setCursor(0, 1);
+    //     char buffer[10];
+    //     dtostrf(velocidade, 4, 2, buffer); //converte a velocidade para string com 2 casas decimais
+    //     tela.print(buffer);
+    //     //tela.print(velocidade);
+    //     tela.print(" m/s");
+    //     velocidade = velocidade*3.6; //converter para km/h
+    //     tela.setCursor(0, 2);
+    //     dtostrf(velocidade, 4, 2, buffer); //converte a velocidade para string com 2 casas decimais
+    //     tela.print(buffer);
+    //     tela.print(" km/h");
+    //     //tela.atualiza();
+    //     while(1);
+    // }
     // Serial.print("Linha1: ");
     // Serial.print(sensorLinha.getLinha(0));
     // Serial.print(" Linha2: ");

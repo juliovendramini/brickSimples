@@ -33,6 +33,8 @@ THE SOFTWARE.
 #ifndef _BMI160_H_
 #define _BMI160_H_
 
+#define BMI160_DIVISOR_Z_PADRAO 410   // 16,4 LSB/(grau/s) x 25 Hz
+
 #include "Arduino.h"
 #include <EEPROM.h>
 #include "SoftWire.h"
@@ -665,7 +667,15 @@ class BMI160 {
         void calibrar();
         void carregaCalibracao();
         void resetaZ();
+        // Ajuste fino da escala do eixo Z: graus = soma das amostras / (divisorZ / 100).
+        // Teorico: 410 (16,4 LSB por grau/s x 25 Hz). Se o robo der 10 voltas e o
+        // eixo Z mostrar 3550 em vez de 3600, use 410 * 3550 / 3600 = 404.
+        void setDivisorZ(int16_t divisor);
+        // true se a FIFO encheu desde a ultima consulta (ficou > 6,8 s sem ler o
+        // giroscopio): parte do giro foi perdida.
+        bool fifoEstourou();
     private:
+        void lerFIFO();
         int serial_buffer_transfer(uint8_t *buf, unsigned tx_cnt, unsigned rx_cnt);
         int8_t serial_buffer_transfer_Z_Only(uint8_t *buf, uint8_t tx_cnt, uint8_t rx_cnt);
         uint8_t reg_read (uint8_t reg);
@@ -683,6 +693,9 @@ class BMI160 {
         uint8_t last_status = 0;
         int16_t planoX, planoY, eixoZ;
         int32_t angleZ;  // Angulo Z em centesimos de grau (ex: 4500 = 45.00 graus)
+        int32_t restoZ;  // resto da divisao da integracao (para nao perder fracoes)
+        int16_t divisorZ;
+        bool fifoCheia;
         int16_t accelOffsetX, accelOffsetY;  // Offsets de calibracao
         uint32_t ultimaAtualizacao; 
 

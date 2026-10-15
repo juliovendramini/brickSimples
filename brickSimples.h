@@ -15,6 +15,18 @@
 #include "VL53L0X.h"
 #endif
 
+#ifdef SUPORTE_RFID
+#include "RFID.h"
+#endif
+
+#ifdef SUPORTE_DHT
+#include "dht.h"
+#endif
+
+#ifdef SUPORTE_DS18B20
+#include "ds18b20.h"
+#endif
+
 #ifdef SUPORTE_SENSOR_BMI160
 #include "BMI160.h"
 #endif
@@ -30,6 +42,14 @@
 
 #ifdef SUPORTE_BUZZER
 #include "buzzer.h"
+#endif
+
+#ifdef SUPORTE_VOZ
+#include "voz.h"
+#endif
+
+#ifdef SUPORTE_MUSICA
+#include "musica.h"
 #endif
 
 #ifdef SUPORTE_SENSOR_GIROSCOPIO
@@ -704,6 +724,36 @@ public:
     }
     #endif
 
+    #ifdef SUPORTE_DHT
+    void adiciona(DHT &dht){ //DHT11/DHT22 nas portas de 1 fio (S1 a S4)
+        dht.inicializa();
+    }
+    #endif
+
+    #ifdef SUPORTE_DS18B20
+    void adiciona(DS18B20 &sensor){ //DS18B20 nas portas de 1 fio (S1 a S4), até 4 por porta
+        sensor.inicializa();
+    }
+    #endif
+
+    #ifdef SUPORTE_RFID
+    void adiciona(RFID &rfid){ //leitor RFID MFRC522 I2C, em qualquer porta I2C (1 a 5)
+        rfid.inicializa();
+    }
+    #endif
+
+    #ifdef SUPORTE_VOZ
+    void adiciona(Voz &voz){ //só funciona na porta S3 (usa o Timer2)
+        voz.inicializa();
+    }
+    #endif
+
+    #ifdef SUPORTE_MUSICA
+    void adiciona(Musica &musica){ //volume e timbre só na porta S3 (usa o Timer2)
+        musica.inicializa();
+    }
+    #endif
+
     #ifdef SUPORTE_SENSOR_GIROSCOPIO
     void adiciona(Giroscopio &giro){
         this->giroscopio = &giro;
@@ -893,4 +943,4 @@ class Servos{
 
 Servos servos;
 
-#endif
+#endif
