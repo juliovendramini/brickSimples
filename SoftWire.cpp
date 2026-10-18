@@ -10,7 +10,7 @@
 #endif
 
 // Definição dos membros static (compartilhados entre todas as instâncias)
-uint8_t SoftWire::_rxBuffer[128];
+uint8_t SoftWire::_rxBuffer[32];
 const uint8_t SoftWire::_rxBufferSize;
 uint8_t SoftWire::_rxBufferIndex = 0;
 uint8_t SoftWire::_rxBufferBytesRead = 0;
@@ -113,13 +113,7 @@ SoftWire::SoftWire(uint8_t sda, uint8_t scl) :
   _scl(scl),
   _inputMode(INPUT_PULLUP), // Pullups disabled by default
   _timeout_ms(defaultTimeout_ms),
-  _transmissionInProgress(false),
-  _sdaLow(sdaLow),
-  _sdaHigh(sdaHigh),
-  _sclLow(sclLow),
-  _sclHigh(sclHigh),
-  _readSda(readSda),
-  _readScl(readScl)
+  _transmissionInProgress(false)
 {
   // Calcula e cacheia registradores e máscaras do SDA (leitura única!)
   uint8_t sdaPort = digitalPinToPort(sda);
@@ -141,9 +135,9 @@ void SoftWire::begin(void) const
 {
   /*
     // Release SDA and SCL
-    _sdaHigh(this);
+    SoftWire::sdaHigh(this);
     delayMicroseconds(_delay_us);
-    _sclHigh(this);
+    SoftWire::sclHigh(this);
   */
   stop();
 }
@@ -155,11 +149,11 @@ SoftWire::result_t SoftWire::stop(bool allowClockStretch) const
   _transmissionInProgress = false;
 
   // Force SCL low
-  _sclLow(this);
+  SoftWire::sclLow(this);
   _delay_us(DELAY_TIME_US);
 
   // Force SDA low
-  _sdaLow(this);
+  SoftWire::sdaLow(this);
   _delay_us(DELAY_TIME_US);
 
   // Release SCL
@@ -172,7 +166,7 @@ SoftWire::result_t SoftWire::stop(bool allowClockStretch) const
   _delay_us(DELAY_TIME_US);
 
   // Release SDA
-  _sdaHigh(this);
+  SoftWire::sdaHigh(this);
   _delay_us(DELAY_TIME_US);
 
   return ack;
@@ -183,11 +177,11 @@ SoftWire::result_t SoftWire::llStart(uint8_t rawAddr) const
 {
 
   // Force SDA low
-  _sdaLow(this);
+  SoftWire::sdaLow(this);
   _delay_us(DELAY_TIME_US);
 
   // Force SCL low
-  _sclLow(this);
+  SoftWire::sclLow(this);
   _delay_us(DELAY_TIME_US);
   return llWrite(rawAddr);
 }
@@ -198,11 +192,11 @@ SoftWire::result_t SoftWire::llRepeatedStart(uint8_t rawAddr) const
   AsyncDelay timeout(_timeout_ms, AsyncDelay::MILLIS);
 
   // Force SCL low
-  _sclLow(this);
+  SoftWire::sclLow(this);
   _delay_us(DELAY_TIME_US);
 
   // Release SDA
-  _sdaHigh(this);
+  SoftWire::sdaHigh(this);
   _delay_us(DELAY_TIME_US);
 
   // Release SCL
@@ -211,7 +205,7 @@ SoftWire::result_t SoftWire::llRepeatedStart(uint8_t rawAddr) const
   _delay_us(DELAY_TIME_US);
 
   // Force SDA low
-  _sdaLow(this);
+  SoftWire::sdaLow(this);
   _delay_us(DELAY_TIME_US);
 
   return llWrite(rawAddr);
@@ -224,7 +218,7 @@ SoftWire::result_t SoftWire::llStartWait(uint8_t rawAddr) const
 
   while (!timeout.isExpired()) {
     // Force SDA low
-    _sdaLow(this);
+    SoftWire::sdaLow(this);
     _delay_us(DELAY_TIME_US);
 
     switch (llWrite(rawAddr)) {
@@ -248,15 +242,15 @@ SoftWire::result_t SoftWire::llWrite(uint8_t data) const
   AsyncDelay timeout(_timeout_ms, AsyncDelay::MILLIS);
   for (uint8_t i = 8; i; --i) {
     // Force SCL low
-    _sclLow(this);
+    SoftWire::sclLow(this);
 
     if (data & 0x80) {
       // Release SDA
-      _sdaHigh(this);
+      SoftWire::sdaHigh(this);
     }
     else {
       // Force SDA low
-      _sdaLow(this);
+      SoftWire::sdaLow(this);
     }
     _delay_us(DELAY_TIME_US);
 
@@ -275,10 +269,10 @@ SoftWire::result_t SoftWire::llWrite(uint8_t data) const
 
   // Get ACK
   // Force SCL low
-  _sclLow(this);
+  SoftWire::sclLow(this);
 
   // Release SDA
-  _sdaHigh(this);
+  SoftWire::sdaHigh(this);
 
   _delay_us(DELAY_TIME_US);
 
@@ -286,12 +280,12 @@ SoftWire::result_t SoftWire::llWrite(uint8_t data) const
   if (!sclHighAndStretch(timeout))
     return timedOut;
 
-  result_t res = (_readSda(this) == LOW ? ack : nack);
+  result_t res = (SoftWire::readSda(this) == LOW ? ack : nack);
 
   _delay_us(DELAY_TIME_US);
 
   // Keep SCL low between bytes
-  _sclLow(this);
+  SoftWire::sclLow(this);
 
   return res;
 }
@@ -306,10 +300,10 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
     data <<= 1;
 
     // Force SCL low
-    _sclLow(this);
+    SoftWire::sclLow(this);
 
     // Release SDA (from previous ACK)
-    _sdaHigh(this);
+    SoftWire::sdaHigh(this);
     _delay_us(DELAY_TIME_US);
 
     // Release SCL
@@ -318,26 +312,26 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
     _delay_us(DELAY_TIME_US);
 
     // Read clock stretch
-    while (_readScl(this) == LOW)
+    while (SoftWire::readScl(this) == LOW)
       if (timeout.isExpired()) {
         stop(); // Reset bus
         return timedOut;
       }
 
-    if (_readSda(this))
+    if (SoftWire::readSda(this))
       data |= 1;
   }
 
   // Put ACK/NACK
   // Force SCL low
-  _sclLow(this);
+  SoftWire::sclLow(this);
   if (sendAck) {
     // Force SDA low
-    _sdaLow(this);
+    SoftWire::sdaLow(this);
   }
   else {
     // Release SDA
-    _sdaHigh(this);
+    SoftWire::sdaHigh(this);
   }
 
   _delay_us(DELAY_TIME_US);
@@ -348,7 +342,7 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
   _delay_us(DELAY_TIME_US);
 
   // Wait for SCL to return high
-  while (_readScl(this) == LOW)
+  while (SoftWire::readScl(this) == LOW)
     if (timeout.isExpired()) {
       stop(); // Reset bus
       return timedOut;
@@ -357,7 +351,7 @@ SoftWire::result_t SoftWire::llRead(uint8_t &data, bool sendAck) const
   _delay_us(DELAY_TIME_US);
 
   // Keep SCL low between bytes
-  _sclLow(this);
+  SoftWire::sclLow(this);
 
   return ack;
 }
@@ -414,8 +408,8 @@ int SoftWire::peek(void)
 void SoftWire::end(void)
 {
   enablePullups(false);
-  _sdaHigh(this);
-  _sclHigh(this);
+  SoftWire::sdaHigh(this);
+  SoftWire::sclHigh(this);
 }
 
 

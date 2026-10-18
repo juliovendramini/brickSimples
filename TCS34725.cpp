@@ -490,15 +490,14 @@ TCS34725::CorBasica TCS34725::detectaCorBasica() {
     return COR_NADA;
   }
 
-  float rn = (float)r / (float)maxVal;
-  float gn = (float)g / (float)maxVal;
-  float bn = (float)b / (float)maxVal;
+  // Comparações proporcionais com inteiros (g/max > 0,6 e b/max < 0,5),
+  // sem float: o float sozinho custava ~600 bytes de flash.
 
   // Heurísticas simples para distinguir cores básicas
   // Vermelho ou amarelo (vermelho dominante)
   if (r == maxVal) {
     // Se verde também é forte, tende a amarelo; senão é vermelho
-    if (gn > 0.6f && bn < 0.5f) {
+    if ((uint32_t)g * 10 > (uint32_t)maxVal * 6 && (uint32_t)b * 2 < maxVal) {
       return COR_AMARELO;
     }
     return COR_VERMELHO;

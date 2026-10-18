@@ -85,29 +85,6 @@ class SoftWire : public Stream {
     inline void sclHigh(void) const;
     inline bool sclHighAndStretch(AsyncDelay& timeout) const;
 
-
-    // Setters to override functions which control the SDA and SCL pins
-    inline void setSetSdaLow(void (*sdaLowFn)(const SoftWire*)) {
-      _sdaLow = sdaLowFn;
-    }
-    inline void setSetSdaHigh(void (*sdaHighFn)(const SoftWire*)) {
-      _sdaHigh = sdaHighFn;
-    }
-    inline void setSetSclLow(void (*sclLowFn)(const SoftWire*)) {
-      _sclLow = sclLowFn;
-    }
-    inline void setSetSclHigh(void (*sclHighFn)(const SoftWire*)) {
-      _sclHigh = sclHighFn;
-    }
-
-    // Setters to override the functions which read the status of SDA and SCL
-    inline void setReadSda(uint8_t (*readSdaFn)(const SoftWire*)) {
-      _readSda = readSdaFn;
-    }
-    inline void setReadScl(uint8_t (*readSclFn)(const SoftWire*)) {
-      _readScl = readSclFn;
-    }
-
     // Wrapper functions to provide direct compatibility with the Wire library (TwoWire class)
     virtual int available(void);
     virtual size_t write(uint8_t data);
@@ -154,8 +131,8 @@ class SoftWire : public Stream {
 
     // Additional member variables to support compatibility with Wire library
     // Static para economizar RAM - todas as instâncias compartilham os mesmos buffers
-    static uint8_t _rxBuffer[128];
-    static const uint8_t _rxBufferSize = 128;
+    static uint8_t _rxBuffer[32];    // era 128: nenhum sensor lê mais que 30 de uma vez
+    static const uint8_t _rxBufferSize = 32;
     static uint8_t _rxBufferIndex;
     static uint8_t _rxBufferBytesRead;
 
@@ -164,13 +141,6 @@ class SoftWire : public Stream {
     static const uint8_t _txBufferSize = 32; // Size of user-supplied buffer
     static uint8_t _txBufferIndex; // Index into buffer
     mutable bool _transmissionInProgress;
-
-    void (*_sdaLow)(const SoftWire *p);
-    void (*_sdaHigh)(const SoftWire *p);
-    void (*_sclLow)(const SoftWire *p);
-    void (*_sclHigh)(const SoftWire *p);
-    uint8_t (*_readSda)(const SoftWire *p);
-    uint8_t (*_readScl)(const SoftWire *p);
 
 
     uint8_t endTransmissionInner(void) const;
@@ -299,35 +269,35 @@ SoftWire::result_t SoftWire::readThenNack(uint8_t &data) const
 
 void SoftWire::sdaLow(void) const
 {
-  _sdaLow(this);
+  SoftWire::sdaLow(this);
 }
 
 
 void SoftWire::sdaHigh(void) const
 {
-  _sdaHigh(this);
+  SoftWire::sdaHigh(this);
 }
 
 
 void SoftWire::sclLow(void) const
 {
-  _sclLow(this);
+  SoftWire::sclLow(this);
 }
 
 
 void SoftWire::sclHigh(void) const
 {
-  _sclHigh(this);
+  SoftWire::sclHigh(this);
 }
 
 
 bool SoftWire::sclHighAndStretch(AsyncDelay& timeout) const
 {
-  _sclHigh(this);
+  SoftWire::sclHigh(this);
 
   // Wait for SCL to actually become high in case the slave keeps
   // it low (clock stretching).
-  while (_readScl(this) == LOW)
+  while (SoftWire::readScl(this) == LOW)
     if (timeout.isExpired()) {
       stop(false); // Reset bus. Do not allow clock stretching here
       return false;

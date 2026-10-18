@@ -1408,7 +1408,7 @@ void BMI160::atualizaDados(){
 // Integra TODAS as amostras do giro que estao na FIFO do BMI160.
 // - Nao usa resetFIFO(): a amostra que chega durante a leitura fica na FIFO
 //   para a proxima vez (antes ela era apagada e o giro "sumia").
-// - Le em pedacos de ate 120 bytes (o buffer do SoftWire tem 128), entao
+// - Le em pedacos de ate 30 bytes (o buffer do SoftWire tem 32), entao
 //   da conta da FIFO inteira: 1024 bytes = 170 amostras = 6,8 s a 25 Hz.
 //   Pode usar delay() longo no meio de uma curva sem perder giro.
 // - Guarda o resto da divisao, para nao perder fracao de grau a cada leitura.
@@ -1422,7 +1422,7 @@ void BMI160::lerFIFO(){
 
     int32_t soma = 0;
     while (bytes > 0) {
-        uint8_t n = (bytes > 120) ? 120 : (uint8_t)bytes;
+        uint8_t n = (bytes > 30) ? 30 : (uint8_t)bytes;   // 5 quadros (buffer do SoftWire: 32)
         bus->beginTransmission(deviceAddress);
         bus->write(BMI160_RA_FIFO_DATA);
         last_status = bus->endTransmission();

@@ -441,7 +441,7 @@ public:
     }
 
     void erroMotorNaoInicializado(){
-        Serial.println(F("Erro: Motor nao inicializado! Use inicializaMotores() antes de controlar os motores."));
+        Serial.println(F("Erro: Motor nao inicializado! Use brick.adiciona(motor1, motor2) antes de controlar os motores."));
     }
     #endif //SUPORTE_MOTOR
 

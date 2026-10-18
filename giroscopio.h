@@ -150,7 +150,11 @@ public:
     
     //precisa de um nome melhor
     void atualizaDadosTimeOut(){
+#ifdef SUPORTE_SERVO
         if(millis() - ultimaAtualizacao > TIMEOUT && modoCicloServo == MODO_SERVO_FINALIZADO){
+#else
+        if(millis() - ultimaAtualizacao > TIMEOUT){
+#endif
             lerDados();
         }
     }

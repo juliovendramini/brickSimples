@@ -133,10 +133,6 @@ uint8_t Servo::attach(uint8_t pin, int min, int max)
     this->min  = (min)/16; //resolution of min/max is 16 us
     this->max  = (max)/16;
     // initialize Timer2 if it has not already been initialized
-    Serial.print("min: ");
-    Serial.println(this->min);
-    Serial.print("max: ");
-    Serial.println(this->max);
     if(isTimerActive() == false)
       initISR();
     servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
@@ -157,8 +153,6 @@ void Servo::write(int value) //somente angulo
   if(value < 0) value = 0;
   if(value > 180) value = 180;
   value = map(value, 0, 180, this->min,  this->max); //mapeando para ticks
-  Serial.print(F("Valor mapeado para ticks: "));
-  Serial.println(value);
   this->writeTicks(value);
 }
 
@@ -177,8 +171,6 @@ void Servo::writeTicks(uint8_t value)
     uint8_t oldSREG = SREG;
     cli();
     servos[Canal].ticks = value;
-    Serial.print(F("Valor escrito no servo: "));
-    Serial.println(value);      
     SREG = oldSREG;
   }
 }
