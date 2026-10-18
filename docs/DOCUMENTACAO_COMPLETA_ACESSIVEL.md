@@ -326,17 +326,22 @@ Metodos de uso comum:
 
 ### 10.5 `SensorLinha` (`sensorLinha.h`)
 
+Sensor de linha e cor Pro1616 numa porta serial (`PORTA_SERIAL_1` a `PORTA_SERIAL_5`).
+Ele tem 4 canais de reflexao (infravermelho) e 3 sensores de cor (esquerda, meio, direita).
+
 Metodos de uso comum:
 
-- `inicializa()`
-- `setModo(...)`
-- `calibrarBranco()`
-- `calibrarPreto()`
-- `lerDados()`
-- `getLinha(indice)`
-- `getLinhas(...)`
-- `getPosicaoLinha()`
-- `getCorEsquerda/Meio/Direita(...)`
+- `inicializa()` (o `brick.adiciona(sensor)` ja chama)
+- `calibrarBranco()` e `calibrarPreto()` (robo parado em cima da cor; o branco leva ~7 s)
+- `getReflexao(canal)`: canal 0 a 3 (0 = mais a esquerda); 0 = preto, ~100 = branco
+- `getLinha(canal)` e `getLinhas(...)`: o contrario da reflexao (0 = branco, 100 = preto)
+- `getPosicaoLinha()`: -150 (linha embaixo do canal 0, a esquerda) a +150 (canal 3, a direita)
+- `getRGBC(sensor, r, g, b, c)`: sensor `SENSOR_COR_ESQUERDA`, `SENSOR_COR_MEIO` ou `SENSOR_COR_DIREITA`;
+  branco ~127, a fita prata passa de 127
+- `getCor(sensor)`: `COR_PRETO`, `COR_BRANCO`, `COR_VERDE`, `COR_VERMELHO`, `COR_AZUL`, `COR_AMARELO`,
+  `COR_PRATA` ou `COR_INDEFINIDA` (limiares ajustaveis: `limiarPreto`, `limiarBranco`, `limiarPrata`)
+- `imprimirDados()`: mostra tudo no monitor serial
+- `conectado()`: true se a ultima leitura deu certo
 
 ### 10.6 `Giroscopio` (`giroscopio.h`)
 
@@ -436,11 +441,11 @@ void setup() {
 void loop() {
   brick.atualiza();
 
-  int16_t pos = linha.getPosicaoLinha();
+  int16_t pos = linha.getPosicaoLinha();   // positivo = linha a direita
   if (pos > 30) {
-    brick.potenciaMotores(30, 60);
+    brick.potenciaMotores(60, 30);           // vira para a direita
   } else if (pos < -30) {
-    brick.potenciaMotores(60, 30);
+    brick.potenciaMotores(30, 60);           // vira para a esquerda
   } else {
     brick.potenciaMotores(50, 50);
   }

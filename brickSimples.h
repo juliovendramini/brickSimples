@@ -146,6 +146,9 @@ public:
             digitalWrite(dir, HIGH);
         }
     }
+    // Ponte H L9110S: com os dois pinos iguais (LOW/LOW ou HIGH/HIGH) as saidas ficam em curto e o
+    // motor freia. Por isso frear() e parar() fazem a mesma coisa: nao existe "motor solto" nessa ponte.
+    // Na frente o PWM alterna frente/freio; na re (analogWrite(255 - pwm) com dir HIGH) alterna re/freio.
     void frear(){
         digitalWrite(pwm, HIGH);
         digitalWrite(dir, HIGH);
@@ -804,10 +807,12 @@ public:
     }
     #endif
 
+    #ifdef SUPORTE_MOTOR
     void adiciona(Motor &motor1, Motor &motor2){ //não tem porque adicionar um motor somente pra usar o "modo drive"
         listaMotor[0] = &motor1;
         listaMotor[1] = &motor2;
     }
+    #endif
 
     void ativaLedInterno(){
         PORTE |= (1 << PINE0); // Define PE0 como alto
