@@ -1,0 +1,973 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id="9uO~d;nNlaVV!NDHFkRt" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="$Hoc5A_{Z?f3db|5e!ih">
+        <field name="TEXT">Aula 4 - Jogo da memoria (Genius) (versao com voz)</field>
+        <next>
+          <block type="base_comment" id="oolXy`Ve1C.NCkLUunlq">
+            <field name="TEXT">Teclado na I2C-3 e buzzer ou fone na S3 (voz e musica usam o mesmo, uma de cada vez).</field>
+            <next>
+              <block type="base_comment" id="(PrMst|u$w1c:[`fsC@^">
+                <field name="TEXT">Botao 1 = do, 2 = mi, 3 = sol, 4 = do agudo. Errou ou demorou mais de 5 s: fim de jogo.</field>
+                <next>
+                  <block type="creer_tableau" id="icnYOyjgWorz,b?CT]Uo">
+                    <mutation dim="1"></mutation>
+                    <field name="VAR">sequencia</field>
+                    <field name="type">NUMBER</field>
+                    <field name="dim">1</field>
+                    <field name="choix">c1</field>
+                    <value name="D0">
+                      <block type="math_number" id="47s[kvyh).?Oe!Rk*@jB">
+                        <field name="NUM">32</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set_init" id="eT%dTZ3Jf~J-tUkP1N:j">
+                        <field name="VAR">tamanho</field>
+                        <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="T;fc2)3Nw~L+=o:}#T7I">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set_init" id="D)(cL27_n5l-LX++V92[">
+                            <field name="VAR">recorde</field>
+                            <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                            <value name="VALUE">
+                              <block type="math_number" id="aLpCT(_y~qMd61y`OGx-">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="variables_set_init" id="CTBDs5..29b*%6kV17,}">
+                                <field name="VAR">pontos</field>
+                                <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                                <value name="VALUE">
+                                  <block type="math_number" id="to{OD0flYI?Hn}]%;}L=">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="variables_set_init" id="#S/]og:N=)@FDr#U1rI!">
+                                    <field name="VAR">duracao</field>
+                                    <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                                    <value name="VALUE">
+                                      <block type="math_number" id="9P}=`B.Ldqq`s,4tYFkd">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="variables_set_init" id="Nk~Sc)-.zKy^-^CH^8W,">
+                                        <field name="VAR">apertado</field>
+                                        <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                                        <value name="VALUE">
+                                          <block type="math_number" id="l_I#Hi-4#QfZM*hhOXyZ">
+                                            <field name="NUM">0</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="variables_set_init" id="uP/w^#)]u,_*rS{Cj=`2">
+                                            <field name="VAR">errou</field>
+                                            <field name="VARIABLE_SETTYPE_TYPE">BOOLEAN</field>
+                                            <value name="VALUE">
+                                              <block type="logic_boolean" id="%x%_1@IYpW1Q1qcB0J.d">
+                                                <field name="BOOL">FALSE</field>
+                                              </block>
+                                            </value>
+                                            <next>
+                                              <block type="variables_set_init" id="ShJo-G@uW8bhoaJ6$7WA">
+                                                <field name="VAR">b</field>
+                                                <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                                                <value name="VALUE">
+                                                  <block type="math_number" id="#WgBj:mK|4G-HqqqEk{F">
+                                                    <field name="NUM">0</field>
+                                                  </block>
+                                                </value>
+                                                <next>
+                                                  <block type="variables_set_init" id="ief$RRwP^%h3r(~lT{10">
+                                                    <field name="VAR">freq</field>
+                                                    <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                                                    <value name="VALUE">
+                                                      <block type="math_number" id="Egv{$k}JkVC5QSIl||iO">
+                                                        <field name="NUM">0</field>
+                                                      </block>
+                                                    </value>
+                                                    <next>
+                                                      <block type="variables_set_init" id="u[l*6w$~Rr{6-Pqofq1:">
+                                                        <field name="VAR">inicio</field>
+                                                        <field name="VARIABLE_SETTYPE_TYPE">LARGE_NUMBER</field>
+                                                        <value name="VALUE">
+                                                          <block type="math_number" id="on8A6+@DQj4(?JibeCK=">
+                                                            <field name="NUM">0</field>
+                                                          </block>
+                                                        </value>
+                                                        <next>
+                                                          <block type="procedures_callnoreturn" id="6V?O)!ubM*wpwJNGy2.:">
+                                                            <mutation name="comecaPartida"></mutation>
+                                                          </block>
+                                                        </next>
+                                                      </block>
+                                                    </next>
+                                                  </block>
+                                                </next>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id="hI;:#jAkRfe-S_Pvb)v[">
+        <next>
+          <block type="fixer_tableau" id="*Z?7{L*SdH8;sN!LU9R=">
+            <mutation dim="1"></mutation>
+            <field name="VAR">sequencia</field>
+            <field name="dim">1</field>
+            <value name="value">
+              <block type="math_random_int" id="-IJounYQZmF4Z6z~XAn4">
+                <value name="FROM">
+                  <block type="math_number" id="]ce6C}/ygMQ?O)v8!2{v">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+                <value name="TO">
+                  <block type="math_number" id=")FF`%BDSf4;DFpH=%{uS">
+                    <field name="NUM">4</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="D0">
+              <block type="variables_get" id="HKb2ny^nb@r,(|#Oa;~)">
+                <field name="VAR">tamanho</field>
+              </block>
+            </value>
+            <next>
+              <block type="math_change" id="]h;i^lA.U^[{e7h}4D2x">
+                <field name="VAR">tamanho</field>
+                <value name="DELTA">
+                  <block type="math_number" id="MR=]!]6r5l`6QrTRD(,g">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_voz_falar_aula" id="r!O!CPq`hc5NB6Z(1geg">
+                    <field name="FALA">FALA_NIVEL</field>
+                    <field name="MODO">INICIAR</field>
+                    <next>
+                      <block type="brick_voz_falar_numero" id="g:A?Wv%%TFNnT|kXyV;W">
+                        <field name="MODO">FILA</field>
+                        <value name="NUMERO">
+                          <block type="variables_get" id="p4(WXO+m~TO,RwsqYB4-">
+                            <field name="VAR">tamanho</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_voz_aguardar" id="Ibh)R6Hmc9Jntdwl%btn">
+                            <next>
+                              <block type="brick_espere" id="!qhZhxPBX:]jKb|ogR+`">
+                                <value name="TEMPO">
+                                  <block type="math_number" id="iCf8Pi%Rr8fBdkqEE_h}">
+                                    <field name="NUM">400</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="variables_set" id="#P.:pXD2b#bea%MwZr2N">
+                                    <field name="VAR">duracao</field>
+                                    <value name="VALUE">
+                                      <block type="math_arithmetic" id="%9c)Z-{Fi)R8Wlcj+;tr">
+                                        <field name="OP">MINUS</field>
+                                        <value name="A">
+                                          <block type="math_number" id="YLPW0I2L]5-qF2}NrcJ~">
+                                            <field name="NUM">500</field>
+                                          </block>
+                                        </value>
+                                        <value name="B">
+                                          <block type="math_arithmetic" id="HesZ,))m*#f6X*Qs]D~~">
+                                            <field name="OP">MULTIPLY</field>
+                                            <value name="A">
+                                              <block type="variables_get" id="_t6cT_$GTXlw3LiIyG*6">
+                                                <field name="VAR">tamanho</field>
+                                              </block>
+                                            </value>
+                                            <value name="B">
+                                              <block type="math_number" id="=z};ImPB``vneN,^WK9{">
+                                                <field name="NUM">20</field>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="controls_if" id=":=Bd2xAT@{2E#:bO*@+=">
+                                        <value name="IF0">
+                                          <block type="logic_compare" id="+_WS^Je}6e}4-V}NPA|B">
+                                            <field name="OP">LT</field>
+                                            <value name="A">
+                                              <block type="variables_get" id="4LDf$u1`(pg~kE7Y*jYe">
+                                                <field name="VAR">duracao</field>
+                                              </block>
+                                            </value>
+                                            <value name="B">
+                                              <block type="math_number" id="^t;#K2|tS|}D$Nl6{PB3">
+                                                <field name="NUM">180</field>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </value>
+                                        <statement name="DO0">
+                                          <block type="variables_set" id="{XhP42bMN`NQH)Xt%cnv">
+                                            <field name="VAR">duracao</field>
+                                            <value name="VALUE">
+                                              <block type="math_number" id="_FLA2N8H:R^OX){,hhg|">
+                                                <field name="NUM">180</field>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </statement>
+                                        <next>
+                                          <block type="controls_for" id="+p(hfX.4nY[BPMpIaip*">
+                                            <field name="VAR">i</field>
+                                            <value name="FROM">
+                                              <block type="math_number" id="%vZTAj@0kpm7O~y%7Gf*">
+                                                <field name="NUM">0</field>
+                                              </block>
+                                            </value>
+                                            <value name="TO">
+                                              <block type="math_arithmetic" id="]4Rng/GI$|@(tC};q1n.">
+                                                <field name="OP">MINUS</field>
+                                                <value name="A">
+                                                  <block type="variables_get" id="N(Xv1Z`5hy+1B!-6w)Lf">
+                                                    <field name="VAR">tamanho</field>
+                                                  </block>
+                                                </value>
+                                                <value name="B">
+                                                  <block type="math_number" id="Mcp$4Im7YH@$M^@nSVV#">
+                                                    <field name="NUM">1</field>
+                                                  </block>
+                                                </value>
+                                              </block>
+                                            </value>
+                                            <value name="BY">
+                                              <block type="math_number" id="I|$$`t@qPK3)BlPv)1i^">
+                                                <field name="NUM">1</field>
+                                              </block>
+                                            </value>
+                                            <statement name="DO">
+                                              <block type="procedures_callnoreturn" id="=z!H3`Dt~2q3HpyN$g)#">
+                                                <mutation name="tocaBotao">
+                                                  <arg name="qual"></arg>
+                                                  <arg name="dur"></arg>
+                                                </mutation>
+                                                <value name="ARG0">
+                                                  <block type="tableau_getIndex" id="!f]TB-.K%(Sl|yj-ZTS8">
+                                                    <mutation dim="1"></mutation>
+                                                    <field name="VAR">sequencia</field>
+                                                    <field name="dim">1</field>
+                                                    <value name="D0">
+                                                      <block type="variables_get" id="RK*$YeYn}f,N.g()FQ)V">
+                                                        <field name="VAR">i</field>
+                                                      </block>
+                                                    </value>
+                                                  </block>
+                                                </value>
+                                                <value name="ARG1">
+                                                  <block type="variables_get" id="[mV`%4+wR`)(l_OHS1Ny">
+                                                    <field name="VAR">duracao</field>
+                                                  </block>
+                                                </value>
+                                                <next>
+                                                  <block type="brick_espere" id="v%OIU5~@}8:)FleCK,:W">
+                                                    <value name="TEMPO">
+                                                      <block type="math_arithmetic" id="P#Ysq32oHSpI2M(n)@56">
+                                                        <field name="OP">DIVIDE</field>
+                                                        <value name="A">
+                                                          <block type="variables_get" id="W;kf@}yx6.D#1hf_6h1F">
+                                                            <field name="VAR">duracao</field>
+                                                          </block>
+                                                        </value>
+                                                        <value name="B">
+                                                          <block type="math_number" id="3iSKCd12:`s{({Y4%iKD">
+                                                            <field name="NUM">3</field>
+                                                          </block>
+                                                        </value>
+                                                      </block>
+                                                    </value>
+                                                  </block>
+                                                </next>
+                                              </block>
+                                            </statement>
+                                            <next>
+                                              <block type="brick_voz_falar_aula" id="~tigvt*p;rjH$E6F(;*A">
+                                                <field name="FALA">FALA_SUA_VEZ</field>
+                                                <field name="MODO">ESPERAR</field>
+                                                <next>
+                                                  <block type="variables_set" id="7R|alL:wS|!uwizjT/z{">
+                                                    <field name="VAR">errou</field>
+                                                    <value name="VALUE">
+                                                      <block type="logic_boolean" id="C8CBnoDaWs2*U7c]hFII">
+                                                        <field name="BOOL">FALSE</field>
+                                                      </block>
+                                                    </value>
+                                                    <next>
+                                                      <block type="controls_for" id="6WTVrd6}0;]^g]JFY:dw">
+                                                        <field name="VAR">i</field>
+                                                        <value name="FROM">
+                                                          <block type="math_number" id="nH44s0?u0up1bj+h`xi{">
+                                                            <field name="NUM">0</field>
+                                                          </block>
+                                                        </value>
+                                                        <value name="TO">
+                                                          <block type="math_arithmetic" id="aH$T4IP+3hWcIlCq9-:{">
+                                                            <field name="OP">MINUS</field>
+                                                            <value name="A">
+                                                              <block type="variables_get" id=";(a7DU,}[8^!Z=a^kW](">
+                                                                <field name="VAR">tamanho</field>
+                                                              </block>
+                                                            </value>
+                                                            <value name="B">
+                                                              <block type="math_number" id="oQ$Z6!75:[P1sSAXNo-P">
+                                                                <field name="NUM">1</field>
+                                                              </block>
+                                                            </value>
+                                                          </block>
+                                                        </value>
+                                                        <value name="BY">
+                                                          <block type="math_number" id="yC2w$P@Vdr4x9:XRNTZ?">
+                                                            <field name="NUM">1</field>
+                                                          </block>
+                                                        </value>
+                                                        <statement name="DO">
+                                                          <block type="controls_if" id="08NXQh*z{.ic1AM+EjhZ">
+                                                            <value name="IF0">
+                                                              <block type="logic_negate" id="w:f-raa/s,zbMfbh,XIh">
+                                                                <value name="BOOL">
+                                                                  <block type="variables_get" id="BGOy`::9B!|OAI([xx(.">
+                                                                    <field name="VAR">errou</field>
+                                                                  </block>
+                                                                </value>
+                                                              </block>
+                                                            </value>
+                                                            <statement name="DO0">
+                                                              <block type="variables_set" id="cXoo=-0C?cqScp}2Z0RV">
+                                                                <field name="VAR">apertado</field>
+                                                                <value name="VALUE">
+                                                                  <block type="procedures_callreturn" id="!1A}5a*|y}GX:qRad`?V">
+                                                                    <mutation name="esperaBotao">
+                                                                      <arg name="limite"></arg>
+                                                                    </mutation>
+                                                                    <value name="ARG0">
+                                                                      <block type="math_number" id="CTk6Rm^!7c,*.#_uQmk4">
+                                                                        <field name="NUM">5000</field>
+                                                                      </block>
+                                                                    </value>
+                                                                  </block>
+                                                                </value>
+                                                                <next>
+                                                                  <block type="controls_if" id="Il{IxXE?6=LFVyO}+EV6">
+                                                                    <mutation else="1"></mutation>
+                                                                    <value name="IF0">
+                                                                      <block type="logic_compare" id=",UP6sNVsvg!/5AwKb6:5">
+                                                                        <field name="OP">NEQ</field>
+                                                                        <value name="A">
+                                                                          <block type="variables_get" id="6O2},jbjJ2`p|;VD`Smt">
+                                                                            <field name="VAR">apertado</field>
+                                                                          </block>
+                                                                        </value>
+                                                                        <value name="B">
+                                                                          <block type="tableau_getIndex" id="JxKKuT]S[Gp9cTh%#s}V">
+                                                                            <mutation dim="1"></mutation>
+                                                                            <field name="VAR">sequencia</field>
+                                                                            <field name="dim">1</field>
+                                                                            <value name="D0">
+                                                                              <block type="variables_get" id="O+?JED=fdO{pl8!Ck/)I">
+                                                                                <field name="VAR">i</field>
+                                                                              </block>
+                                                                            </value>
+                                                                          </block>
+                                                                        </value>
+                                                                      </block>
+                                                                    </value>
+                                                                    <statement name="DO0">
+                                                                      <block type="variables_set" id="5C4Af.%k]K;0Mr_Uiin]">
+                                                                        <field name="VAR">errou</field>
+                                                                        <value name="VALUE">
+                                                                          <block type="logic_boolean" id="**5S(PqKm[s79J1y~kMe">
+                                                                            <field name="BOOL">TRUE</field>
+                                                                          </block>
+                                                                        </value>
+                                                                      </block>
+                                                                    </statement>
+                                                                    <statement name="ELSE">
+                                                                      <block type="procedures_callnoreturn" id="!p1Ec~%4YdpRC^auynA`">
+                                                                        <mutation name="tocaBotao">
+                                                                          <arg name="qual"></arg>
+                                                                          <arg name="dur"></arg>
+                                                                        </mutation>
+                                                                        <value name="ARG0">
+                                                                          <block type="variables_get" id="IeRv|2iKrB[k{ovKr_:k">
+                                                                            <field name="VAR">apertado</field>
+                                                                          </block>
+                                                                        </value>
+                                                                        <value name="ARG1">
+                                                                          <block type="math_number" id="zR*li:ZAThOguUeA*sJi">
+                                                                            <field name="NUM">200</field>
+                                                                          </block>
+                                                                        </value>
+                                                                      </block>
+                                                                    </statement>
+                                                                  </block>
+                                                                </next>
+                                                              </block>
+                                                            </statement>
+                                                          </block>
+                                                        </statement>
+                                                        <next>
+                                                          <block type="controls_if" id="#klHTD`@J/Ir5wg74@sQ">
+                                                            <mutation else="1"></mutation>
+                                                            <value name="IF0">
+                                                              <block type="variables_get" id="K^~:A3ZY7?$nUQx@!Y^-">
+                                                                <field name="VAR">errou</field>
+                                                              </block>
+                                                            </value>
+                                                            <statement name="DO0">
+                                                              <block type="procedures_callnoreturn" id="eGp_!JaRL~?@oYdP#m$~">
+                                                                <mutation name="fimDeJogo"></mutation>
+                                                              </block>
+                                                            </statement>
+                                                            <statement name="ELSE">
+                                                              <block type="brick_espere" id="RM)(Epn+*PCX*w[!Mp%|">
+                                                                <value name="TEMPO">
+                                                                  <block type="math_number" id="K62.#2pFRGKw{95m-a(@">
+                                                                    <field name="NUM">300</field>
+                                                                  </block>
+                                                                </value>
+                                                                <next>
+                                                                  <block type="brick_voz_falar_aula" id="S^8M{_5TglKxs~N1d8gY">
+                                                                    <field name="FALA">FALA_MUITO_BEM</field>
+                                                                    <field name="MODO">ESPERAR</field>
+                                                                    <next>
+                                                                      <block type="controls_if" id="H8vUDhI`5[X!f?jSm*Fu">
+                                                                        <value name="IF0">
+                                                                          <block type="logic_compare" id=".}EK/Iu[MnuNNZP^DNQH">
+                                                                            <field name="OP">EQ</field>
+                                                                            <value name="A">
+                                                                              <block type="variables_get" id="cue#-_w;OW%)J]ZK9M}g">
+                                                                                <field name="VAR">tamanho</field>
+                                                                              </block>
+                                                                            </value>
+                                                                            <value name="B">
+                                                                              <block type="math_number" id="aBru*1n,^7KW^aXS?$eG">
+                                                                                <field name="NUM">32</field>
+                                                                              </block>
+                                                                            </value>
+                                                                          </block>
+                                                                        </value>
+                                                                        <statement name="DO0">
+                                                                          <block type="brick_musica_tocar" id="yQw?#zh1Cc4;c;;^NF([">
+                                                                            <field name="PORTA">PORTA_BUZZER_3</field>
+                                                                            <field name="MUSICA">MUSICA_ODE_ALEGRIA</field>
+                                                                            <field name="MODO">ESPERAR</field>
+                                                                            <next>
+                                                                              <block type="procedures_callnoreturn" id="i;A?]+qNJCJYmXPB.Ysy">
+                                                                                <mutation name="comecaPartida"></mutation>
+                                                                              </block>
+                                                                            </next>
+                                                                          </block>
+                                                                        </statement>
+                                                                      </block>
+                                                                    </next>
+                                                                  </block>
+                                                                </next>
+                                                              </block>
+                                                            </statement>
+                                                          </block>
+                                                        </next>
+                                                      </block>
+                                                    </next>
+                                                  </block>
+                                                </next>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defreturn" id="wON_o:g~3L)d#A}na$UO" x="821" y="20">
+    <mutation>
+      <arg name="limite" type="LARGE_NUMBER"></arg>
+    </mutation>
+    <field name="NAME">esperaBotao</field>
+    <field name="type">NUMBER</field>
+    <comment pinned="false" h="80" w="260">Espera um botao por ate 'limite' milissegundos. Devolve o botao (1 a 4) ou 0 se o tempo acabou.</comment>
+    <statement name="STACK">
+      <block type="variables_set" id="]VDh7UN?5]Txe.h|5NQk">
+        <field name="VAR">b</field>
+        <value name="VALUE">
+          <block type="math_number" id="3*yo)E:@NN[k]0zv;PJ2">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set" id="H:faH!a~s45uJ.XX]0KK">
+            <field name="VAR">inicio</field>
+            <value name="VALUE">
+              <block type="millis" id="i5%HY2:YFR%VEuuL+6v~"></block>
+            </value>
+            <next>
+              <block type="controls_whileUntil" id="yXxR}Q,*=b8uQp$C%-1R">
+                <field name="MODE">WHILE</field>
+                <value name="BOOL">
+                  <block type="logic_operation" id="$RyMYBuu!~b`%dj{qN+`">
+                    <field name="OP">AND</field>
+                    <value name="A">
+                      <block type="logic_compare" id="Dh_h%%~qFnVzyaKWL~X-">
+                        <field name="OP">EQ</field>
+                        <value name="A">
+                          <block type="variables_get" id="wdLSE:/;d09{eI)e%n5/">
+                            <field name="VAR">b</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="iAbo/3)@df_gf5KF)@LI">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="logic_compare" id="l]h5x-]3$hfEO{t9j7XG">
+                        <field name="OP">LT</field>
+                        <value name="A">
+                          <block type="math_arithmetic" id="@3V]d?PL+$U3VC6K2M_`">
+                            <field name="OP">MINUS</field>
+                            <value name="A">
+                              <block type="millis" id="Jq(G~C*q48,RAS1^{6OB"></block>
+                            </value>
+                            <value name="B">
+                              <block type="variables_get" id="Q|;S:6Sp-dO~SWlp!H5N">
+                                <field name="VAR">inicio</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="variables_get" id="1V*os*~kpC1k/;t?di3@">
+                            <field name="VAR">limite</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO">
+                  <block type="brick_atualizabrick" id="n03)PF423nY%ZhY-OqTm">
+                    <next>
+                      <block type="controls_for" id="nZW7oTq9kz#mR?7pznQ]">
+                        <field name="VAR">k</field>
+                        <value name="FROM">
+                          <block type="math_number" id="pW?xy`Qz[TvFU7MgX}7A">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                        <value name="TO">
+                          <block type="math_number" id="n#CUapVXk86{7%xxK9Ak">
+                            <field name="NUM">4</field>
+                          </block>
+                        </value>
+                        <value name="BY">
+                          <block type="math_number" id="@:LA(740pd9ex}9*tH(r">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                        <statement name="DO">
+                          <block type="controls_if" id="(l*r{+c{aFO;AQFMxA,C">
+                            <value name="IF0">
+                              <block type="brick_teclado_apertou" id="dEz2Hz]hOI1^Zv9dfjgd">
+                                <field name="PORTA">PORTA_I2C_3</field>
+                                <value name="BOTAO">
+                                  <block type="variables_get" id="Ar4IfGl}Pp~8GE^9lK=f">
+                                    <field name="VAR">k</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO0">
+                              <block type="variables_set" id="|4jtZE}6tU!fkUpNhcwi">
+                                <field name="VAR">b</field>
+                                <value name="VALUE">
+                                  <block type="variables_get" id="TpL|dF3I{.J54uSA)/:!">
+                                    <field name="VAR">k</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </statement>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <value name="RETURN">
+      <block type="variables_get" id="q0ntaXvD7FXHwDoSznkI">
+        <field name="VAR">b</field>
+      </block>
+    </value>
+  </block>
+  <block type="procedures_defnoreturn" id="Z`sRbu13*i=RqB?CsGn2" x="821" y="403">
+    <mutation>
+      <arg name="qual" type="NUMBER"></arg>
+      <arg name="dur" type="NUMBER"></arg>
+    </mutation>
+    <field name="NAME">tocaBotao</field>
+    <comment pinned="false" h="80" w="260">Acende o LED do botao e toca a nota dele: 1 = do, 2 = mi, 3 = sol, 4 = do agudo.</comment>
+    <statement name="STACK">
+      <block type="variables_set" id="k-J}6Q+71p?ag?SfbKZQ">
+        <field name="VAR">freq</field>
+        <value name="VALUE">
+          <block type="math_number" id="B4pi:;8v|/sm}g?t(hxI">
+            <field name="NUM">262</field>
+          </block>
+        </value>
+        <next>
+          <block type="controls_if" id="xgR_F/ozH[Gx=VyZ[#~x">
+            <value name="IF0">
+              <block type="logic_compare" id="n!YPro:u,hw3XMdLs#.v">
+                <field name="OP">EQ</field>
+                <value name="A">
+                  <block type="variables_get" id="RB,Nl4x=k|)@I[6T*S^A">
+                    <field name="VAR">qual</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="Z$+m=woQ.DGK~GqZVj!m">
+                    <field name="NUM">2</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="variables_set" id="_~!{F%ecHj@XTt0o`7eL">
+                <field name="VAR">freq</field>
+                <value name="VALUE">
+                  <block type="math_number" id="i3r^wZd@vVoA4{UHD#6H">
+                    <field name="NUM">330</field>
+                  </block>
+                </value>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="GhHsO)@i]j$40_2[]I(V">
+                <value name="IF0">
+                  <block type="logic_compare" id="c$o}HTLh74zx7TPfwccg">
+                    <field name="OP">EQ</field>
+                    <value name="A">
+                      <block type="variables_get" id="Rx6K5zF0t~omjlQ;BnDY">
+                        <field name="VAR">qual</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="{tyZ_7-.gY)D@JSZjXf(">
+                        <field name="NUM">3</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="variables_set" id=".Jj@WL2=Czcv86PM^kUi">
+                    <field name="VAR">freq</field>
+                    <value name="VALUE">
+                      <block type="math_number" id=".xH^YRyO@-2aFdEQD5cn">
+                        <field name="NUM">392</field>
+                      </block>
+                    </value>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="T5_g];KQF[oY4co,he(3">
+                    <value name="IF0">
+                      <block type="logic_compare" id="y6vT2NTLV!vsN84CeU[w">
+                        <field name="OP">EQ</field>
+                        <value name="A">
+                          <block type="variables_get" id="gY0!5EqTGOMDnzasXPaV">
+                            <field name="VAR">qual</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="f3wh=9TFy.=MEVje!#ag">
+                            <field name="NUM">4</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="variables_set" id="3C[zC1wGc;;-UVXm@[x=">
+                        <field name="VAR">freq</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="[8v~b~1}~`$rz0j28Sei">
+                            <field name="NUM">523</field>
+                          </block>
+                        </value>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="brick_teclado_led_valor" id="Kf(i0]uYW_7tr:j$nGbW">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <value name="LED">
+                          <block type="variables_get" id="?HJMiUhQ]=x.Q2I9;]n6">
+                            <field name="VAR">qual</field>
+                          </block>
+                        </value>
+                        <value name="ESTADO">
+                          <block type="logic_boolean" id="X%NWsPW|b+,%DOcefig?">
+                            <field name="BOOL">TRUE</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_musica_nota" id="=W8:v9?]D[Bb-35,h7rl">
+                            <field name="PORTA">PORTA_BUZZER_3</field>
+                            <field name="MODO">ESPERAR</field>
+                            <value name="FREQ">
+                              <block type="variables_get" id="Hm37zS6,5a]fhhaY$|%W">
+                                <field name="VAR">freq</field>
+                              </block>
+                            </value>
+                            <value name="DUR">
+                              <block type="variables_get" id="/H`BCahCLEm4VKGan9EZ">
+                                <field name="VAR">dur</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_teclado_led_valor" id="C_Db}N]v!fYK3A9:!E1~">
+                                <field name="PORTA">PORTA_I2C_3</field>
+                                <value name="LED">
+                                  <block type="variables_get" id="ob9*8feN:zo.cCyC5o}+">
+                                    <field name="VAR">qual</field>
+                                  </block>
+                                </value>
+                                <value name="ESTADO">
+                                  <block type="logic_boolean" id="QK!-_IRmE_rAgJr$TFpy">
+                                    <field name="BOOL">FALSE</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="n69Dyj.39+Bd*1SJP,!x" x="821" y="899">
+    <field name="NAME">comecaPartida</field>
+    <comment pinned="false" h="80" w="260">Zera a sequencia e espera um botao. O momento exato do toque vira a semente do sorteio.</comment>
+    <statement name="STACK">
+      <block type="variables_set" id="eJf!J-D+-g#dy3N93`kT">
+        <field name="VAR">tamanho</field>
+        <value name="VALUE">
+          <block type="math_number" id="c4gZ$Pe#*S9j;VyZ^.uW">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <next>
+          <block type="brick_voz_falar_aula" id="zOT9rX797r#`,4$Zjb.F">
+            <field name="FALA">FALA_APERTE_UM_BOTAO</field>
+            <field name="MODO">ESPERAR</field>
+            <next>
+              <block type="variables_set" id=":0qtIK.2V4kR%6H$V#_S">
+                <field name="VAR">apertado</field>
+                <value name="VALUE">
+                  <block type="procedures_callreturn" id="y-ygzwPLj:oIOsF^H4x$">
+                    <mutation name="esperaBotao">
+                      <arg name="limite"></arg>
+                    </mutation>
+                    <value name="ARG0">
+                      <block type="math_number" id="r?r:=TP`d/yLq#8|,|c)">
+                        <field name="NUM">600000</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="base_code" id="+XD/M2n8~0v1(M1[hJ)N">
+                    <field name="TEXT">randomSeed(micros());</field>
+                    <next>
+                      <block type="brick_musica_tocar" id="{Nfq4|jX5SLHHpD/3_go">
+                        <field name="PORTA">PORTA_BUZZER_3</field>
+                        <field name="MUSICA">EFEITO_INICIO</field>
+                        <field name="MODO">ESPERAR</field>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="BnG%Rc)r+MRWYrPM{Cg2" x="821" y="1145">
+    <field name="NAME">fimDeJogo</field>
+    <comment pinned="false" h="80" w="160">Descreva esta função...</comment>
+    <statement name="STACK">
+      <block type="brick_musica_tocar" id="m9|Ib(Aw%6_vkFa{ZV)3">
+        <field name="PORTA">PORTA_BUZZER_3</field>
+        <field name="MUSICA">EFEITO_ERRO</field>
+        <field name="MODO">ESPERAR</field>
+        <next>
+          <block type="variables_set" id="`f.2J9wzl9@Jd`f0ggAL">
+            <field name="VAR">pontos</field>
+            <value name="VALUE">
+              <block type="math_arithmetic" id="#F{Zq|~hmB4GgoqeJK]A">
+                <field name="OP">MINUS</field>
+                <value name="A">
+                  <block type="variables_get" id="Qlpv=vKnw!UF9E.hoY*7">
+                    <field name="VAR">tamanho</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="NbcAG]5uqy#6Y7Em:9gZ">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="brick_voz_falar_aula" id="{K`W9M8ZBoqS:t9u^rkI">
+                <field name="FALA">FALA_FIM_DE_JOGO</field>
+                <field name="MODO">ESPERAR</field>
+                <next>
+                  <block type="brick_voz_falar_numero" id="UWdY[n:i430@d9$P.OP(">
+                    <field name="MODO">INICIAR</field>
+                    <value name="NUMERO">
+                      <block type="variables_get" id="k7M9(f{?F|@gLxt_oOvk">
+                        <field name="VAR">pontos</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_voz_falar_aula" id="|_aOXcs_%|J`$lPuSO`]">
+                        <field name="FALA">FALA_PONTOS</field>
+                        <field name="MODO">FILA</field>
+                        <next>
+                          <block type="brick_voz_aguardar" id="iC/!:AmqX76z_T9gecDP">
+                            <next>
+                              <block type="controls_if" id="rg^4k/_E0`}$s,VQxViO">
+                                <value name="IF0">
+                                  <block type="logic_compare" id="(7,z@Aj/[`B,gPN86If+">
+                                    <field name="OP">GT</field>
+                                    <value name="A">
+                                      <block type="variables_get" id="2,0f~s:D`yM-/EBKlu@#">
+                                        <field name="VAR">pontos</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="variables_get" id="-?F?g978k,_,AG?*wp)f">
+                                        <field name="VAR">recorde</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <statement name="DO0">
+                                  <block type="variables_set" id="=%rZ`se-*j(3I$,|1_/E">
+                                    <field name="VAR">recorde</field>
+                                    <value name="VALUE">
+                                      <block type="variables_get" id="j}78;+pWFLyn)bIZsPp|">
+                                        <field name="VAR">pontos</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="brick_voz_falar_aula" id="pyP2`e8MRuai`(rgWGCk">
+                                        <field name="FALA">FALA_RECORDE</field>
+                                        <field name="MODO">ESPERAR</field>
+                                        <next>
+                                          <block type="brick_musica_tocar" id="a`$)#xRl4~l6_x9[A--m">
+                                            <field name="PORTA">PORTA_BUZZER_3</field>
+                                            <field name="MUSICA">EFEITO_SUCESSO</field>
+                                            <field name="MODO">ESPERAR</field>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </statement>
+                                <next>
+                                  <block type="brick_espere" id="rN,ckc!S/JsN8dNtFC[j">
+                                    <value name="TEMPO">
+                                      <block type="math_number" id="VcQ1P7MR.W1(2}x_^Ss!">
+                                        <field name="NUM">500</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="procedures_callnoreturn" id="y`q%?4Y{N8MFG*0xuO=F">
+                                        <mutation name="comecaPartida"></mutation>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

@@ -16,6 +16,14 @@
  *   brick.adiciona(voz);
  *   voz.falar(FALA_VITIMA_ENCONTRADA);       // espera terminar
  *   voz.iniciaFala(FALA_OBSTACULO);          // volta na hora, fala em segundo plano
+ *   voz.enfileirar(FALA_SALA_TRES);          // fala depois da que está tocando
+ *
+ * Números por extenso (precisa do falasNumeros.h, gerado de ferramentas/numeros.txt):
+ *   #define SUPORTE_VOZ_NUMEROS 1
+ *   voz.falarNumero(123);                    // "cento e vinte e três", espera terminar
+ *   voz.iniciaFala(FALA_NIVEL);              // "Nível ...
+ *   voz.enfileirarNumero(3);                 //  ... três" (volta na hora)
+ *   O falasNumeros.h ocupa ~6 KB de flash (41 palavras, de zero a mil).
  *
  * Enquanto fala: ~40% da CPU vai para o decodificador, servos ficam sem pulso
  * e o Timer2 fica ocupado (veja motorAudio.h).
@@ -24,6 +32,23 @@
 #define VOZ_H
 
 #include "motorAudio.h"
+
+#ifdef SUPORTE_VOZ_NUMEROS
+#include "numerosPorExtenso.h"
+#include "falasNumeros.h"
+/* mesma ordem do enum de numerosPorExtenso.h */
+static const uint8_t * const voz_palavrasNumero[NUMERO_TOTAL_PALAVRAS] PROGMEM = {
+    FALA_NUM_0, FALA_NUM_1, FALA_NUM_2, FALA_NUM_3, FALA_NUM_4, FALA_NUM_5, FALA_NUM_6,
+    FALA_NUM_7, FALA_NUM_8, FALA_NUM_9, FALA_NUM_10, FALA_NUM_11, FALA_NUM_12, FALA_NUM_13,
+    FALA_NUM_14, FALA_NUM_15, FALA_NUM_16, FALA_NUM_17, FALA_NUM_18, FALA_NUM_19,
+    FALA_NUM_20, FALA_NUM_30, FALA_NUM_40, FALA_NUM_50, FALA_NUM_60, FALA_NUM_70,
+    FALA_NUM_80, FALA_NUM_90,
+    FALA_NUM_100, FALA_NUM_CENTO,
+    FALA_NUM_200, FALA_NUM_300, FALA_NUM_400, FALA_NUM_500, FALA_NUM_600, FALA_NUM_700,
+    FALA_NUM_800, FALA_NUM_900,
+    FALA_NUM_E, FALA_NUM_MENOS, FALA_NUM_MIL
+};
+#endif
 
 class Voz {
 private:
@@ -73,13 +98,66 @@ public:
         aguarda();
     }
 
-    /* Começa a falar e volta na hora. */
+    /* Começa a falar e volta na hora. Para o que estiver falando antes
+     * (e esvazia a fila). */
     void iniciaFala(const uint8_t *fala) {
         if (!podeFalar()) return;
         audio_configuraPino(pino, invertido);
+        voz_filaLe = voz_filaEscreve = 0;
         lpc_iniciaFlash(&voz_dec, fala);
         voz_inicia();
     }
+
+    /* Coloca uma fala na fila: ela toca logo depois da que está tocando
+     * (ou na hora, se a voz estiver quieta). Volta na hora.
+     * Ex.: voz.iniciaFala(FALA_BOTAO); voz.enfileirar(FALA_NUM_3); */
+    void enfileirar(const uint8_t *fala) {
+        if (!podeFalar()) return;
+        uint8_t sreg = SREG;
+        cli();
+        uint8_t est = voz_estado;
+        if (voz_ativa() && (est == VOZ_SUBINDO || est == VOZ_FALANDO || est == VOZ_PAUSA)) {
+            /* a interrupção ainda vai olhar a fila: basta colocar no fim */
+            uint8_t e = voz_filaEscreve;
+            uint8_t prox = (uint8_t)((e + 1) & VOZ_FILA_MASC);
+            if (prox != voz_filaLe) {                 /* fila cheia: descarta */
+                voz_fila[e] = fala;
+                __asm__ __volatile__("" ::: "memory");  /* grava a fala antes de liberar */
+                voz_filaEscreve = prox;
+            }
+            SREG = sreg;
+            return;
+        }
+        SREG = sreg;
+        aguarda();                 /* se estava terminando (rampa de ~8 ms), espera */
+        iniciaFala(fala);
+    }
+
+    /* Silêncio entre as falas da fila, em ms (padrão 50). */
+    void pausaEntreFalas(uint16_t ms) {
+        uint32_t a = (uint32_t)ms * 7843UL / 1000UL;
+        voz_pausaAmostras = (a > 65535UL) ? 65535U : (uint16_t)a;
+    }
+
+#ifdef SUPORTE_VOZ_NUMEROS
+    /* Fala o número (de -32768 a 32767) e espera terminar. */
+    void falarNumero(int16_t numero) {
+        iniciaNumero(numero);
+        aguarda();
+    }
+    /* Começa a falar o número e volta na hora (para o que estava falando). */
+    void iniciaNumero(int16_t numero) {
+        parar();
+        enfileirarNumero(numero);
+    }
+    /* Põe as palavras do número na fila, depois do que estiver falando. */
+    void enfileirarNumero(int16_t numero) {
+        uint8_t palavras[NUMERO_MAX_PALAVRAS];
+        uint8_t n = numeroPorExtenso(numero, palavras);
+        for (uint8_t i = 0; i < n; i++)
+            enfileirar((const uint8_t *)pgm_read_ptr(&voz_palavrasNumero[palavras[i]]));
+    }
+#endif
 
     /* Fala que está num vetor em RAM (ex.: recebida inteira pela serial). */
     void falarRam(const uint8_t *dados, uint16_t tamanho) {
@@ -89,6 +167,7 @@ public:
     void iniciaFalaRam(const uint8_t *dados, uint16_t tamanho) {
         if (!podeFalar()) return;
         audio_configuraPino(pino, invertido);
+        voz_filaLe = voz_filaEscreve = 0;
         lpc_iniciaRam(&voz_dec, dados, tamanho);
         voz_inicia();
     }
@@ -102,6 +181,7 @@ public:
             voz_estado = VOZ_PARADA;
             audio_libera();
         }
+        voz_filaLe = voz_filaEscreve = 0;
     }
 
     /* Volume em %: 100 = sem distorção. Acima de 100 os picos são cortados,
@@ -216,6 +296,7 @@ private:
     void iniciaStream() {
         if (!podeFalar()) return;
         audio_configuraPino(pino, invertido);
+        voz_filaLe = voz_filaEscreve = 0;
         lpc_iniciaFifo(&voz_dec, &voz_fifo);
         voz_inicia();
     }

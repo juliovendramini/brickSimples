@@ -1,0 +1,30 @@
+# Falas das aulas de tela, teclado e voz (exemplos/aulas).
+# Gere com:  python gerar_falas.py frases_aulas.txt -o ../falasAulas.h --previas previas/aulas
+# Os números (zero, um, vinte e três...) estão em numeros.txt e saem com voz.falarNumero().
+OLA_PACOCA: Olá! Eu sou o Paçoca.
+BOTAO: Botão
+GRAUS: graus.
+CENTIMETROS: centímetros.
+SEGUNDOS: segundos.
+PONTOS: pontos.
+NIVEL: Nível
+SUA_VEZ: Sua vez!
+MUITO_BEM: Muito bem!
+FIM_DE_JOGO: Fim de jogo.
+RECORDE: Novo recorde!
+APERTE_UM_BOTAO: Aperte um botão para começar.
+MENU: Menu.
+DADO: Jogar o dado.
+SAIU: Saiu
+TEMPO: Tempo ligado.
+CONTAGEM: Contagem regressiva.
+SOBRE: Sobre o Paçoca.
+JA: Já!
+MINIMO: Mínimo.
+MAXIMO: Máximo.
+LIMITE: Limite
+MODO_PONTEIRO: Modo ponteiro.
+MODO_CANCELA: Modo cancela.
+CANCELA_ABERTA: Cancela aberta.
+CANCELA_FECHADA: Cancela fechada.
+NADA_A_FRENTE: Nada à frente.

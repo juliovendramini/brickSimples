@@ -309,6 +309,59 @@ def para_taxa_do_avr(x: np.ndarray, fs: int) -> np.ndarray:
     return signal.resample_poly(x8, 50, 51)
 
 
+def _trecho_principal(env: np.ndarray, lim: float, curto_ms: float = 160.0, vao_ms: float = 80.0,
+                      fraco_db: float = -20.0) -> tuple[int, int]:
+    """Início e fim da fala, ignorando estalos/respiração soltos nas pontas.
+
+    A TTS às vezes começa com um estalo ou respiração seguido de ~0,3 s de
+    silêncio antes da fala. Um trecho com som nas pontas, separado do resto
+    por pelo menos vao_ms de silêncio, é descartado se for curto (menos de
+    curto_ms) ou fraco (pico fraco_db abaixo do pico da fala).
+    """
+    acima = env > lim
+    d = np.diff(np.concatenate(([0], acima.astype(np.int8), [0])))
+    ini = list(np.where(d == 1)[0])
+    fim = list(np.where(d == -1)[0])           # exclusivo
+    curto = int(curto_ms / 1000 * TAXA)
+    vao = int(vao_ms / 1000 * TAXA)
+    junta = int(0.030 * TAXA)                  # vãos de menos de 30 ms não separam trechos
+    i = 1
+    while i < len(ini):
+        if ini[i] - fim[i - 1] < junta:
+            fim[i - 1] = fim[i]; ini.pop(i); fim.pop(i)
+        else:
+            i += 1
+    fraco = env.max() * 10 ** (fraco_db / 20)
+
+    def descartavel(j: int) -> bool:
+        return fim[j] - ini[j] < curto or env[ini[j]:fim[j]].max() < fraco
+
+    while len(ini) > 1 and ini[1] - fim[0] >= vao and descartavel(0):
+        ini.pop(0); fim.pop(0)
+    while len(ini) > 1 and ini[-1] - fim[-2] >= vao and descartavel(-1):
+        ini.pop(); fim.pop()
+    return ini[0], fim[-1] - 1
+
+
+def _limites_fala(env: np.ndarray, lim: float) -> tuple[int, int]:
+    """Acha a fala com um limiar 10 dB acima (o ruído entre o estalo e a fala
+    não engana) e depois estende as pontas até o limiar normal, para não
+    cortar começos e finais suaves (s, f, m...)."""
+    a, b = _trecho_principal(env, lim * 10 ** (10 / 20))
+    junta = int(0.030 * TAXA)
+    baixo = 0
+    while a > 0 and baixo < junta:
+        a -= 1
+        baixo = baixo + 1 if env[a] <= lim else 0
+    a += baixo
+    baixo = 0
+    while b < len(env) - 1 and baixo < junta:
+        b += 1
+        baixo = baixo + 1 if env[b] <= lim else 0
+    b -= baixo
+    return a, b
+
+
 def prepara(x: np.ndarray, passa_alta_hz: float = 100.0, limiar_silencio_db: float = -40.0,
             margem_ms: float = 40.0) -> np.ndarray:
     """Passa-alta, corta silêncio no começo/fim e normaliza o pico em 0,95."""
@@ -318,8 +371,9 @@ def prepara(x: np.ndarray, passa_alta_hz: float = 100.0, limiar_silencio_db: flo
     lim = env.max() * 10 ** (limiar_silencio_db / 20)
     idx = np.where(env > lim)[0]
     if len(idx):
+        ini, fim = _limites_fala(env, lim)
         m = int(margem_ms / 1000 * TAXA)
-        x = x[max(0, idx[0] - m): min(len(x), idx[-1] + m)]
+        x = x[max(0, ini - m): min(len(x), fim + m)]
     pico = np.max(np.abs(x))
     if pico > 0:
         x = x / pico * 0.95

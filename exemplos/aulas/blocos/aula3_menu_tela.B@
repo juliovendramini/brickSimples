@@ -1,0 +1,1177 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id="sTQiuxIwa.^h)$8~LJAs" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="Q_z~u]wFZZM@:.*_hV?r">
+        <field name="TEXT">Aula 3 - Menu (versao com tela)</field>
+        <next>
+          <block type="base_comment" id="c0z}Z-joEJxT][1ICW%@">
+            <field name="TEXT">Botao 1 sobe, 2 desce, 3 executa, 4 ajuda. Depois de executar, aperte qualquer botao.</field>
+            <next>
+              <block type="base_comment" id="mxca?@h73;D4vO~6Y*H:">
+                <field name="TEXT">A variavel opcao guarda onde a seta esta (0 a 3). Descer do ultimo volta para o primeiro.</field>
+                <next>
+                  <block type="variables_set_init" id="|4:EiB}|O@!Q:ILc[zEr">
+                    <field name="VAR">opcao</field>
+                    <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                    <value name="VALUE">
+                      <block type="math_number" id="-k%$N-1um7aD{6O}A2^x">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set_init" id="=G,|6qz]Z|*;$E1pC1R|">
+                        <field name="VAR">anterior</field>
+                        <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="|?]P2}lP:^j_VywCky#?">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set_init" id="{Z:vC?5,}V|2ci]`!n?T">
+                            <field name="VAR">b</field>
+                            <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                            <value name="VALUE">
+                              <block type="math_number" id="HDvPN8wnU!;du[n0L7hi">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="procedures_callnoreturn" id="nZ0Bus1wq^`$;q(7D7EK">
+                                <mutation name="desenhaMenu"></mutation>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id="p]@k4]HzGmM1zWt#rD21">
+        <next>
+          <block type="controls_if" id="u%P41hIfqWhJB9gD#xRE">
+            <value name="IF0">
+              <block type="brick_teclado_apertou" id="9B/6Ga5zJok3-:}?Awgv">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <value name="BOTAO">
+                  <block type="math_number" id="mhT`7+2VAuyX.uChDG$m">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="variables_set" id="7`z_vwhqSW;m}MEGfE@4">
+                <field name="VAR">anterior</field>
+                <value name="VALUE">
+                  <block type="variables_get" id="3ban_sa,X6R4Qh-:v`{$">
+                    <field name="VAR">opcao</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="variables_set" id="SKZl9y%$?%/7;Bu!Ilu-">
+                    <field name="VAR">opcao</field>
+                    <value name="VALUE">
+                      <block type="math_arithmetic" id="adNYy;ONL=Yv?eqNQlZM">
+                        <field name="OP">MINUS</field>
+                        <value name="A">
+                          <block type="variables_get" id="$lcu|O(H1}N#kA@)S9fS">
+                            <field name="VAR">opcao</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="n||}t[YZER0f6szUZ0k0">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="controls_if" id="TwNP(4;bcEkQ_({,(10r">
+                        <value name="IF0">
+                          <block type="logic_compare" id="giVUIkC~12S/Pi!|i`IE">
+                            <field name="OP">LT</field>
+                            <value name="A">
+                              <block type="variables_get" id="X$*^W.8LT(+a7XJG*8!1">
+                                <field name="VAR">opcao</field>
+                              </block>
+                            </value>
+                            <value name="B">
+                              <block type="math_number" id="~#Oq]^}cNFUx!y[//_Kn">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="variables_set" id="!hvW-N(0|x~QN@g=v~v:">
+                            <field name="VAR">opcao</field>
+                            <value name="VALUE">
+                              <block type="math_number" id="twXi/1a-,.VwZkUp#,i}">
+                                <field name="NUM">3</field>
+                              </block>
+                            </value>
+                          </block>
+                        </statement>
+                        <next>
+                          <block type="procedures_callnoreturn" id="zc,JC-V^N1i7cKA$jjQp">
+                            <mutation name="moveSeta"></mutation>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="8/-OUWrrW}dn:VhH56KM">
+                <value name="IF0">
+                  <block type="brick_teclado_apertou" id=";~uC9rPMb~A-$8@XiVu;">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <value name="BOTAO">
+                      <block type="math_number" id="yqf#+KVPT(bf?aI%K4nc">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="variables_set" id="i^:9y;9cMyzB{!(SX*$|">
+                    <field name="VAR">anterior</field>
+                    <value name="VALUE">
+                      <block type="variables_get" id="40Uo~$op2uU!+ui;G]e1">
+                        <field name="VAR">opcao</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="math_change" id="xX(acB:Yn@0N$-8Is(nE">
+                        <field name="VAR">opcao</field>
+                        <value name="DELTA">
+                          <block type="math_number" id="`+*GNJY8:!M;|Dxk)=[$">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="controls_if" id="VLYNQbUH~ST$1R]|5k=;">
+                            <value name="IF0">
+                              <block type="logic_compare" id="r-/WLUuw{lodFtktn53#">
+                                <field name="OP">GT</field>
+                                <value name="A">
+                                  <block type="variables_get" id="B6zcB[?YN{nmET?S,pmE">
+                                    <field name="VAR">opcao</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="J;tG!SWVK5Cm=j:l~Xw:">
+                                    <field name="NUM">3</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO0">
+                              <block type="variables_set" id="s-#g#++SAnm/!@VIL4BC">
+                                <field name="VAR">opcao</field>
+                                <value name="VALUE">
+                                  <block type="math_number" id="ut$88FF*h2.)bLsyJRXs">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </statement>
+                            <next>
+                              <block type="procedures_callnoreturn" id="+t~@iYcoSH}lCVHWgqys">
+                                <mutation name="moveSeta"></mutation>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="/:8`^c)NC_T0dBPemQn~">
+                    <value name="IF0">
+                      <block type="brick_teclado_apertou" id="f{JkUMa_zb1{r$cO%Yhy">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <value name="BOTAO">
+                          <block type="math_number" id="lJrZ.eNScI?.G(y)QF!S">
+                            <field name="NUM">3</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="base_code" id="4(1EuRL/3,/,d.zmfx!!">
+                        <field name="TEXT">randomSeed(micros());</field>
+                        <next>
+                          <block type="controls_if" id="d)DI(v7YwS67!JRqR9)B">
+                            <mutation elseif="2" else="1"></mutation>
+                            <value name="IF0">
+                              <block type="logic_compare" id="[Y~sHrm^F=IWarEHl8Ie">
+                                <field name="OP">EQ</field>
+                                <value name="A">
+                                  <block type="variables_get" id=":H6?/Kb$Qa0XgAmwD^4P">
+                                    <field name="VAR">opcao</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="wV=LwL=3iQEH]0tRJt)`">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO0">
+                              <block type="procedures_callnoreturn" id="JsprUbSsK1wAJ9C}WE4V">
+                                <mutation name="opcaoDado"></mutation>
+                              </block>
+                            </statement>
+                            <value name="IF1">
+                              <block type="logic_compare" id="=,?[Zp,UdKA=dr!p8nd7">
+                                <field name="OP">EQ</field>
+                                <value name="A">
+                                  <block type="variables_get" id="bpAJ6E`%,{@dLU,Ji+_2">
+                                    <field name="VAR">opcao</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="4+Ztd!(c|~8xOcQD:[wk">
+                                    <field name="NUM">1</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO1">
+                              <block type="procedures_callnoreturn" id="P:_KQKD}U+ZH@-@erz7A">
+                                <mutation name="opcaoTempo"></mutation>
+                              </block>
+                            </statement>
+                            <value name="IF2">
+                              <block type="logic_compare" id="M!Tv[iF3Kf!)Y-|q@i*b">
+                                <field name="OP">EQ</field>
+                                <value name="A">
+                                  <block type="variables_get" id="lWQB8,JbBt48.IKGU5S}">
+                                    <field name="VAR">opcao</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="PpdSLVa@-jzC4FST]|Z~">
+                                    <field name="NUM">2</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO2">
+                              <block type="procedures_callnoreturn" id="s0F^c7C8Qx4#F!1{B($r">
+                                <mutation name="opcaoContagem"></mutation>
+                              </block>
+                            </statement>
+                            <statement name="ELSE">
+                              <block type="procedures_callnoreturn" id="]|^Y1wcHaW{vJGtH;^1y">
+                                <mutation name="opcaoSobre"></mutation>
+                              </block>
+                            </statement>
+                            <next>
+                              <block type="procedures_callnoreturn" id="o6MHN7QW)tv|zf1WCR2I">
+                                <mutation name="desenhaMenu"></mutation>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="controls_if" id="=NqdJSN!w3v6-o6NdPz9">
+                        <value name="IF0">
+                          <block type="brick_teclado_apertou" id="iRqv[9!?`bmk%ajxlJf6">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <value name="BOTAO">
+                              <block type="math_number" id=":/~f`N;ujc7c{B`GreK?">
+                                <field name="NUM">4</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="procedures_callnoreturn" id="D]ihyrCYh(.qoJahbk@!">
+                            <mutation name="ajuda"></mutation>
+                            <next>
+                              <block type="procedures_callnoreturn" id="S,#+.Ic_)a]XPSU#NgR1">
+                                <mutation name="desenhaMenu"></mutation>
+                              </block>
+                            </next>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="RnG)D5Gr/%q,y)b]?u4h" x="560" y="20">
+    <field name="NAME">desenhaMenu</field>
+    <comment pinned="false" h="80" w="260">Escreve as 4 opcoes e a seta na opcao escolhida. Mudar a fonte tambem apaga a tela.</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_fonte" id="WO0b1fDWVKy|a%H#Xb6p">
+        <field name="PORTA">5</field>
+        <field name="TAMANHO">MEDIA</field>
+        <next>
+          <block type="brick_tela_set_cursor" id="(xnZ$KC:Ec-@`niU#e8e">
+            <field name="PORTA">5</field>
+            <value name="COLUNA">
+              <block type="math_number" id="E_xCv5FWMEA}a7j}_-y!">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <value name="LINHA">
+              <block type="math_number" id="RdnV$7G~Xk1f%#(d2-3(">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_print" id="-dGH1y`s]k2{c(g7,MSQ">
+                <field name="PORTA">5</field>
+                <value name="TEXTO">
+                  <block type="text" id="ed/@bKvPZe@?eyXCQ2/H">
+                    <field name="TEXT"> Dado</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_set_cursor" id="{k;nkvLiTSS5s[CNSxV6">
+                    <field name="PORTA">5</field>
+                    <value name="COLUNA">
+                      <block type="math_number" id="96iUsb}(:E~f+HJNi$#,">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <value name="LINHA">
+                      <block type="math_number" id="4k}_Y3[$|#~|_9.lK^Ki">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id="}eR^6!?3l|F(iwBQ=hQX">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="text" id="x84=mplfcJoGB?BdD}*2">
+                            <field name="TEXT"> Tempo</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_tela_set_cursor" id="=+hPNY?C9:H96sF{q,S9">
+                            <field name="PORTA">5</field>
+                            <value name="COLUNA">
+                              <block type="math_number" id="R4{A[u9[1Xjd_6#opt{i">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <value name="LINHA">
+                              <block type="math_number" id="[Da_ex#utZEwfo48qDZ+">
+                                <field name="NUM">2</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_tela_print" id="j{fJQ,wopOf-ua^aV?9e">
+                                <field name="PORTA">5</field>
+                                <value name="TEXTO">
+                                  <block type="text" id="~))XXL##a.z80REQ@tg(">
+                                    <field name="TEXT"> Contagem</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_tela_set_cursor" id="Y+y9C8$EF8Z*gfhfYibP">
+                                    <field name="PORTA">5</field>
+                                    <value name="COLUNA">
+                                      <block type="math_number" id="(TA?Y7O9o9K]-P^yxJ1(">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                    <value name="LINHA">
+                                      <block type="math_number" id=")nNjdO(+eAc=k5!4+^C1">
+                                        <field name="NUM">3</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="brick_tela_print" id="Xh%*Pdh75AX:uKR+Z1%o">
+                                        <field name="PORTA">5</field>
+                                        <value name="TEXTO">
+                                          <block type="text" id="a0ZjARm5C[4v*@oh)=%4">
+                                            <field name="TEXT"> Sobre</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="brick_tela_set_cursor" id="@HI.eNx%Rml`v?3,4sdu">
+                                            <field name="PORTA">5</field>
+                                            <value name="COLUNA">
+                                              <block type="math_number" id="OY?UW_Dk|:_BR?DlfQ53">
+                                                <field name="NUM">0</field>
+                                              </block>
+                                            </value>
+                                            <value name="LINHA">
+                                              <block type="variables_get" id="-@AH,@W8O9g`w]F;rqq/">
+                                                <field name="VAR">opcao</field>
+                                              </block>
+                                            </value>
+                                            <next>
+                                              <block type="brick_tela_print" id="]NGup1Ak$HpK}6AX.kT,">
+                                                <field name="PORTA">5</field>
+                                                <value name="TEXTO">
+                                                  <block type="text" id="FY0*PDQ-%nc@oqY{9P57">
+                                                    <field name="TEXT">&gt;</field>
+                                                  </block>
+                                                </value>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="8l0o[[:ska*![MW7[Nkz" x="1171" y="20">
+    <field name="NAME">opcaoDado</field>
+    <comment pinned="false" h="80" w="160">Descreva esta função...</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_fonte" id="*{gcn!dw8`O!^-TCkh1q">
+        <field name="PORTA">5</field>
+        <field name="TAMANHO">GRANDE</field>
+        <next>
+          <block type="brick_tela_set_cursor" id="|CvZ~9{3[GuRklId_#B@">
+            <field name="PORTA">5</field>
+            <value name="COLUNA">
+              <block type="math_number" id="BzssoZjExQUmM6e2XitQ">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <value name="LINHA">
+              <block type="math_number" id="8@|#9jgNhx,OnKB~4UV!">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_print" id=",emzKYBLWeA:H(_H]prL">
+                <field name="PORTA">5</field>
+                <value name="TEXTO">
+                  <block type="text" id="-kO~ZR!;i.MTZIY=Orj2">
+                    <field name="TEXT">Saiu</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_set_cursor" id="d?6,vxNlxtQ]YEC-ebk%">
+                    <field name="PORTA">5</field>
+                    <value name="COLUNA">
+                      <block type="math_number" id="2_u1rOEQc@ZAD]$1cD2O">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                    <value name="LINHA">
+                      <block type="math_number" id="dw.N:v5Pj0P-Cu=(HNy!">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id="w*Z8[!Fe!d~b+=Mp0cDb">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="math_random_int" id="UBh:ER|ZdIF;oJrx.YE9">
+                            <value name="FROM">
+                              <block type="math_number" id="fMoN(xJ[_#TL,#?yF1H8">
+                                <field name="NUM">1</field>
+                              </block>
+                            </value>
+                            <value name="TO">
+                              <block type="math_number" id="?xI)11M)H)ZE~Gp?#3l:">
+                                <field name="NUM">6</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="procedures_callnoreturn" id="j}b{52*6$56q)$;.dE$%">
+                            <mutation name="esperaBotao"></mutation>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="X$#DWl%SUJb.7g!WG2)?" x="1923" y="20">
+    <field name="NAME">opcaoContagem</field>
+    <comment pinned="false" h="80" w="160">Descreva esta função...</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_fonte" id="rI=!_l:;A8Y`]hPbTtt/">
+        <field name="PORTA">5</field>
+        <field name="TAMANHO">GRANDE</field>
+        <next>
+          <block type="controls_for" id="#uUu`a(v?eOIYB*Eoc?t">
+            <field name="VAR">n</field>
+            <value name="FROM">
+              <block type="math_number" id="L~AlXP#O.?onMQ6h6/qI">
+                <field name="NUM">5</field>
+              </block>
+            </value>
+            <value name="TO">
+              <block type="math_number" id="WWG-!w6,VL%Wf4s=:kRz">
+                <field name="NUM">1</field>
+              </block>
+            </value>
+            <value name="BY">
+              <block type="math_number" id="Pqc^hh]@_?R7Tgl[uLAp">
+                <field name="NUM">-1</field>
+              </block>
+            </value>
+            <statement name="DO">
+              <block type="brick_tela_set_cursor" id="PAi=v90Co.%!)2mPNi`{">
+                <field name="PORTA">5</field>
+                <value name="COLUNA">
+                  <block type="math_number" id="Z./F0Ooh:%VU4=3#g)%`">
+                    <field name="NUM">2</field>
+                  </block>
+                </value>
+                <value name="LINHA">
+                  <block type="math_number" id=";(VdQ*~:oJ.V(SI7=1Uu">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_print" id="]T#7iRhGKt|l~pPV7Eaj">
+                    <field name="PORTA">5</field>
+                    <value name="TEXTO">
+                      <block type="variables_get" id="FX~d(%.M%UfdmcIw)::U">
+                        <field name="VAR">n</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_espere" id="DH1BmZSbG5fu7bC06u#z">
+                        <value name="TEMPO">
+                          <block type="math_number" id="JqVs4m.`yD,:~*D_9Z_S">
+                            <field name="NUM">1000</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="brick_tela_set_cursor" id="Z~wad8~yfrm0ueq[OgS$">
+                <field name="PORTA">5</field>
+                <value name="COLUNA">
+                  <block type="math_number" id="8b#X9LV4de#5uEw%a)-2">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <value name="LINHA">
+                  <block type="math_number" id="N(oElfTIfme}r%|e%i?v">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_print" id="N(SLVgqEdA_IoW^p4yW3">
+                    <field name="PORTA">5</field>
+                    <value name="TEXTO">
+                      <block type="text" id="3D90|r;.|SwOJijas[fm">
+                        <field name="TEXT"> JA! </field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="procedures_callnoreturn" id="5{@SwZ/j@h5_.Z.Pxm_/">
+                        <mutation name="esperaBotao"></mutation>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="8kD++C!8}LRb};1l]Zem" x="2417" y="20">
+    <field name="NAME">ajuda</field>
+    <comment pinned="false" h="80" w="160">Descreva esta função...</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_fonte" id="PFS,@0UlbM+rmN-lgBJa">
+        <field name="PORTA">5</field>
+        <field name="TAMANHO">MEDIA</field>
+        <next>
+          <block type="brick_tela_set_cursor" id="?H*={i|Wch+,eHQ[|V$w">
+            <field name="PORTA">5</field>
+            <value name="COLUNA">
+              <block type="math_number" id="j+{87PuBnKx?i0zb.1bt">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <value name="LINHA">
+              <block type="math_number" id="^Ko#v_9Js/H=.d.4emX2">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_print" id="5].LL$GXJZWrJH6XTrL9">
+                <field name="PORTA">5</field>
+                <value name="TEXTO">
+                  <block type="text" id="t3fd@v.U4@gM7Yeayo(t">
+                    <field name="TEXT">1 sobe</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_set_cursor" id="wqwEtz{uP?ubT!r9K3kD">
+                    <field name="PORTA">5</field>
+                    <value name="COLUNA">
+                      <block type="math_number" id="sO0Xq:?%F9HILR`Lr9;P">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <value name="LINHA">
+                      <block type="math_number" id="!:-rCoYp!tJbvrkVL#qb">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id="e0O4@4YLwq4k-r!thbvr">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="text" id="?#sCIrh!RiJ2^e;!*|WK">
+                            <field name="TEXT">2 desce</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_tela_set_cursor" id="QF6h9}9i4!,K7hb-Vh0.">
+                            <field name="PORTA">5</field>
+                            <value name="COLUNA">
+                              <block type="math_number" id="e6n3`qIk%Q:eagj[kztS">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <value name="LINHA">
+                              <block type="math_number" id="AP*Dl?Pz3yClH4patmC=">
+                                <field name="NUM">2</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_tela_print" id="_Yk8J*3=)@:b-19T3_!z">
+                                <field name="PORTA">5</field>
+                                <value name="TEXTO">
+                                  <block type="text" id="MGhzfOZ@A=Lcg7ehcR~W">
+                                    <field name="TEXT">3 executa</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_tela_set_cursor" id="l:U;_,ug`,[*!JU,V!Kw">
+                                    <field name="PORTA">5</field>
+                                    <value name="COLUNA">
+                                      <block type="math_number" id="E$Ai)LKqp$~2O?r8njfP">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                    <value name="LINHA">
+                                      <block type="math_number" id="N`C7iFIV6$BmfP0B+N@6">
+                                        <field name="NUM">3</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="brick_tela_print" id="THgohd++fmjt7$`9p*5X">
+                                        <field name="PORTA">5</field>
+                                        <value name="TEXTO">
+                                          <block type="text" id="5_C0bk`VTd[G`[f$R^_q">
+                                            <field name="TEXT">4 ajuda</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="procedures_callnoreturn" id="WxJ}M=)8VG}cUA/d`Tb~">
+                                            <mutation name="esperaBotao"></mutation>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="u)@1KHmsWvVBHDT_:e5c" x="1171" y="429">
+    <field name="NAME">opcaoTempo</field>
+    <comment pinned="false" h="80" w="260">Mostra ha quantos segundos o Pacoca esta ligado, atualizando ate apertar um botao.</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_fonte" id="DVYDwIXs{:ST9ipw9j:B">
+        <field name="PORTA">5</field>
+        <field name="TAMANHO">MEDIA</field>
+        <next>
+          <block type="brick_tela_set_cursor" id="g+ha={eC-f.d@UG-7ncu">
+            <field name="PORTA">5</field>
+            <value name="COLUNA">
+              <block type="math_number" id="]={uwmXjDX8||Dt*P,^I">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <value name="LINHA">
+              <block type="math_number" id="?K7_9|kJ`05`}XpOZR%%">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_print" id="$du{s_jX1T:g=d*!#QfS">
+                <field name="PORTA">5</field>
+                <value name="TEXTO">
+                  <block type="text" id="2M]3{OBc7$*Cd:QNu%cm">
+                    <field name="TEXT">Ligado ha</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_set_cursor" id="DSBS3s.3p{^FwEoi1pAw">
+                    <field name="PORTA">5</field>
+                    <value name="COLUNA">
+                      <block type="math_number" id="@cIKY-x/U7nH]gW%tbF{">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <value name="LINHA">
+                      <block type="math_number" id="8W^lz_)Fln6C;iv2L^DN">
+                        <field name="NUM">3</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id="7_R)a;EV8}2L8MXr`}#0">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="text" id="xVY_2CzDfUAu|_v%r_P}">
+                            <field name="TEXT">Aperte</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set" id="Z`0:j!|dpvH6nNeH#,k2">
+                            <field name="VAR">b</field>
+                            <value name="VALUE">
+                              <block type="math_number" id="*iTYTMx4QtXYEBY$^;A4">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="controls_whileUntil" id="mSjQWKy8{K:0bpVn27zm">
+                                <field name="MODE">WHILE</field>
+                                <value name="BOOL">
+                                  <block type="logic_compare" id="bmp4GMP0GuWRR9Q$%io!">
+                                    <field name="OP">EQ</field>
+                                    <value name="A">
+                                      <block type="variables_get" id="h1/KLWVI]R%{1.WSZ,Ds">
+                                        <field name="VAR">b</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id="jV:KIu{-QT,D(DrZR{pY">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <statement name="DO">
+                                  <block type="brick_atualizabrick" id="pt$=-@HdNjZin}G_k,2B">
+                                    <next>
+                                      <block type="brick_tela_set_cursor" id="uZZRast/N2d-:A`ZU%?C">
+                                        <field name="PORTA">5</field>
+                                        <value name="COLUNA">
+                                          <block type="math_number" id="M=s8zk]Pf2Cxgmh;.W]H">
+                                            <field name="NUM">0</field>
+                                          </block>
+                                        </value>
+                                        <value name="LINHA">
+                                          <block type="math_number" id="J4?clCkU?JVBjia~*T/k">
+                                            <field name="NUM">1</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="brick_tela_print" id=")(_bibYd@S:`%S*$2-*$">
+                                            <field name="PORTA">5</field>
+                                            <value name="TEXTO">
+                                              <block type="math_arithmetic" id=":A3|7Q`?9}xA-a!RTH+e">
+                                                <field name="OP">DIVIDE</field>
+                                                <value name="A">
+                                                  <block type="millis" id="h$K!vyqVVH(1?uP#iQcM"></block>
+                                                </value>
+                                                <value name="B">
+                                                  <block type="math_number" id="kVA}HTkHpCx_G[duo+]S">
+                                                    <field name="NUM">1000</field>
+                                                  </block>
+                                                </value>
+                                              </block>
+                                            </value>
+                                            <next>
+                                              <block type="brick_tela_print" id=",Dm2`]]Z/o`KRxr6xCYl">
+                                                <field name="PORTA">5</field>
+                                                <value name="TEXTO">
+                                                  <block type="text" id="E]Z}*:q{X#Br4EcOlhda">
+                                                    <field name="TEXT"> s   </field>
+                                                  </block>
+                                                </value>
+                                                <next>
+                                                  <block type="controls_for" id="OhVj/Md`Gbvkpi7f(=.k">
+                                                    <field name="VAR">k</field>
+                                                    <value name="FROM">
+                                                      <block type="math_number" id="WcBj_|ONO!}t`Y[I?W9+">
+                                                        <field name="NUM">1</field>
+                                                      </block>
+                                                    </value>
+                                                    <value name="TO">
+                                                      <block type="math_number" id="7vsP5l0@0Q+yPs0Pl-ty">
+                                                        <field name="NUM">4</field>
+                                                      </block>
+                                                    </value>
+                                                    <value name="BY">
+                                                      <block type="math_number" id="#o`S+{k10R;2o+LaXEbG">
+                                                        <field name="NUM">1</field>
+                                                      </block>
+                                                    </value>
+                                                    <statement name="DO">
+                                                      <block type="controls_if" id="8zGhL+jLWYT1nggieI^0">
+                                                        <value name="IF0">
+                                                          <block type="brick_teclado_apertou" id="hO+~Q~3#VTU736Q*=1)P">
+                                                            <field name="PORTA">PORTA_I2C_3</field>
+                                                            <value name="BOTAO">
+                                                              <block type="variables_get" id="U#5RrESICy?2|.xO0O)g">
+                                                                <field name="VAR">k</field>
+                                                              </block>
+                                                            </value>
+                                                          </block>
+                                                        </value>
+                                                        <statement name="DO0">
+                                                          <block type="variables_set" id="Mna?6sa!9^sh.1V%:L*(">
+                                                            <field name="VAR">b</field>
+                                                            <value name="VALUE">
+                                                              <block type="variables_get" id="Rs,Pe4m@r5J@nKNXs(eZ">
+                                                                <field name="VAR">k</field>
+                                                              </block>
+                                                            </value>
+                                                          </block>
+                                                        </statement>
+                                                      </block>
+                                                    </statement>
+                                                  </block>
+                                                </next>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </statement>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="XU?Z$ThXdZcV6[/SUeaO" x="1923" y="495">
+    <field name="NAME">opcaoSobre</field>
+    <comment pinned="false" h="80" w="160">Descreva esta função...</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_fonte" id="B;{epO1eUKZei9#%[{3~">
+        <field name="PORTA">5</field>
+        <field name="TAMANHO">PEQUENA</field>
+        <next>
+          <block type="brick_tela_set_cursor" id="hRbLBhYYU8BhiJNF_qbF">
+            <field name="PORTA">5</field>
+            <value name="COLUNA">
+              <block type="math_number" id=")r{^/*Ytol-1gS+tp!g0">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <value name="LINHA">
+              <block type="math_number" id="L)46.h3Q~`FM:`ChJW6,">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_print" id="|{`6Q],g9]HY.Ljy!gOq">
+                <field name="PORTA">5</field>
+                <value name="TEXTO">
+                  <block type="text" id="b#z=DA9v].FKm*MTBljG">
+                    <field name="TEXT">Eu sou o Pacoca</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_set_cursor" id="8-ao7vN}F/mAK4-x,Aqq">
+                    <field name="PORTA">5</field>
+                    <value name="COLUNA">
+                      <block type="math_number" id="4GO`H)Shomy6Ce~B7ZHT">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <value name="LINHA">
+                      <block type="math_number" id="t7o!2GO}14M]W8znErpw">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id=".c`*{x|q$ST9V=,*W5kA">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="text" id="4jd.2-^yiKk7+npCP;5~">
+                            <field name="TEXT">Biblioteca</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_tela_set_cursor" id="Hb|i=Sk}Ciy.p_@E/ayH">
+                            <field name="PORTA">5</field>
+                            <value name="COLUNA">
+                              <block type="math_number" id="acGJ%P+J3tleL+wJl%R0">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <value name="LINHA">
+                              <block type="math_number" id="(+0/]p{FVYuekx6US@2r">
+                                <field name="NUM">3</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_tela_print" id="`{N::dc3^rP%5EKvzBj*">
+                                <field name="PORTA">5</field>
+                                <value name="TEXTO">
+                                  <block type="text" id="s^{i)*{*d:nQ=yD`ZP^i">
+                                    <field name="TEXT">brickSimples</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_tela_set_cursor" id="0tY^`8)C;{OS8Oc0*JcW">
+                                    <field name="PORTA">5</field>
+                                    <value name="COLUNA">
+                                      <block type="math_number" id="_]v[Df;=}H(opaw*)(PT">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                    <value name="LINHA">
+                                      <block type="math_number" id="O{9Jz7.@/jI.7h10mtH/">
+                                        <field name="NUM">7</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="brick_tela_print" id="L/]AhE_d:o-YerGi9ndp">
+                                        <field name="PORTA">5</field>
+                                        <value name="TEXTO">
+                                          <block type="text" id="@*@SwwVu_QeEHLtB=tee">
+                                            <field name="TEXT">Aperte um botao</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="procedures_callnoreturn" id="GKt*E3!;8n}6{P!Mj-x)">
+                                            <mutation name="esperaBotao"></mutation>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="NsZmpMaf(XWkfd,/K?%$" x="560" y="777">
+    <field name="NAME">moveSeta</field>
+    <comment pinned="false" h="80" w="260">So troca a seta de lugar: bem mais rapido que redesenhar tudo.</comment>
+    <statement name="STACK">
+      <block type="brick_tela_set_cursor" id="gqG?2XNN;+H$dLo8:o;]">
+        <field name="PORTA">5</field>
+        <value name="COLUNA">
+          <block type="math_number" id="a-cjB7UhT3.*eG,c;XE)">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <value name="LINHA">
+          <block type="variables_get" id=";|FqKxiT1_.Seh28tLh#">
+            <field name="VAR">anterior</field>
+          </block>
+        </value>
+        <next>
+          <block type="brick_tela_print" id="s[HH{^ExwU[$go_O|8a]">
+            <field name="PORTA">5</field>
+            <value name="TEXTO">
+              <block type="text" id="lN?:7]3e}~VvBM7|YL[8">
+                <field name="TEXT"> </field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_set_cursor" id="DGT|1@J%DctBmMu/TU=T">
+                <field name="PORTA">5</field>
+                <value name="COLUNA">
+                  <block type="math_number" id="]X7,#YhTB7A*{:gKNjvw">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <value name="LINHA">
+                  <block type="variables_get" id="hSQlXe2aywf*]T6=z.I:">
+                    <field name="VAR">opcao</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_print" id="98~[kUlDjN8v#6D@P-eM">
+                    <field name="PORTA">5</field>
+                    <value name="TEXTO">
+                      <block type="text" id=":BK8j[a1TZQ9b$FLgX=C">
+                        <field name="TEXT">&gt;</field>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="f?R93_xFjGkA2ieI,pvL" x="560" y="1124">
+    <field name="NAME">esperaBotao</field>
+    <comment pinned="false" h="80" w="260">Fica esperando ate algum botao ser apertado. Depois, b guarda qual foi (1 a 4).</comment>
+    <statement name="STACK">
+      <block type="variables_set" id="3tBkSnAE#!Wc|4L63rl5">
+        <field name="VAR">b</field>
+        <value name="VALUE">
+          <block type="math_number" id="(MM.+@cn-lV^:Lh?@}K}">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <next>
+          <block type="controls_whileUntil" id="EJ!a0zgP$y9CSBo.0D0(">
+            <field name="MODE">WHILE</field>
+            <value name="BOOL">
+              <block type="logic_compare" id="m`-UXOy*[yRA[atQ:y=C">
+                <field name="OP">EQ</field>
+                <value name="A">
+                  <block type="variables_get" id="g-r12t%fi9ZFB+frb}dN">
+                    <field name="VAR">b</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="/fWbdg7-Vj3`#}4}b8MU">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO">
+              <block type="brick_atualizabrick" id="*pk*pA+uMWEbBBWgKW,k">
+                <next>
+                  <block type="controls_for" id="J(:qcw4]mYe/gI,@oUly">
+                    <field name="VAR">k</field>
+                    <value name="FROM">
+                      <block type="math_number" id="k{5hm5U-8*]3uKkY#A7y">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                    <value name="TO">
+                      <block type="math_number" id="YW44/u,[*ku!}|^3=}V#">
+                        <field name="NUM">4</field>
+                      </block>
+                    </value>
+                    <value name="BY">
+                      <block type="math_number" id=";Wn-L~q5-7]~[]|*7Neq">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                    <statement name="DO">
+                      <block type="controls_if" id="(0?i[VcN^byuH]`K2/0g">
+                        <value name="IF0">
+                          <block type="brick_teclado_apertou" id="m;Cl*SA1J^?.uPNBBcm;">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <value name="BOTAO">
+                              <block type="variables_get" id="ep7{zkb;-Xf5Q#s~(hvu">
+                                <field name="VAR">k</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="variables_set" id="JWq%kE57]d@/fk1d4S4g">
+                            <field name="VAR">b</field>
+                            <value name="VALUE">
+                              <block type="variables_get" id="27pS`CW8S!6g*$D016h;">
+                                <field name="VAR">k</field>
+                              </block>
+                            </value>
+                          </block>
+                        </statement>
+                      </block>
+                    </statement>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

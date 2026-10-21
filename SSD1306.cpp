@@ -301,9 +301,13 @@ void SSD1306::clear(bool inverted)
   setCursor(0, 0);
 }
 
-void SSD1306::limpaBuffer(){
+//bufferLinha guarda o que já está desenhado na linha atual, para não redesenhar
+//letras iguais. Depois de apagar a tela, a linha é toda de espaços (' ').
+//Ao mudar de linha não sabemos o que tem lá, então usamos 0 (nenhuma letra é 0):
+//assim até um espaço é desenhado e apaga o que estava embaixo.
+void SSD1306::limpaBuffer(uint8_t valor){
   for(int8_t i = 0; i < TAMANHO_MAXIMO_COLUNAS; i++){
-    bufferLinha[i] = ' ';
+    bufferLinha[i] = valor;
   }
 }
 
@@ -318,8 +322,8 @@ void SSD1306::setCursor(uint8_t col, uint8_t row)
 {
   if ((col < _cols) && (row < _rows)){
     _c = col;
-    if(_r != row){
-      limpaBuffer();
+    if(_r != row * multiplicadorTamanhoFonte){ //_r guarda a linha em páginas de 8 pixels
+      limpaBuffer(0);
     }
     _r = row;
     _x = _c * (SSD1306_FONT_WIDTH + 1); // +1 for space between characters
@@ -362,7 +366,7 @@ inline size_t SSD1306::write(uint8_t value)
     _r += multiplicadorTamanhoFonte; //o _r sempre tem q olhar a linha como 8 pixels, devido a estrutura do display
     _x = DESLOCAMENTO_ESQUERDA;
     _c = 0;
-    limpaBuffer();
+    limpaBuffer(0);
   }
   else if (value == '\r'){
     for(uint8_t col = _c; col < this->_cols;col++){

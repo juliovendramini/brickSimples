@@ -1,0 +1,445 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id=":)mA_A97~1=|vyzP1ZAn" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="KS}:18446L(GP[rM+~nY">
+        <field name="TEXT">Aula 5 - Servo comandado pelo teclado (versao com voz)</field>
+        <next>
+          <block type="base_comment" id="vY4XtJ.UG4Rhfc+vhJ+u">
+            <field name="TEXT">Servo na S1, buzzer ou fone na S3 e teclado na I2C-3.</field>
+            <next>
+              <block type="base_comment" id="gi+@s1bpKdBBtW(#]w.W">
+                <field name="TEXT">O angulo e falado meio segundo depois do ultimo toque: enquanto fala, o servo fica sem pulso.</field>
+                <next>
+                  <block type="variables_set_init" id="N9$Yu;~8sTQ6/s2Av5fM">
+                    <field name="VAR">angulo</field>
+                    <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                    <value name="VALUE">
+                      <block type="math_number" id="(pz-YyzMk=-m$r~;]f^J">
+                        <field name="NUM">90</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set_init" id="eb/A$qD7EqM={!$*mGJ#">
+                        <field name="VAR">precisaFalar</field>
+                        <field name="VARIABLE_SETTYPE_TYPE">BOOLEAN</field>
+                        <value name="VALUE">
+                          <block type="logic_boolean" id="hDRq0EGHKRYTVV[XjQ~o">
+                            <field name="BOOL">FALSE</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set_init" id=":^a,2n~5Ggt`w25pZb$v">
+                            <field name="VAR">ultimoToque</field>
+                            <field name="VARIABLE_SETTYPE_TYPE">LARGE_NUMBER</field>
+                            <value name="VALUE">
+                              <block type="math_number" id="3Hj5r3Z`,Ry]=/nLN~Ap">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_servo_mover" id="{O9p+IKVFP,D/fA*78t^">
+                                <field name="PORTA">PORTA_SERVO_1</field>
+                                <value name="ANGULO">
+                                  <block type="variables_get" id="]a2#|=^D=-c6|Dg|n%yR">
+                                    <field name="VAR">angulo</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_espere" id="|+_OH!s8[[f@-Y]#4]Cf">
+                                    <value name="TEMPO">
+                                      <block type="math_number" id="r3YB3o%1V_Fkx6N~cF{Y">
+                                        <field name="NUM">500</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="procedures_callnoreturn" id="t3M0o!Xd.fBO3u)w:q8r">
+                                        <mutation name="falaAngulo"></mutation>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id="#3[@p8*!O~e^gyQ^+yXg">
+        <next>
+          <block type="controls_if" id="WR1=ad@W_6Ai!]A-tx1N">
+            <value name="IF0">
+              <block type="brick_teclado_apertou" id="CUo[f7HT.a(}M6TA$5B;">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <value name="BOTAO">
+                  <block type="math_number" id="4yy_Wd~Hr.}Sc!FO{g=M">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="variables_set" id="d~*[`q`;X)CSdu/FPWD?">
+                <field name="VAR">angulo</field>
+                <value name="VALUE">
+                  <block type="math_arithmetic" id=")4jE6m#,]]xny$3ph*AJ">
+                    <field name="OP">MINUS</field>
+                    <value name="A">
+                      <block type="variables_get" id="8nipAgSxYJGW){FVC`8b">
+                        <field name="VAR">angulo</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="IM,/tlWQ]bXgZh7xs]uI">
+                        <field name="NUM">10</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="procedures_callnoreturn" id="#!f%93xpl-e}D*sLjaON">
+                    <mutation name="atualizaServo"></mutation>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="7kB%je17O|Z`v`g_-2R;">
+                <value name="IF0">
+                  <block type="brick_teclado_apertou" id="M?Xa}ZEE8|6B=rx~+U~x">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <value name="BOTAO">
+                      <block type="math_number" id="/O$=Gl=YRxW}I6mkQsZp">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="math_change" id="SuL+oTmead2/2DaQ@,.%">
+                    <field name="VAR">angulo</field>
+                    <value name="DELTA">
+                      <block type="math_number" id="_Se/Tm*7iF}?PxH/TTU-">
+                        <field name="NUM">10</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="procedures_callnoreturn" id="~+iXbu-U.|v*X7U~1bJm">
+                        <mutation name="atualizaServo"></mutation>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id=")K#W3?(DcbCcY*-Sp%]y">
+                    <value name="IF0">
+                      <block type="brick_teclado_apertou" id="prr#**p9)~`Ls2q_H^Xp">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <value name="BOTAO">
+                          <block type="math_number" id="^;e(pa?[7sR1tX(HR2n:">
+                            <field name="NUM">3</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="variables_set" id="~[+1ejexTBiiY}ka5yE%">
+                        <field name="VAR">angulo</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="-P4^Gb(,S3=yi#6T[;KX">
+                            <field name="NUM">90</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="procedures_callnoreturn" id="njaVvCadg6sxB5d%C$bI">
+                            <mutation name="atualizaServo"></mutation>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="controls_if" id="7,DA}AMUQk_~*0OJzR,(">
+                        <value name="IF0">
+                          <block type="brick_teclado_apertou" id="T@cD;a33BO6`bk}fC8mb">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <value name="BOTAO">
+                              <block type="math_number" id="yZj.mMs$|yoy{@UdU;w0">
+                                <field name="NUM">4</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="variables_set" id="%sIbd=JYsIBc3^Uwf/Gx">
+                            <field name="VAR">angulo</field>
+                            <value name="VALUE">
+                              <block type="math_arithmetic" id="m$:ZVh1Kt-o,DM{GUNy/">
+                                <field name="OP">MULTIPLY</field>
+                                <value name="A">
+                                  <block type="math_arithmetic" id=";tB$0WYM,6cr_Wa}Q2EG">
+                                    <field name="OP">ADD</field>
+                                    <value name="A">
+                                      <block type="math_arithmetic" id="%TTsgE-7elpi*J5x=0F:">
+                                        <field name="OP">DIVIDE</field>
+                                        <value name="A">
+                                          <block type="variables_get" id=",|RHyCm}%9965Wrq41P]">
+                                            <field name="VAR">angulo</field>
+                                          </block>
+                                        </value>
+                                        <value name="B">
+                                          <block type="math_number" id="tNmYKl2,h(cQu=Y1AsKf">
+                                            <field name="NUM">45</field>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id="_9Ts|qO!9?#)=w;UKL8%">
+                                        <field name="NUM">1</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="U|Qv/{6mE{Jx1=N0q.jO">
+                                    <field name="NUM">45</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="controls_if" id="F1T6j(?sb$(PexV$TJ#7">
+                                <value name="IF0">
+                                  <block type="logic_compare" id="xQisN|CXD`BiX*XA$.2a">
+                                    <field name="OP">GT</field>
+                                    <value name="A">
+                                      <block type="variables_get" id="UX[R(T0g38]1]UfX~L-G">
+                                        <field name="VAR">angulo</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id="+#~S6Fy0-0,B!|~lmnE?">
+                                        <field name="NUM">180</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <statement name="DO0">
+                                  <block type="variables_set" id="mX#g63)n#$_%UWPs|QK-">
+                                    <field name="VAR">angulo</field>
+                                    <value name="VALUE">
+                                      <block type="math_number" id="c.Q.uv_U}Z/V#}ARl@zJ">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </statement>
+                                <next>
+                                  <block type="procedures_callnoreturn" id="=pHoB,1|6F9:Bb0g)a?z">
+                                    <mutation name="atualizaServo"></mutation>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </statement>
+                        <next>
+                          <block type="controls_if" id="mG%b.`:sft%?Y~R=C0Qj">
+                            <value name="IF0">
+                              <block type="logic_operation" id="L)tbB1igpRD}=Bo-;D//">
+                                <field name="OP">AND</field>
+                                <value name="A">
+                                  <block type="variables_get" id="/E|qO!`2f-+:7]#0gY!g">
+                                    <field name="VAR">precisaFalar</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="logic_compare" id="**`UT2{s=+0K^$UDhO^X">
+                                    <field name="OP">GT</field>
+                                    <value name="A">
+                                      <block type="math_arithmetic" id="%O]4C~FF/@{6CU|M5%W.">
+                                        <field name="OP">MINUS</field>
+                                        <value name="A">
+                                          <block type="millis" id="1HteK`@g=^ogmlrtHj^T"></block>
+                                        </value>
+                                        <value name="B">
+                                          <block type="variables_get" id="[rlZvK}bY0Ku5dY.dTYF">
+                                            <field name="VAR">ultimoToque</field>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id="_`8.Ft9FpaaUH~u68`|*">
+                                        <field name="NUM">500</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO0">
+                              <block type="variables_set" id="8R2ZLuxM13pEjQV@h-`@">
+                                <field name="VAR">precisaFalar</field>
+                                <value name="VALUE">
+                                  <block type="logic_boolean" id="TbWbnh]04Qs)].YsRars">
+                                    <field name="BOOL">FALSE</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="procedures_callnoreturn" id="B}PPjU``n;uP]fv)2Xvv">
+                                    <mutation name="falaAngulo"></mutation>
+                                  </block>
+                                </next>
+                              </block>
+                            </statement>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="@Zvk69oy#_.M*jdvdV|2" x="999" y="20">
+    <field name="NAME">falaAngulo</field>
+    <comment pinned="false" h="80" w="160">Descreva esta função...</comment>
+    <statement name="STACK">
+      <block type="brick_voz_falar_numero" id="}_b}eL|qFHeT^?/Lrj{w">
+        <field name="MODO">INICIAR</field>
+        <value name="NUMERO">
+          <block type="variables_get" id="KRd[95N8M6#5sI+M+_9F">
+            <field name="VAR">angulo</field>
+          </block>
+        </value>
+        <next>
+          <block type="brick_voz_falar_aula" id="6dY,/Pa2-iL?S/q$4WzA">
+            <field name="FALA">FALA_GRAUS</field>
+            <field name="MODO">FILA</field>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="VLcl*_,Y4Y1Sox/_w,)b" x="999" y="174">
+    <field name="NAME">atualizaServo</field>
+    <comment pinned="false" h="80" w="260">Cala a voz (voz e servo usam o mesmo Timer2), move o servo e marca que o angulo deve ser falado depois.</comment>
+    <statement name="STACK">
+      <block type="brick_voz_parar" id="LMhK?P0G%x_ki}aU5jA5">
+        <next>
+          <block type="controls_if" id=":5Z%4a%?H(G9}N*?EL3S">
+            <value name="IF0">
+              <block type="logic_compare" id="M}=G.VH*1A=7vLg=ctnI">
+                <field name="OP">LT</field>
+                <value name="A">
+                  <block type="variables_get" id="~r*f]q_{s.)p|=^(UmK_">
+                    <field name="VAR">angulo</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="T.A3ui(~xpo!x4?zlFcV">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="variables_set" id=")bXH|5r`adpCjpt,V}V0">
+                <field name="VAR">angulo</field>
+                <value name="VALUE">
+                  <block type="math_number" id="BW,gl~yo%C`7|%*54RWW">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_voz_falar_aula" id="*dqo:ae9x@-dsC]~q%V8">
+                    <field name="FALA">FALA_MINIMO</field>
+                    <field name="MODO">INICIAR</field>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="ximqBHdN=_b|cKB=*S:)">
+                <value name="IF0">
+                  <block type="logic_compare" id="}0h6s[Q7IxySPjLJbS4.">
+                    <field name="OP">GT</field>
+                    <value name="A">
+                      <block type="variables_get" id="1c*/@iL7is+r5[o:bIc|">
+                        <field name="VAR">angulo</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="CueKju=}|}PRBfRI+K]|">
+                        <field name="NUM">180</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="variables_set" id="Kd:e$YQ$W?GXOyzvd+fV">
+                    <field name="VAR">angulo</field>
+                    <value name="VALUE">
+                      <block type="math_number" id="]5je[0+yjgYdWH1WY8xz">
+                        <field name="NUM">180</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_voz_falar_aula" id="GUzFOg:Y[Q]VgFDV#=vQ">
+                        <field name="FALA">FALA_MAXIMO</field>
+                        <field name="MODO">INICIAR</field>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="brick_servo_mover" id="PFJP,F2^-*mrBvC-WLp|">
+                    <field name="PORTA">PORTA_SERVO_1</field>
+                    <value name="ANGULO">
+                      <block type="variables_get" id="Yp7v(mi]u1VkqWhazOBM">
+                        <field name="VAR">angulo</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set" id="wP7J1_;+9Afb2gYz61zg">
+                        <field name="VAR">precisaFalar</field>
+                        <value name="VALUE">
+                          <block type="logic_boolean" id="=U?EsNc5Ke`3[1FA)`qS">
+                            <field name="BOOL">TRUE</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set" id="LY-*YbDs[@#?NUtH}EM`">
+                            <field name="VAR">ultimoToque</field>
+                            <value name="VALUE">
+                              <block type="millis" id="JpP^vZHn^V}oxUriHN!:"></block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

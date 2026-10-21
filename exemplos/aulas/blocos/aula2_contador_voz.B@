@@ -1,0 +1,592 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id="8jvpn?)o+V7`F2m{oKq+" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="(%=y.`X0nJCj-_z=0]Af">
+        <field name="TEXT">Aula 2 - Contador: apertar e diferente de segurar (versao com voz)</field>
+        <next>
+          <block type="base_comment" id="hxd$pk.+JC/Y.cSNsTb=">
+            <field name="TEXT">Botao 1 diminui, 2 aumenta, 3 zera, 4 fala o binario.</field>
+            <next>
+              <block type="base_comment" id="J`25kbPKO?!~w$OX(8-%">
+                <field name="TEXT">Falar 'em segundo plano' para a fala anterior: apertando rapido, ele fala so o valor novo.</field>
+                <next>
+                  <block type="variables_set_init" id="s$8.g)uj6jb8{I8Fgj{i">
+                    <field name="VAR">contador</field>
+                    <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                    <value name="VALUE">
+                      <block type="math_number" id="c@h%hrOq;B3-SF+!L7QA">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set_init" id=";3Xf~F3B(^.q:@d98Ul1">
+                        <field name="VAR">peso</field>
+                        <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                        <value name="VALUE">
+                          <block type="math_number" id=":v139Ed=?;`pIy^8*udZ">
+                            <field name="NUM">128</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set_init" id=".Iu2-/-i-#C3OPoo:?+0">
+                            <field name="VAR">valorBit</field>
+                            <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                            <value name="VALUE">
+                              <block type="math_number" id=";CT84wT+Cv=7c)DCZ#+_">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="variables_set_init" id="z}[s,Tf91eVwa0P}Ii}H">
+                                <field name="VAR">comecou</field>
+                                <field name="VARIABLE_SETTYPE_TYPE">BOOLEAN</field>
+                                <value name="VALUE">
+                                  <block type="logic_boolean" id="k4=j/MGI?pf*=VY;y2|y">
+                                    <field name="BOOL">FALSE</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_voz_falar_aula" id="u{BOyiLHsw;OoDOoY0gU">
+                                    <field name="FALA">FALA_APERTE_UM_BOTAO</field>
+                                    <field name="MODO">ESPERAR</field>
+                                    <next>
+                                      <block type="procedures_callnoreturn" id="G.T}[lX7e|A|0c]gR#3C">
+                                        <mutation name="mostraContador"></mutation>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id="iCi~`CM%63`]91qd@[lP">
+        <next>
+          <block type="controls_if" id="[L,rn{Z[HE6X^D{$2#JO">
+            <value name="IF0">
+              <block type="brick_teclado_apertou" id="DH_t!Gw0X56f;Hq.D}w(">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <value name="BOTAO">
+                  <block type="math_number" id="5Ar{0$yk%k0hjEiZ)=-O">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="controls_if" id="-Rj7~|p`Ui6_os;8dU,8">
+                <mutation else="1"></mutation>
+                <value name="IF0">
+                  <block type="logic_compare" id="Y/{t6JBrUVw~s[[w53lt">
+                    <field name="OP">GT</field>
+                    <value name="A">
+                      <block type="variables_get" id="zVza~3vt2U:%=094T^]i">
+                        <field name="VAR">contador</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="fp[^*QR[bynI16O%hQEj">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="variables_set" id=")~hYX9i/.@iZ0Yo05vO3">
+                    <field name="VAR">contador</field>
+                    <value name="VALUE">
+                      <block type="math_arithmetic" id="1xDAq]NM3;4qe3zgOL~I">
+                        <field name="OP">MINUS</field>
+                        <value name="A">
+                          <block type="variables_get" id="O6ai;=`~:eKUjLR7B=F(">
+                            <field name="VAR">contador</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="^puFTL4I%#)B46Co3yU}">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="procedures_callnoreturn" id="wL1^`Vo,,[WIz]=Nw)UE">
+                        <mutation name="mostraContador"></mutation>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <statement name="ELSE">
+                  <block type="brick_voz_falar_aula" id="%d;zdh5MjZw)b}EYfqI2">
+                    <field name="FALA">FALA_MINIMO</field>
+                    <field name="MODO">INICIAR</field>
+                  </block>
+                </statement>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="Fn-{^C:5^K383XgrKGwm">
+                <value name="IF0">
+                  <block type="brick_teclado_apertou" id="Rx+LE5;;nXc]9Mm_YeTf">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <value name="BOTAO">
+                      <block type="math_number" id="u#.l^#2yQp93s;LPMr,9">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="controls_if" id="cRP8U/50N,!Q~PlY4[Ih">
+                    <mutation else="1"></mutation>
+                    <value name="IF0">
+                      <block type="logic_compare" id="/aP2Mn~SH7Q?m+Qb/@Yt">
+                        <field name="OP">LT</field>
+                        <value name="A">
+                          <block type="variables_get" id="bHwL){(7rn`,WenYcv*X">
+                            <field name="VAR">contador</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="M$fVbFv[s_o0*5bOIR$q">
+                            <field name="NUM">255</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="math_change" id="T|F_9_50sKDNP6X{H;kc">
+                        <field name="VAR">contador</field>
+                        <value name="DELTA">
+                          <block type="math_number" id=";3.Xb/?bM2!|=:]i`yl2">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="procedures_callnoreturn" id="|GQ1ym34Y^z^-xjE,jkk">
+                            <mutation name="mostraContador"></mutation>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <statement name="ELSE">
+                      <block type="brick_voz_falar_aula" id="`G%WUrs-),Yp5?_`oLo[">
+                        <field name="FALA">FALA_MAXIMO</field>
+                        <field name="MODO">INICIAR</field>
+                      </block>
+                    </statement>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="aP!|09CZDd;_*=KR}V+T">
+                    <value name="IF0">
+                      <block type="brick_teclado_apertou" id="Cz4~aaTh}4-Rku{Gy:c[">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <value name="BOTAO">
+                          <block type="math_number" id="]Pr0`(D7Z8%$A2)k]:)U">
+                            <field name="NUM">3</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="variables_set" id="jgpcuq$t^h]mT(LO*wWE">
+                        <field name="VAR">contador</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="K8S1R^2z=`MXv+AR2ItX">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="procedures_callnoreturn" id="!~6X(}Z~#;ZK.ZJp/9w5">
+                            <mutation name="mostraContador"></mutation>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="controls_if" id="FQrumke}p/CJ:][5V(Ra">
+                        <value name="IF0">
+                          <block type="brick_teclado_apertou" id="@`Z]2XQ#5n#6xb/*q3ri">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <value name="BOTAO">
+                              <block type="math_number" id="99`kga1hH7u@sD@!`nGD">
+                                <field name="NUM">4</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="procedures_callnoreturn" id="(0M[C!1zz+SKqs2z{{IF">
+                            <mutation name="falaBinario"></mutation>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="JbbTq%)8Jw,HQ~g-JPGE" x="644" y="20">
+    <field name="NAME">mostraContador</field>
+    <comment pinned="false" h="80" w="260">Fala o contador (para o que estava falando) e mostra os 4 bits mais baixos nos LEDs.</comment>
+    <statement name="STACK">
+      <block type="brick_voz_falar_numero" id="L$qcXsr8egJRt:u1T7R2">
+        <field name="MODO">INICIAR</field>
+        <value name="NUMERO">
+          <block type="variables_get" id="$yT5gq*XLw0(@f5rp8oq">
+            <field name="VAR">contador</field>
+          </block>
+        </value>
+        <next>
+          <block type="brick_teclado_led_valor" id=";}0|j.O#YT[,tM6f!#^5">
+            <field name="PORTA">PORTA_I2C_3</field>
+            <value name="LED">
+              <block type="math_number" id="A-_nN=NFt8MJD75y[Ysu">
+                <field name="NUM">4</field>
+              </block>
+            </value>
+            <value name="ESTADO">
+              <block type="logic_compare" id="Y?F!dm;rKLRtaDOz{1n]">
+                <field name="OP">EQ</field>
+                <value name="A">
+                  <block type="math_modulo" id="(|3nt`%XQtvd3432_}a6">
+                    <value name="DIVIDEND">
+                      <block type="math_arithmetic" id="f_@R!BbOMQ2Gx]We^6R;">
+                        <field name="OP">DIVIDE</field>
+                        <value name="A">
+                          <block type="variables_get" id="3s_zu(?{/l$AT`^;Y=p*">
+                            <field name="VAR">contador</field>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="MR__p)01~K+FH8}_A[hV">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <value name="DIVISOR">
+                      <block type="math_number" id="ke)C(A5;Z(Q[Mwlg^p8%">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="}j7ka4E#sn;T30KmKX1-">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="brick_teclado_led_valor" id="B9!~ak3Or3Ja3{-^{?XG">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <value name="LED">
+                  <block type="math_number" id="o},7HrfJIw/Eb@p|s+o5">
+                    <field name="NUM">3</field>
+                  </block>
+                </value>
+                <value name="ESTADO">
+                  <block type="logic_compare" id="Ye6F:s9yON0v9p4gfiFR">
+                    <field name="OP">EQ</field>
+                    <value name="A">
+                      <block type="math_modulo" id="sctxHH10J%Fcadk:+a`9">
+                        <value name="DIVIDEND">
+                          <block type="math_arithmetic" id="a_(U_GE`Vnj-)-;];k,n">
+                            <field name="OP">DIVIDE</field>
+                            <value name="A">
+                              <block type="variables_get" id="lxu`i{NH%IgMOaa)7xU4">
+                                <field name="VAR">contador</field>
+                              </block>
+                            </value>
+                            <value name="B">
+                              <block type="math_number" id="GuTj%kXnxhs*4))Sbj9T">
+                                <field name="NUM">2</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <value name="DIVISOR">
+                          <block type="math_number" id="pwc+EL?yJ_a!5HLxI~kL">
+                            <field name="NUM">2</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="bJX6l$#wQ`XSS3w,sv!s">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_teclado_led_valor" id="%B}Jh!=.rAGAMK`$$kVg">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <value name="LED">
+                      <block type="math_number" id="|qN7?NMyqfDyiHgJ2{Fb">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                    <value name="ESTADO">
+                      <block type="logic_compare" id="GD,tMuk9CG9AnGJ|dfva">
+                        <field name="OP">EQ</field>
+                        <value name="A">
+                          <block type="math_modulo" id=".j|}.Ejb*]FYeZ14;s=Z">
+                            <value name="DIVIDEND">
+                              <block type="math_arithmetic" id="xew{9P5bE70dH/M@etkN">
+                                <field name="OP">DIVIDE</field>
+                                <value name="A">
+                                  <block type="variables_get" id="s5%/Kro^8$n$0J#N83Q*">
+                                    <field name="VAR">contador</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="hU-U]Rdy-MN)s|3[@POv">
+                                    <field name="NUM">4</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <value name="DIVISOR">
+                              <block type="math_number" id="p@9Bw(:2ruamLOt;YKpg">
+                                <field name="NUM">2</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <value name="B">
+                          <block type="math_number" id="QVNAAf7m[TvHZ%({(5#%">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_teclado_led_valor" id="fq,wFsIq[DKQzYzP0Klw">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <value name="LED">
+                          <block type="math_number" id="S{]UG63T/:g6v:mW9x@e">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                        <value name="ESTADO">
+                          <block type="logic_compare" id="qr~F]Wvg.nkMp)0d,Dan">
+                            <field name="OP">EQ</field>
+                            <value name="A">
+                              <block type="math_modulo" id="II*iAUWZ0xF-T*$iM}2J">
+                                <value name="DIVIDEND">
+                                  <block type="math_arithmetic" id="}@PJ:/S}~D{6C;=qP`0L">
+                                    <field name="OP">DIVIDE</field>
+                                    <value name="A">
+                                      <block type="variables_get" id="?s8+ca!Y8|;+/qXuSl(q">
+                                        <field name="VAR">contador</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id=")tl@dMN+rh/?%(pK4t5V">
+                                        <field name="NUM">8</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <value name="DIVISOR">
+                                  <block type="math_number" id="f3gk;/17=cSzQxuY%N^v">
+                                    <field name="NUM">2</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <value name="B">
+                              <block type="math_number" id="7]krmr*j8WedCJjzL#xD">
+                                <field name="NUM">1</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="nl4uj!{Yg~!tswu3V3!v" x="644" y="428">
+    <field name="NAME">falaBinario</field>
+    <comment pinned="false" h="80" w="260">Fala o numero em binario, do bit que vale 128 ate o que vale 1, pulando os zeros da frente (5 = um, zero, um).</comment>
+    <statement name="STACK">
+      <block type="brick_voz_parar" id="P`o7=l(AAX#TI*7bn%:)">
+        <next>
+          <block type="variables_set" id="e9M1n)E{YzN|*Y,Xw%w:">
+            <field name="VAR">peso</field>
+            <value name="VALUE">
+              <block type="math_number" id="oeH69[|U#0E;F%z|ZVq7">
+                <field name="NUM">128</field>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id="/VE[tX$_dV+Ki6w@Dv6I">
+                <field name="VAR">comecou</field>
+                <value name="VALUE">
+                  <block type="logic_boolean" id="M8{)@S`:SnTCcG$Fjd-p">
+                    <field name="BOOL">FALSE</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="controls_repeat_ext" id="SlxX-l2]ZiRr@k`wV#`c">
+                    <value name="TIMES">
+                      <block type="math_number" id="e,8ba_kH0`iNJS1{e*6A">
+                        <field name="NUM">8</field>
+                      </block>
+                    </value>
+                    <statement name="DO">
+                      <block type="variables_set" id="3N3tUtU)^DlF=7I]qSAR">
+                        <field name="VAR">valorBit</field>
+                        <value name="VALUE">
+                          <block type="math_modulo" id="bItSs/ZJ+yqg`JA#7Ji.">
+                            <value name="DIVIDEND">
+                              <block type="math_arithmetic" id="ZS6BPyLMOz,Uc!F9BXZM">
+                                <field name="OP">DIVIDE</field>
+                                <value name="A">
+                                  <block type="variables_get" id="r~`k*#|8=8n$q$qQ~i,|">
+                                    <field name="VAR">contador</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="variables_get" id="bJ#0D|49R+XhxlJvF7`D">
+                                    <field name="VAR">peso</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <value name="DIVISOR">
+                              <block type="math_number" id="Sl1[7qjJROPm!]40P9a0">
+                                <field name="NUM">2</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="controls_if" id="a15fch*DCK?G[D`8%S0f">
+                            <value name="IF0">
+                              <block type="logic_compare" id="V:|4,v?w{fK47Bs6-rb7">
+                                <field name="OP">EQ</field>
+                                <value name="A">
+                                  <block type="variables_get" id="b6ADO0^}8$kp.1NktJ,u">
+                                    <field name="VAR">valorBit</field>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="okOyDVp|JC${]U1jJ1V%">
+                                    <field name="NUM">1</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <statement name="DO0">
+                              <block type="variables_set" id="de4/44fXpQJzi(bE~$90">
+                                <field name="VAR">comecou</field>
+                                <value name="VALUE">
+                                  <block type="logic_boolean" id="9b$p%)qvzTA;`,Czlk_m">
+                                    <field name="BOOL">TRUE</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </statement>
+                            <next>
+                              <block type="controls_if" id="iCg2H[_0)wlZI3wBl2pW">
+                                <value name="IF0">
+                                  <block type="logic_operation" id="A]u!db*9|$6Bl8Au?ZQe">
+                                    <field name="OP">OR</field>
+                                    <value name="A">
+                                      <block type="variables_get" id="b=oH8Y6vN`5.$oQ53:zs">
+                                        <field name="VAR">comecou</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="logic_compare" id="{~1g7E)/0$JW}H|8yzrD">
+                                        <field name="OP">EQ</field>
+                                        <value name="A">
+                                          <block type="variables_get" id="E@b@Uf7Z+06+n;ThNiox">
+                                            <field name="VAR">peso</field>
+                                          </block>
+                                        </value>
+                                        <value name="B">
+                                          <block type="math_number" id="VwQ{~A]dcnlX?=u;!_3M">
+                                            <field name="NUM">1</field>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <statement name="DO0">
+                                  <block type="brick_voz_falar_numero" id="zc|1Sxv9*mEG8;ho,BMc">
+                                    <field name="MODO">FILA</field>
+                                    <value name="NUMERO">
+                                      <block type="variables_get" id=",H,2^Ib7cq2u*Cd/]URf">
+                                        <field name="VAR">valorBit</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </statement>
+                                <next>
+                                  <block type="variables_set" id="UjACHvp7-PX]%PImR06K">
+                                    <field name="VAR">peso</field>
+                                    <value name="VALUE">
+                                      <block type="math_arithmetic" id="1J}ReY`Qv@ef%_/9?Sni">
+                                        <field name="OP">DIVIDE</field>
+                                        <value name="A">
+                                          <block type="variables_get" id="$`]V4s-,nK?j8%J;v9Ix">
+                                            <field name="VAR">peso</field>
+                                          </block>
+                                        </value>
+                                        <value name="B">
+                                          <block type="math_number" id="#_zH,^J+`Bn;HXuW6oGc">
+                                            <field name="NUM">2</field>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

@@ -17,6 +17,7 @@ Formato do frases.txt (UTF-8), uma fala por linha:
 
 Saídas:
     ../falas.h                  vetores PROGMEM FALA_<NOME> para o sketch
+                                (outro nome com -o, ex.: -o ../falasAulas.h)
     previas/<NOME>.wav          o que o AVR vai gerar, amostra por amostra
     previas/<NOME>_buzzer.wav   o mesmo passando por um modelo de buzzer piezo
     previas/<NOME>_tts.wav      a saída da TTS, antes do LPC
@@ -212,12 +213,14 @@ def main():
     voz = args.voz or ("pt_BR-faber-medium" if args.motor == "piper" else "pt-br")
     desc = (f"motor {args.motor}, voz {os.path.basename(voz)}, "
             f"velocidade {args.velocidade}")
-    cab = (f"/*\n * falas.h - gerado por ferramentas/gerar_falas.py em {agora}. Não edite à mão.\n"
+    arquivo = os.path.basename(args.saida)
+    guarda = nome_c(os.path.splitext(arquivo)[0]) + "_H"      # falas.h -> FALAS_H
+    cab = (f"/*\n * {arquivo} - gerado por ferramentas/gerar_falas.py em {agora}. Não edite à mão.\n"
            f" * {desc}\n * {len(frases)} falas, {total} bytes de flash no total.\n"
            f" * Taxa de amostragem no AVR: {L.TAXA:.2f} Hz (Timer2, 16 MHz).\n */\n"
-           "#ifndef FALAS_H\n#define FALAS_H\n\n#include <avr/pgmspace.h>\n\n")
+           f"#ifndef {guarda}\n#define {guarda}\n\n#include <avr/pgmspace.h>\n\n")
     with open(args.saida, "w", encoding="utf-8", newline="\n") as f:
-        f.write(cab + "\n".join(blocos) + "\n#endif /* FALAS_H */\n")
+        f.write(cab + "\n".join(blocos) + f"\n#endif /* {guarda} */\n")
     print(f"\n{args.saida}: {len(frases)} falas, {total} bytes")
     if not args.sem_previas:
         print(f"prévias em {args.previas}")

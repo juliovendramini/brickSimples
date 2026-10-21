@@ -1,0 +1,45 @@
+# Palavras usadas por voz.falarNumero() (SUPORTE_VOZ_NUMEROS).
+# Gere com:  python gerar_falas.py numeros.txt -o ../falasNumeros.h --previas previas/numeros
+# Não mude os NOMES (o voz.h usa todos). Pode mudar o texto ou trocar por gravação (@arquivo.wav).
+# NUM_E é o "e" de "vinte e um": escrito "i" para a TTS não falar a letra "é".
+NUM_0: zero.
+NUM_1: um.
+NUM_2: dois.
+NUM_3: três.
+NUM_4: quatro.
+NUM_5: cinco.
+NUM_6: seis.
+NUM_7: sete.
+NUM_8: oito.
+NUM_9: nove.
+NUM_10: dez.
+NUM_11: onze.
+NUM_12: doze.
+NUM_13: treze.
+NUM_14: catorze.
+NUM_15: quinze.
+NUM_16: dezesseis.
+NUM_17: dezessete.
+NUM_18: dezoito.
+NUM_19: dezenove.
+NUM_20: vinte.
+NUM_30: trinta.
+NUM_40: quarenta.
+NUM_50: cinquenta.
+NUM_60: sessenta.
+NUM_70: setenta.
+NUM_80: oitenta.
+NUM_90: noventa.
+NUM_100: cem.
+NUM_CENTO: cento.
+NUM_200: duzentos.
+NUM_300: trezentos.
+NUM_400: quatrocentos.
+NUM_500: quinhentos.
+NUM_600: seiscentos.
+NUM_700: setecentos.
+NUM_800: oitocentos.
+NUM_900: novecentos.
+NUM_E: i.
+NUM_MENOS: menos.
+NUM_MIL: mil.

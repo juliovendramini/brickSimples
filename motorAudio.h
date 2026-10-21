@@ -142,7 +142,19 @@ static void audio_assume() {
 #define VOZ_TAM_BUF 16                 /* amostras já calculadas (potência de 2) */
 #define VOZ_MASC   (VOZ_TAM_BUF - 1)
 
-enum { VOZ_PARADA = 0, VOZ_SUBINDO, VOZ_FALANDO, VOZ_DESCENDO, VOZ_TERMINADA };
+enum { VOZ_PARADA = 0, VOZ_SUBINDO, VOZ_FALANDO, VOZ_DESCENDO, VOZ_TERMINADA, VOZ_PAUSA };
+
+/* Fila de falas da flash que tocam em seguida, sem soltar o Timer2 entre elas
+ * (voz.enfileirar(), voz.falarNumero()). Só o programa escreve (voz_filaEscreve)
+ * e só a interrupção lê (voz_filaLe), então não precisa desligar interrupções. */
+#ifndef VOZ_TAM_FILA
+#define VOZ_TAM_FILA 16                /* potência de 2; cabe 15 falas esperando */
+#endif
+#define VOZ_FILA_MASC (VOZ_TAM_FILA - 1)
+static const uint8_t *voz_fila[VOZ_TAM_FILA];
+static volatile uint8_t voz_filaLe = 0, voz_filaEscreve = 0;
+static uint16_t voz_pausa = 0;
+static uint16_t voz_pausaAmostras = 392;     /* silêncio entre falas da fila: ~50 ms */
 
 static LpcDecodificador voz_dec;
 static uint8_t voz_buf[VOZ_TAM_BUF];
@@ -166,9 +178,24 @@ static uint8_t voz_amostra() {
         return voz_rampa;
     case VOZ_FALANDO: {
         int16_t a = lpc_proximaAmostra(&voz_dec);
-        if (!voz_dec.ativo) { voz_estado = VOZ_DESCENDO; return 128; }
+        if (!voz_dec.ativo) {
+            if (voz_filaLe != voz_filaEscreve) {       /* tem mais fala na fila */
+                voz_pausa = voz_pausaAmostras;
+                voz_estado = VOZ_PAUSA;
+            } else voz_estado = VOZ_DESCENDO;
+            return 128;
+        }
         return lpc_paraNivel(a, voz_ganho);
     }
+    case VOZ_PAUSA:                    /* silêncio curto e começa a próxima fala da fila */
+        if (voz_pausa) voz_pausa--;
+        else {
+            uint8_t l = voz_filaLe;
+            lpc_iniciaFlash(&voz_dec, voz_fila[l]);
+            voz_filaLe = (uint8_t)((l + 1) & VOZ_FILA_MASC);
+            voz_estado = VOZ_FALANDO;
+        }
+        return 128;
     case VOZ_DESCENDO:
         if (voz_rampa > 2) voz_rampa -= 2;
         else { voz_rampa = 0; voz_estado = VOZ_TERMINADA; }

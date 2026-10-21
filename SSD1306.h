@@ -137,7 +137,7 @@ class SSD1306 : public Print
     void begin();
     void init();
     void clear(bool inverted = false);
-    void limpaBuffer();
+    void limpaBuffer(uint8_t valor = ' ');   /* 0 = linha desconhecida (redesenha tudo) */
     void white();
     void home();
 

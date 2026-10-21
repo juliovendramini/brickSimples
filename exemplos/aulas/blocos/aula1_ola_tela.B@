@@ -1,0 +1,370 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id="D(+j_/P[9$+31#abf#A!" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="wMsp.]kk|6,,{IB}B)GR">
+        <field name="TEXT">Aula 1 - Ola, Pacoca! (versao com tela)</field>
+        <next>
+          <block type="base_comment" id="n0Avc+r8`v5-CM0+oo?H">
+            <field name="TEXT">Tela na porta I2C-5 e teclado na porta I2C-3.</field>
+            <next>
+              <block type="base_comment" id="]ckZ6g1yH~T08_-f(e7F">
+                <field name="TEXT">Enquanto um botao estiver apertado, acende o LED dele e escreve o numero.</field>
+                <next>
+                  <block type="brick_tela_set_fonte" id="yo@G{6%p|b9l.4?^CFnF">
+                    <field name="PORTA">5</field>
+                    <field name="TAMANHO">MEDIA</field>
+                    <next>
+                      <block type="brick_tela_set_cursor" id="u1)0{xeDPb)%|49bAy:]">
+                        <field name="PORTA">5</field>
+                        <value name="COLUNA">
+                          <block type="math_number" id="O9p3G2l=oM+NGwutxXC0">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <value name="LINHA">
+                          <block type="math_number" id="R+PB6/]UlX]1_,Vj.(3!">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_tela_print" id="nn6(}~Jw?;[5iu,+5r;-">
+                            <field name="PORTA">5</field>
+                            <value name="TEXTO">
+                              <block type="text" id="*uvWl[H`UO=z5C.H/su:">
+                                <field name="TEXT">Ola!</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_tela_set_cursor" id="-S*uv}d9sX)rA=JTu+Xt">
+                                <field name="PORTA">5</field>
+                                <value name="COLUNA">
+                                  <block type="math_number" id="ZY;gM2]8^Yj4o_[,d`(T">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <value name="LINHA">
+                                  <block type="math_number" id="Z#QbdJ4fxjX9LwmOls:[">
+                                    <field name="NUM">1</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_tela_print" id="dq`fi{[:3Mk9Kf:_ULfK">
+                                    <field name="PORTA">5</field>
+                                    <value name="TEXTO">
+                                      <block type="text" id="Vd^j@1.wxodbbF:N]-?3">
+                                        <field name="TEXT">Eu sou o</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="brick_tela_set_cursor" id="f{;wl0tdxfoX,8*y6aoz">
+                                        <field name="PORTA">5</field>
+                                        <value name="COLUNA">
+                                          <block type="math_number" id="*rT^2wS?`dj67eByL@tu">
+                                            <field name="NUM">0</field>
+                                          </block>
+                                        </value>
+                                        <value name="LINHA">
+                                          <block type="math_number" id=".TUkBM9`YsF+Zumt!0d5">
+                                            <field name="NUM">2</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="brick_tela_print" id="Vg|:JPyde|CfsP6#~8mR">
+                                            <field name="PORTA">5</field>
+                                            <value name="TEXTO">
+                                              <block type="text" id="T+UWlAUgHPFm@=GXo?8q">
+                                                <field name="TEXT">Pacoca</field>
+                                              </block>
+                                            </value>
+                                            <next>
+                                              <block type="brick_espere" id="~`!Delx0)Rg1q*p36Sb,">
+                                                <value name="TEMPO">
+                                                  <block type="math_number" id="H3%$rq_W.C(g[gmOkfCL">
+                                                    <field name="NUM">2000</field>
+                                                  </block>
+                                                </value>
+                                                <next>
+                                                  <block type="brick_tela_clear" id="frRx:K1(ki5+tN(}0N1|">
+                                                    <field name="PORTA">5</field>
+                                                    <next>
+                                                      <block type="brick_tela_set_cursor" id="IurWm!jBet~M19By7LWC">
+                                                        <field name="PORTA">5</field>
+                                                        <value name="COLUNA">
+                                                          <block type="math_number" id="n[hA)A0BHOh;kP[bD%M[">
+                                                            <field name="NUM">0</field>
+                                                          </block>
+                                                        </value>
+                                                        <value name="LINHA">
+                                                          <block type="math_number" id="c09@klSuvV*8DFhiQ4aH">
+                                                            <field name="NUM">0</field>
+                                                          </block>
+                                                        </value>
+                                                        <next>
+                                                          <block type="brick_tela_print" id="}R9Rw7#X8/-S!O*rUQ+)">
+                                                            <field name="PORTA">5</field>
+                                                            <value name="TEXTO">
+                                                              <block type="text" id="Ffs3s``jD_]hq8LK:(2~">
+                                                                <field name="TEXT">Aperte um</field>
+                                                              </block>
+                                                            </value>
+                                                            <next>
+                                                              <block type="brick_tela_set_cursor" id="O/JBAM~5_A}.}WyGpW|5">
+                                                                <field name="PORTA">5</field>
+                                                                <value name="COLUNA">
+                                                                  <block type="math_number" id="t:Z|q6,brUbc`n@vNn+G">
+                                                                    <field name="NUM">0</field>
+                                                                  </block>
+                                                                </value>
+                                                                <value name="LINHA">
+                                                                  <block type="math_number" id="{v5VK3zp1(^!vJ+@Yv-H">
+                                                                    <field name="NUM">1</field>
+                                                                  </block>
+                                                                </value>
+                                                                <next>
+                                                                  <block type="brick_tela_print" id="4ktP^^fgNtV{^(6|j+I7">
+                                                                    <field name="PORTA">5</field>
+                                                                    <value name="TEXTO">
+                                                                      <block type="text" id="S??VqrBwX$NFy+I9a*Ll">
+                                                                        <field name="TEXT">botao</field>
+                                                                      </block>
+                                                                    </value>
+                                                                  </block>
+                                                                </next>
+                                                              </block>
+                                                            </next>
+                                                          </block>
+                                                        </next>
+                                                      </block>
+                                                    </next>
+                                                  </block>
+                                                </next>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id="S9Rlf|rqODv3a2Rv)(yf">
+        <next>
+          <block type="controls_if" id="G(c0I!.af|4($f+6|dS/">
+            <mutation else="1"></mutation>
+            <value name="IF0">
+              <block type="brick_teclado_le_botao" id="dy5E3/V!}j0iNFR%#DO#">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <field name="BOTAO">1</field>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="brick_teclado_altera_led" id=")N0;LYB-dSYNiss9o8d4">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <field name="LED">1</field>
+                <field name="ESTADO">TRUE</field>
+                <next>
+                  <block type="brick_tela_set_cursor" id="$zq8@CdtZ?rPj{}}!1ga">
+                    <field name="PORTA">5</field>
+                    <value name="COLUNA">
+                      <block type="math_number" id="RKK,gz[apbkv@{;PnPpO">
+                        <field name="NUM">0</field>
+                      </block>
+                    </value>
+                    <value name="LINHA">
+                      <block type="math_number" id="l^D5h:xL/?Q_Gx91lc;B">
+                        <field name="NUM">3</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id="$^ljp7Z-tGqV7fZe#Xuv">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="text" id="bM%a#5:SAd9NxrG@Jw`J">
+                            <field name="TEXT">Botao 1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <statement name="ELSE">
+              <block type="brick_teclado_altera_led" id="wgsfIst.Rf6Eeg4$x{cz">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <field name="LED">1</field>
+                <field name="ESTADO">FALSE</field>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="$b{^p0T662*v!Vq=|ikm">
+                <mutation else="1"></mutation>
+                <value name="IF0">
+                  <block type="brick_teclado_le_botao" id="Z9#]Qfm~8|^wc+e/~Dj1">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <field name="BOTAO">2</field>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="brick_teclado_altera_led" id="fFd[KY%.!kNy`R@lgl3y">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <field name="LED">2</field>
+                    <field name="ESTADO">TRUE</field>
+                    <next>
+                      <block type="brick_tela_set_cursor" id="xXVQ%80NF~;?D+?T_!6s">
+                        <field name="PORTA">5</field>
+                        <value name="COLUNA">
+                          <block type="math_number" id="8?L1k[Qj4oRAu*fHs)M.">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <value name="LINHA">
+                          <block type="math_number" id="*5h#eBFtHPxrITPKaijS">
+                            <field name="NUM">3</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_tela_print" id="3ebsg^L~GuL.4AR]K1fT">
+                            <field name="PORTA">5</field>
+                            <value name="TEXTO">
+                              <block type="text" id="DXXd!8I0BB;FQeC9|^J)">
+                                <field name="TEXT">Botao 2</field>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <statement name="ELSE">
+                  <block type="brick_teclado_altera_led" id=":xK^TJ7_wC7X,{(wZEmH">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <field name="LED">2</field>
+                    <field name="ESTADO">FALSE</field>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="R14gW`)rx,`8imbKE+)X">
+                    <mutation else="1"></mutation>
+                    <value name="IF0">
+                      <block type="brick_teclado_le_botao" id="`lOSjbq?=D?$WGLxRk!5">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <field name="BOTAO">3</field>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="brick_teclado_altera_led" id="6Q(2=PSqt]@8:(38K+@t">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <field name="LED">3</field>
+                        <field name="ESTADO">TRUE</field>
+                        <next>
+                          <block type="brick_tela_set_cursor" id="FYr6T|X*2rWH/.^syX+3">
+                            <field name="PORTA">5</field>
+                            <value name="COLUNA">
+                              <block type="math_number" id="RZ371M^P@R)s9K6kZ%`*">
+                                <field name="NUM">0</field>
+                              </block>
+                            </value>
+                            <value name="LINHA">
+                              <block type="math_number" id="Ww-tUeXVIYkg`RIbYLrg">
+                                <field name="NUM">3</field>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_tela_print" id="lZE`.WoHp[q7K=ggeLd%">
+                                <field name="PORTA">5</field>
+                                <value name="TEXTO">
+                                  <block type="text" id="cl^!HC/4-$;`ZR)$5%Mz">
+                                    <field name="TEXT">Botao 3</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <statement name="ELSE">
+                      <block type="brick_teclado_altera_led" id="Qi6ONuU1|utIjq8ls=86">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <field name="LED">3</field>
+                        <field name="ESTADO">FALSE</field>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="controls_if" id="Sl{=wP7Y5;z}9`R(K*iv">
+                        <mutation else="1"></mutation>
+                        <value name="IF0">
+                          <block type="brick_teclado_le_botao" id="KH/65//4tWWH:{_-)IyK">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <field name="BOTAO">4</field>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="brick_teclado_altera_led" id="uviac_6zl)btO0oFCDJv">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <field name="LED">4</field>
+                            <field name="ESTADO">TRUE</field>
+                            <next>
+                              <block type="brick_tela_set_cursor" id="(xKd8/f*mxp}o^7/^8Su">
+                                <field name="PORTA">5</field>
+                                <value name="COLUNA">
+                                  <block type="math_number" id="%^K)He43h=fz~)23SjA#">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <value name="LINHA">
+                                  <block type="math_number" id="S?fCF:V,4Nqe$NQ{g{Wx">
+                                    <field name="NUM">3</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_tela_print" id="?G.^t2Wr@wphTrk%.Zuu">
+                                    <field name="PORTA">5</field>
+                                    <value name="TEXTO">
+                                      <block type="text" id="[BOx09QhvN_n_C-#bU+)">
+                                        <field name="TEXT">Botao 4</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </statement>
+                        <statement name="ELSE">
+                          <block type="brick_teclado_altera_led" id="?pn$k+k~w0{nW`_T1SWY">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <field name="LED">4</field>
+                            <field name="ESTADO">FALSE</field>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

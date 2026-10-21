@@ -1,0 +1,201 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id="Xb?WxJmU+K*zTmVXSQu_" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="`J|5a[_^SbW.;I!(jSKj">
+        <field name="TEXT">Aula 1 - Ola, Pacoca! (versao com voz)</field>
+        <next>
+          <block type="base_comment" id=".EP%iKC6X9FR9a;H=/ra">
+            <field name="TEXT">Buzzer ou fone na porta S3 e teclado na porta I2C-3.</field>
+            <next>
+              <block type="base_comment" id="12g#)H]n|]6FK#tHcZ[C">
+                <field name="TEXT">Enquanto um botao estiver apertado, acende o LED dele e fala o numero.</field>
+                <next>
+                  <block type="brick_voz_falar_aula" id="Kof$m0t~2S:/RVMIpYdh">
+                    <field name="FALA">FALA_OLA_PACOCA</field>
+                    <field name="MODO">ESPERAR</field>
+                    <next>
+                      <block type="brick_voz_falar_aula" id="(cJ2F}YhZh3Vv3#,S6g.">
+                        <field name="FALA">FALA_APERTE_UM_BOTAO</field>
+                        <field name="MODO">ESPERAR</field>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id="bNf4Qt^lCvg){!?v*jg$">
+        <next>
+          <block type="controls_if" id="Qz$7kLJ5+c.Ysprc9CCA">
+            <mutation else="1"></mutation>
+            <value name="IF0">
+              <block type="brick_teclado_le_botao" id="YSXLG*X45r1Zz_(w40E}">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <field name="BOTAO">1</field>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="brick_teclado_altera_led" id="*NYYTb.KcHnWa%:]goim">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <field name="LED">1</field>
+                <field name="ESTADO">TRUE</field>
+                <next>
+                  <block type="brick_voz_falar_aula" id="h@mXJ=UFp9v.ut#qJg_R">
+                    <field name="FALA">FALA_BOTAO</field>
+                    <field name="MODO">ESPERAR</field>
+                    <next>
+                      <block type="brick_voz_falar_numero" id="oo~K6dd6D}Lnd.m/?3xt">
+                        <field name="MODO">ESPERAR</field>
+                        <value name="NUMERO">
+                          <block type="math_number" id="XI-BLks:%V$oTb.cR:TI">
+                            <field name="NUM">1</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <statement name="ELSE">
+              <block type="brick_teclado_altera_led" id=".*buN7mkZK,+Z!pbAeze">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <field name="LED">1</field>
+                <field name="ESTADO">FALSE</field>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="$y6o?hYK(t*7K]Pbtr[U">
+                <mutation else="1"></mutation>
+                <value name="IF0">
+                  <block type="brick_teclado_le_botao" id="R!A1N,IU.o$jU60yk[tK">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <field name="BOTAO">2</field>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="brick_teclado_altera_led" id="U%zFvsneKa,I@=L`I.Fq">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <field name="LED">2</field>
+                    <field name="ESTADO">TRUE</field>
+                    <next>
+                      <block type="brick_voz_falar_aula" id="v%ANwJdaaLVb9h,QIUZS">
+                        <field name="FALA">FALA_BOTAO</field>
+                        <field name="MODO">ESPERAR</field>
+                        <next>
+                          <block type="brick_voz_falar_numero" id="F,G$bH+U(D5m;y9)s.?q">
+                            <field name="MODO">ESPERAR</field>
+                            <value name="NUMERO">
+                              <block type="math_number" id="Z.LTfX`.5pjidgg1?rv:">
+                                <field name="NUM">2</field>
+                              </block>
+                            </value>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <statement name="ELSE">
+                  <block type="brick_teclado_altera_led" id="nF3ywuCp}-YveaBC)rod">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <field name="LED">2</field>
+                    <field name="ESTADO">FALSE</field>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="p2..$SFVI,r]I_q9e={^">
+                    <mutation else="1"></mutation>
+                    <value name="IF0">
+                      <block type="brick_teclado_le_botao" id="vToBBTkb;gip{u@IsLc!">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <field name="BOTAO">3</field>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="brick_teclado_altera_led" id="jMHwRt71f`-jDm@oJmCo">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <field name="LED">3</field>
+                        <field name="ESTADO">TRUE</field>
+                        <next>
+                          <block type="brick_voz_falar_aula" id="t~;?D:9IqshH9VT)+=^V">
+                            <field name="FALA">FALA_BOTAO</field>
+                            <field name="MODO">ESPERAR</field>
+                            <next>
+                              <block type="brick_voz_falar_numero" id="=oN4=7u_96Ee`6:TI4Ds">
+                                <field name="MODO">ESPERAR</field>
+                                <value name="NUMERO">
+                                  <block type="math_number" id="-GQr-/|`(MQR|xsjcO4z">
+                                    <field name="NUM">3</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <statement name="ELSE">
+                      <block type="brick_teclado_altera_led" id=".I$R|sx7bL#V-S|5Yc/0">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <field name="LED">3</field>
+                        <field name="ESTADO">FALSE</field>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="controls_if" id="vtB4]]88,[m{tPAK%RTC">
+                        <mutation else="1"></mutation>
+                        <value name="IF0">
+                          <block type="brick_teclado_le_botao" id="o3sO9!VO$VN2^ayf3:U)">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <field name="BOTAO">4</field>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="brick_teclado_altera_led" id="73LQAQ3_t;y,T5~k9K)A">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <field name="LED">4</field>
+                            <field name="ESTADO">TRUE</field>
+                            <next>
+                              <block type="brick_voz_falar_aula" id="8A|rZSy|=a1[$Z@8V5Ev">
+                                <field name="FALA">FALA_BOTAO</field>
+                                <field name="MODO">ESPERAR</field>
+                                <next>
+                                  <block type="brick_voz_falar_numero" id="6SGfOjIyVMLx~x-FJ+?`">
+                                    <field name="MODO">ESPERAR</field>
+                                    <value name="NUMERO">
+                                      <block type="math_number" id="E=ofl#aV|6PnKl!Aw*y@">
+                                        <field name="NUM">4</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </statement>
+                        <statement name="ELSE">
+                          <block type="brick_teclado_altera_led" id="M^MpFQQ(`}qH]oxW=..4">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <field name="LED">4</field>
+                            <field name="ESTADO">FALSE</field>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>

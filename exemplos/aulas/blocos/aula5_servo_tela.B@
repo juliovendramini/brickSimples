@@ -1,0 +1,475 @@
+<xml xmlns="http://www.w3.org/1999/xhtml">
+  <toolboxcategories>CAT_BRICK,CAT_BRICK_SERVOS,CAT_BRICK_SENSORS,CAT_BRICK_SOUND,CAT_BRICK_KEYBOARD,CAT_BRICK_TELA,CAT_LOGIC,CAT_LOOPS,CAT_MATH,CAT_ARRAY,CAT_TEXT,CAT_VARIABLES,CAT_FUNCTIONS,CAT_ARDUINO</toolboxcategories>
+  <toolbox>toolbox_pacoca</toolbox>
+  <block type="base_setup_loop" id="!.k@3+n~qeA7y/]L{-1i" x="20" y="20">
+    <statement name="DO">
+      <block type="base_comment" id="@RUeI$~,MUU]si^dL2t-">
+        <field name="TEXT">Aula 5 - Servo comandado pelo teclado (versao com tela)</field>
+        <next>
+          <block type="base_comment" id="W8PKp[mB_@vYdq#aW2/s">
+            <field name="TEXT">Servo na S1, tela na I2C-5 e teclado na I2C-3.</field>
+            <next>
+              <block type="base_comment" id=":j]2bk-Dly4Eyl`%#(n!">
+                <field name="TEXT">Botao 1: -10 graus, 2: +10 graus, 3: volta para 90, 4: proximo angulo redondo (0, 45, 90, 135, 180).</field>
+                <next>
+                  <block type="variables_set_init" id="dPq[NDrigU$mb/gfHg+s">
+                    <field name="VAR">angulo</field>
+                    <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                    <value name="VALUE">
+                      <block type="math_number" id="vv8s!lWZ{(J38lKGD`DC">
+                        <field name="NUM">90</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="variables_set_init" id="E{?+:vMZjuBZF{:j+]X-">
+                        <field name="VAR">cheios</field>
+                        <field name="VARIABLE_SETTYPE_TYPE">NUMBER</field>
+                        <value name="VALUE">
+                          <block type="math_number" id=".N=WJv{iQT,3)]H]6DpA">
+                            <field name="NUM">0</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="brick_tela_set_fonte" id="],2_5=BS|jIYo7B!w~u:">
+                            <field name="PORTA">5</field>
+                            <field name="TAMANHO">MEDIA</field>
+                            <next>
+                              <block type="brick_tela_set_cursor" id="#u5)a*agh|PRiktjUgVk">
+                                <field name="PORTA">5</field>
+                                <value name="COLUNA">
+                                  <block type="math_number" id="tIp$`]3Z}N+Z.vQ:j{]^">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <value name="LINHA">
+                                  <block type="math_number" id="G_bN-yd$S2P6.nr{~oC{">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="brick_tela_print" id="W-USrS2ho!FHXo,~yd79">
+                                    <field name="PORTA">5</field>
+                                    <value name="TEXTO">
+                                      <block type="text" id="X7VGQjc)Oa[:%.G{@6Dg">
+                                        <field name="TEXT">Servo S1</field>
+                                      </block>
+                                    </value>
+                                    <next>
+                                      <block type="brick_tela_set_cursor" id="tjT|#Dc0N[-ez|*:d4/,">
+                                        <field name="PORTA">5</field>
+                                        <value name="COLUNA">
+                                          <block type="math_number" id="x5]Od5~5|n%~))Iw*TUe">
+                                            <field name="NUM">0</field>
+                                          </block>
+                                        </value>
+                                        <value name="LINHA">
+                                          <block type="math_number" id="=J|@B2TpE}Xa7jO9U_o}">
+                                            <field name="NUM">3</field>
+                                          </block>
+                                        </value>
+                                        <next>
+                                          <block type="brick_tela_print" id="y_(D!pYJj3.S!0NYtQJz">
+                                            <field name="PORTA">5</field>
+                                            <value name="TEXTO">
+                                              <block type="text" id="CT9gJuhcvRW~bRyHd`$7">
+                                                <field name="TEXT">1- 2+ 3=90</field>
+                                              </block>
+                                            </value>
+                                            <next>
+                                              <block type="procedures_callnoreturn" id="VrTHKz6{V-@W}K#jvAmn">
+                                                <mutation name="atualizaServo"></mutation>
+                                              </block>
+                                            </next>
+                                          </block>
+                                        </next>
+                                      </block>
+                                    </next>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+    <statement name="LOOP">
+      <block type="brick_atualizabrick" id=",w.$X.-h*3OFJ]+i5QNI">
+        <next>
+          <block type="controls_if" id="Ia2]A:32)n?mK7BTqz?S">
+            <value name="IF0">
+              <block type="brick_teclado_apertou" id="1ni-o9L,cW[?[Y%3=kQg">
+                <field name="PORTA">PORTA_I2C_3</field>
+                <value name="BOTAO">
+                  <block type="math_number" id="vxehv1ig!C8;a|A/?2X.">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <statement name="DO0">
+              <block type="variables_set" id="^{^hT76hC3Ce!-[Ajsez">
+                <field name="VAR">angulo</field>
+                <value name="VALUE">
+                  <block type="math_arithmetic" id="Ez6q5~0|cTb]nvTZ6XZe">
+                    <field name="OP">MINUS</field>
+                    <value name="A">
+                      <block type="variables_get" id="MW|GnKgt.o-Tyra~}^.0">
+                        <field name="VAR">angulo</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number" id="7/3-_/wiSsmr%JkLhD8M">
+                        <field name="NUM">10</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <next>
+                  <block type="procedures_callnoreturn" id="d)h72UC^awP[@GmCly#s">
+                    <mutation name="atualizaServo"></mutation>
+                  </block>
+                </next>
+              </block>
+            </statement>
+            <next>
+              <block type="controls_if" id="8|IfDk@[1.=?yMafy_qM">
+                <value name="IF0">
+                  <block type="brick_teclado_apertou" id="jB_`2NQ4SrPXm:Z%.+C)">
+                    <field name="PORTA">PORTA_I2C_3</field>
+                    <value name="BOTAO">
+                      <block type="math_number" id="5o1n+f*27QEaf[.,mUJs">
+                        <field name="NUM">2</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <statement name="DO0">
+                  <block type="math_change" id="yO~%3!$FL!i+sr%9Ki/;">
+                    <field name="VAR">angulo</field>
+                    <value name="DELTA">
+                      <block type="math_number" id="wj-PWM9VaXhGK`KywLi2">
+                        <field name="NUM">10</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="procedures_callnoreturn" id="#.pT%rwZa?rsdFFne*k$">
+                        <mutation name="atualizaServo"></mutation>
+                      </block>
+                    </next>
+                  </block>
+                </statement>
+                <next>
+                  <block type="controls_if" id="MHycxq^PA0=Selzbt1:D">
+                    <value name="IF0">
+                      <block type="brick_teclado_apertou" id="/d;B.,xGd[MN|J@Y#ww0">
+                        <field name="PORTA">PORTA_I2C_3</field>
+                        <value name="BOTAO">
+                          <block type="math_number" id="Y3X)Be.cUb+GFq5*R9)R">
+                            <field name="NUM">3</field>
+                          </block>
+                        </value>
+                      </block>
+                    </value>
+                    <statement name="DO0">
+                      <block type="variables_set" id="Y|.ep^T,c]z4j|.sKcFZ">
+                        <field name="VAR">angulo</field>
+                        <value name="VALUE">
+                          <block type="math_number" id="=NsBeKKpBj?9CvVA%0wp">
+                            <field name="NUM">90</field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="procedures_callnoreturn" id="2UWZ#C_5GFBb@EBu`|:D">
+                            <mutation name="atualizaServo"></mutation>
+                          </block>
+                        </next>
+                      </block>
+                    </statement>
+                    <next>
+                      <block type="controls_if" id="IS{PyA~Bns#Hq+Baxqk|">
+                        <value name="IF0">
+                          <block type="brick_teclado_apertou" id="Uxvl-v*krW_`.v94UQ%2">
+                            <field name="PORTA">PORTA_I2C_3</field>
+                            <value name="BOTAO">
+                              <block type="math_number" id="etPvtuGKbzndZV4C_Yl4">
+                                <field name="NUM">4</field>
+                              </block>
+                            </value>
+                          </block>
+                        </value>
+                        <statement name="DO0">
+                          <block type="variables_set" id="zS1t3}iC#X;lL|5lrJwz">
+                            <field name="VAR">angulo</field>
+                            <value name="VALUE">
+                              <block type="math_arithmetic" id="LH311u~aZ55~5.vAX(-n">
+                                <field name="OP">MULTIPLY</field>
+                                <value name="A">
+                                  <block type="math_arithmetic" id="-wNQ1JfP8~{U.P$yTv*n">
+                                    <field name="OP">ADD</field>
+                                    <value name="A">
+                                      <block type="math_arithmetic" id="V/0DE?C3mCKt2v!Xzcek">
+                                        <field name="OP">DIVIDE</field>
+                                        <value name="A">
+                                          <block type="variables_get" id="Ps=xV9M%,{gs4Zifr-py">
+                                            <field name="VAR">angulo</field>
+                                          </block>
+                                        </value>
+                                        <value name="B">
+                                          <block type="math_number" id="2{?R_=:znwifP05set|q">
+                                            <field name="NUM">45</field>
+                                          </block>
+                                        </value>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id="SHFD.U@%zF%o~tZWyVGX">
+                                        <field name="NUM">1</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <value name="B">
+                                  <block type="math_number" id="+:utLG$p#0x!3ZFmvLr]">
+                                    <field name="NUM">45</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="controls_if" id="iB[K+NHLf_I7DP*(1ZCS">
+                                <value name="IF0">
+                                  <block type="logic_compare" id=":kaIv*fQ4t~eTl}%@j92">
+                                    <field name="OP">GT</field>
+                                    <value name="A">
+                                      <block type="variables_get" id="ErtK;J3FOyT0%dF2p=2!">
+                                        <field name="VAR">angulo</field>
+                                      </block>
+                                    </value>
+                                    <value name="B">
+                                      <block type="math_number" id="t.+Kt!=3KaMfgw7M@d+e">
+                                        <field name="NUM">180</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </value>
+                                <statement name="DO0">
+                                  <block type="variables_set" id="-1%OAJo.+Jlj2n@8=(,,">
+                                    <field name="VAR">angulo</field>
+                                    <value name="VALUE">
+                                      <block type="math_number" id="q-sl.z1~)TT1#d!F:VWS">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                  </block>
+                                </statement>
+                                <next>
+                                  <block type="procedures_callnoreturn" id="m~*i-jLv?~9xg1jl`v3L">
+                                    <mutation name="atualizaServo"></mutation>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </statement>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+  <block type="procedures_defnoreturn" id="D=LLtL;p{wN5xEIE*s@)" x="754" y="20">
+    <field name="NAME">atualizaServo</field>
+    <comment pinned="false" h="80" w="260">Prende o angulo entre 0 e 180, move o servo e desenha o angulo e uma barra de 10 quadrados.</comment>
+    <statement name="STACK">
+      <block type="variables_set" id=",FTM[FuQE*k5%ZI!VtZu">
+        <field name="VAR">angulo</field>
+        <value name="VALUE">
+          <block type="math_constrain" id="eRydu]@r[;jfK`Sf:M]M">
+            <value name="VALUE">
+              <block type="variables_get" id="IZ?5*~|W}9Q]{A2n7DBB">
+                <field name="VAR">angulo</field>
+              </block>
+            </value>
+            <value name="LOW">
+              <block type="math_number" id="Zq;6Kg6!8|e2|eIe9E6X">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <value name="HIGH">
+              <block type="math_number" id="N8uA]`jPH##czgjOdbh~">
+                <field name="NUM">180</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <next>
+          <block type="brick_servo_mover" id=",i-v{@4_s,#%WPBJ=z_H">
+            <field name="PORTA">PORTA_SERVO_1</field>
+            <value name="ANGULO">
+              <block type="variables_get" id="DvSPnVX))D@sDns`a5j|">
+                <field name="VAR">angulo</field>
+              </block>
+            </value>
+            <next>
+              <block type="brick_tela_set_cursor" id="ilPdEQ4DF/{yfkdK_w@`">
+                <field name="PORTA">5</field>
+                <value name="COLUNA">
+                  <block type="math_number" id="a5)u*]]6g42R]kGyAZjq">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+                <value name="LINHA">
+                  <block type="math_number" id="zVY![_3oz;[O!Nu4fOcS">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="brick_tela_print" id="e7I|$6I}g!nZ?SATmQsQ">
+                    <field name="PORTA">5</field>
+                    <value name="TEXTO">
+                      <block type="variables_get" id="Wj%h1(Sf|Rby%D7+NQv:">
+                        <field name="VAR">angulo</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="brick_tela_print" id="j5F%-MwsM8l^A_%QI/yh">
+                        <field name="PORTA">5</field>
+                        <value name="TEXTO">
+                          <block type="text" id=".TVuG7)r=by+_x_H7W2E">
+                            <field name="TEXT"> graus  </field>
+                          </block>
+                        </value>
+                        <next>
+                          <block type="variables_set" id="BRQ3S*C./QWq83~Z8A4f">
+                            <field name="VAR">cheios</field>
+                            <value name="VALUE">
+                              <block type="conversion_map" id="Nts7,CxL[PD0KVCXm!J2">
+                                <value name="NUM">
+                                  <block type="variables_get" id="u[@R6AcB^NZ=I_}NPHLw">
+                                    <field name="VAR">angulo</field>
+                                  </block>
+                                </value>
+                                <value name="IN_MIN">
+                                  <block type="math_number" id="Q=HrUfL6?UANUK}Y@g4)">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <value name="IN_MAX">
+                                  <block type="math_number" id="xiD@yoeH[X#t`Vt%6%B6">
+                                    <field name="NUM">180</field>
+                                  </block>
+                                </value>
+                                <value name="OUT_MIN">
+                                  <block type="math_number" id="^D*q|,kjyp@OWWei0.t@">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <value name="OUT_MAX">
+                                  <block type="math_number" id="AH30VuNiJ33B:xjqH4Sz">
+                                    <field name="NUM">10</field>
+                                  </block>
+                                </value>
+                              </block>
+                            </value>
+                            <next>
+                              <block type="brick_tela_set_cursor" id="`wT)jjANKi#e(Nrl=UsE">
+                                <field name="PORTA">5</field>
+                                <value name="COLUNA">
+                                  <block type="math_number" id="8m?E::KD@}#P[!rm2q-u">
+                                    <field name="NUM">0</field>
+                                  </block>
+                                </value>
+                                <value name="LINHA">
+                                  <block type="math_number" id="BNI2C|m(;MhXI4|bIo2u">
+                                    <field name="NUM">2</field>
+                                  </block>
+                                </value>
+                                <next>
+                                  <block type="controls_for" id="oc=ZS@u7W[d~pej-@CuF">
+                                    <field name="VAR">i</field>
+                                    <value name="FROM">
+                                      <block type="math_number" id="*Pt32ZUer$LDuLOfpd$#">
+                                        <field name="NUM">0</field>
+                                      </block>
+                                    </value>
+                                    <value name="TO">
+                                      <block type="math_number" id="YerB_db7#IY-}8+Lv`08">
+                                        <field name="NUM">9</field>
+                                      </block>
+                                    </value>
+                                    <value name="BY">
+                                      <block type="math_number" id="E4nf`ji0Ew=?kl+#.Q,H">
+                                        <field name="NUM">1</field>
+                                      </block>
+                                    </value>
+                                    <statement name="DO">
+                                      <block type="controls_if" id="LV1+;R$K})EtKestXk$s">
+                                        <mutation else="1"></mutation>
+                                        <value name="IF0">
+                                          <block type="logic_compare" id="@M^[N$z8hBtF%|cq_Wwm">
+                                            <field name="OP">LT</field>
+                                            <value name="A">
+                                              <block type="variables_get" id="T}.|?RzpfV{6PBqv#lPP">
+                                                <field name="VAR">i</field>
+                                              </block>
+                                            </value>
+                                            <value name="B">
+                                              <block type="variables_get" id=")zQ?P[J/?xi4t-[R~G!o">
+                                                <field name="VAR">cheios</field>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </value>
+                                        <statement name="DO0">
+                                          <block type="brick_tela_print" id="FhrxJ9TJp,L;60l0}AeC">
+                                            <field name="PORTA">5</field>
+                                            <value name="TEXTO">
+                                              <block type="text" id="Tla|wb2B$piEirS!yvv^">
+                                                <field name="TEXT">#</field>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </statement>
+                                        <statement name="ELSE">
+                                          <block type="brick_tela_print" id="!s.`i}#4%ra%WHi:9Eq[">
+                                            <field name="PORTA">5</field>
+                                            <value name="TEXTO">
+                                              <block type="text" id="}dlRH([r;l!oJzn#RI~E">
+                                                <field name="TEXT">-</field>
+                                              </block>
+                                            </value>
+                                          </block>
+                                        </statement>
+                                      </block>
+                                    </statement>
+                                  </block>
+                                </next>
+                              </block>
+                            </next>
+                          </block>
+                        </next>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>
